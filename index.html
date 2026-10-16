@@ -1,0 +1,1961 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>WAVEN 慕夏植物香氣指引 · Art Nouveau Botanical Oracle</title>
+  <meta name="description" content="閉上雙眼，深吸一口氣，在慕夏新藝術畫卷中抽取今日專屬的植物香氣與靈魂指引。">
+  <!-- 載入 Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- 載入 Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Noto+Serif+TC:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <!-- 載入 React 與 Babel -->
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            serif: ['"Noto Serif TC"', '"Cormorant Garamond"', 'Georgia', 'serif'],
+            display: ['"Cinzel Decorative"', '"Cormorant Garamond"', 'serif'],
+            italicSerif: ['"Cormorant Garamond"', '"Noto Serif TC"', 'serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* 確保跨裝置捲動順暢且不水平溢出 */
+    html, body {
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* ★ 詩籤級分行排版：完全依照 \n 換行，且防止單行在手機上被意外折斷 ★ */
+    .poetic-lines {
+      white-space: pre-line;
+      word-break: keep-all;
+      overflow-wrap: normal;
+      line-height: 2.2;
+      letter-spacing: 0.08em;
+    }
+
+    .reading-title {
+      text-wrap: balance;
+    }
+
+    /* 古典石版畫紙張紋理 */
+    .bg-noise {
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    }
+
+    /* 慕夏香檳金箔漸層字 */
+    .mucha-gold-text {
+      background: linear-gradient(135deg, #FFF5D6 0%, #D8B467 35%, #B88746 68%, #FBF0C9 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    /* 牌卡表面新藝術絲絨反光 */
+    .shimmer-sweep {
+      background: linear-gradient(110deg, transparent 28%, rgba(235, 197, 125, 0.2) 50%, transparent 72%);
+      background-size: 200% 100%;
+      transition: background-position 1.1s cubic-bezier(0.19, 1, 0.22, 1);
+      background-position: 200% 0;
+    }
+    .group:hover .shimmer-sweep {
+      background-position: -100% 0;
+    }
+
+    /* 慕夏畫卷展開動畫 */
+    @keyframes mucha-reveal {
+      0% {
+        opacity: 0;
+        transform: perspective(1400px) rotateX(4deg) translateY(20px) scale(0.97);
+        filter: blur(6px);
+      }
+      65% {
+        opacity: 1;
+        filter: blur(0px);
+      }
+      100% {
+        opacity: 1;
+        transform: perspective(1400px) rotateX(0deg) translateY(0px) scale(1);
+        filter: blur(0px);
+      }
+    }
+    .animate-mucha-reveal {
+      animation: mucha-reveal 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    /* ==========================================================================
+       ★ 極細金線蝕刻 & 微距物理水滴過渡動畫 ★
+       ========================================================================== */
+    @keyframes arch-draw {
+      0% { stroke-dashoffset: 900; opacity: 0; }
+      15% { opacity: 0.9; }
+      100% { stroke-dashoffset: 0; opacity: 1; }
+    }
+    .animate-arch-draw {
+      stroke-dasharray: 900;
+      animation: arch-draw 2.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+
+    @keyframes vine-grow {
+      0% { stroke-dashoffset: 500; opacity: 0; }
+      25% { opacity: 0.85; }
+      100% { stroke-dashoffset: 0; opacity: 1; }
+    }
+    .animate-vine-grow {
+      stroke-dasharray: 500;
+      animation: vine-grow 3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes petal-bloom {
+      0% { transform: scale(0.3) rotate(-15deg); opacity: 0; }
+      50% { opacity: 0.95; }
+      100% { transform: scale(1) rotate(0deg); opacity: 1; }
+    }
+    .animate-petal-bloom {
+      transform-origin: 130px 118px;
+      animation: petal-bloom 2.4s cubic-bezier(0.22, 1, 0.36, 1) 0.1s forwards;
+      opacity: 0;
+    }
+
+    /* ★ 1. 花蕊尖端母液滴蓄力（表面張力膨脹 -> 滴落收縮） ★ */
+    @keyframes meniscus-swell {
+      0%, 10% { transform: scale(0.2); opacity: 0.2; }
+      28% { transform: scale(1.15, 1.35); opacity: 1; }
+      38% { transform: scale(0.4, 0.6); opacity: 0.5; }
+      100% { transform: scale(0.2); opacity: 0.2; }
+    }
+    .animate-meniscus {
+      transform-origin: 130px 124px;
+      animation: meniscus-swell 2.4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+    }
+
+    /* ★ 2. 主黃金水滴：凝聚拉伸 -> 重力加速下墜 -> 觸水壓平融合 ★ */
+    @keyframes macro-drop-fall {
+      0%, 16% {
+        transform: translateY(0px) scale(0.15, 0.15);
+        opacity: 0;
+      }
+      28% {
+        transform: translateY(2px) scale(0.88, 1.12);
+        opacity: 1;
+      }
+      36% {
+        transform: translateY(6px) scale(0.95, 1.18);
+        opacity: 1;
+      }
+      66% {
+        transform: translateY(58px) scale(0.92, 1.22);
+        opacity: 1;
+      }
+      71% {
+        transform: translateY(64px) scale(1.45, 0.35);
+        opacity: 0.85;
+      }
+      76%, 100% {
+        transform: translateY(66px) scale(1.8, 0.1);
+        opacity: 0;
+      }
+    }
+    .animate-macro-drop {
+      transform-origin: 130px 128px;
+      animation: macro-drop-fall 2.4s cubic-bezier(0.55, 0.05, 0.68, 0.19) infinite;
+    }
+
+    /* ★ 3. 伴生微珠 (Satellite Micro-bead)：跟隨在主水滴後方的微小金珠 ★ */
+    @keyframes satellite-drop-fall {
+      0%, 30% {
+        transform: translateY(0px) scale(0);
+        opacity: 0;
+      }
+      38% {
+        transform: translateY(4px) scale(1);
+        opacity: 0.9;
+      }
+      70% {
+        transform: translateY(62px) scale(0.8);
+        opacity: 0.85;
+      }
+      76%, 100% {
+        transform: translateY(66px) scale(0);
+        opacity: 0;
+      }
+    }
+    .animate-satellite-drop {
+      transform-origin: 130px 126px;
+      animation: satellite-drop-fall 2.4s cubic-bezier(0.55, 0.05, 0.68, 0.19) infinite;
+    }
+
+    /* ★ 4. 滴落瞬間的王冠反彈微珠 (Crown Splash) ★ */
+    @keyframes crown-splash {
+      0%, 67% {
+        transform: translateY(0px) scale(0);
+        opacity: 0;
+      }
+      74% {
+        transform: translateY(-9px) scale(1);
+        opacity: 0.95;
+      }
+      84% {
+        transform: translateY(-2px) scale(0.75);
+        opacity: 0.6;
+      }
+      90%, 100% {
+        transform: translateY(2px) scale(0);
+        opacity: 0;
+      }
+    }
+    .animate-crown-splash {
+      transform-origin: 130px 192px;
+      animation: crown-splash 2.4s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+    }
+
+    /* ★ 5. 聖杯三層極細金色水波紋擴散 ★ */
+    @keyframes chalice-ripple {
+      0%, 66% { transform: scale(0.15); opacity: 0; }
+      72% { opacity: 0.95; }
+      100% { transform: scale(1.95); opacity: 0; }
+    }
+    .animate-ripple-1 {
+      transform-origin: 130px 192px;
+      animation: chalice-ripple 2.4s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+    }
+    .animate-ripple-2 {
+      transform-origin: 130px 192px;
+      animation: chalice-ripple 2.4s cubic-bezier(0.16, 1, 0.3, 1) 0.16s infinite;
+    }
+    .animate-ripple-3 {
+      transform-origin: 130px 192px;
+      animation: chalice-ripple 2.4s cubic-bezier(0.16, 1, 0.3, 1) 0.32s infinite;
+    }
+
+    @keyframes slow-spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    @keyframes slow-spin-reverse {
+      from { transform: rotate(360deg); }
+      to { transform: rotate(0deg); }
+    }
+    .animate-halo-spin { animation: slow-spin 48s linear infinite; }
+    .animate-halo-reverse { animation: slow-spin-reverse 36s linear infinite; }
+
+    @keyframes star-twinkle {
+      0%, 100% { transform: scale(0.75); opacity: 0.25; }
+      50% { transform: scale(1.15); opacity: 0.95; }
+    }
+    .animate-twinkle-1 { animation: star-twinkle 3s ease-in-out infinite; }
+    .animate-twinkle-2 { animation: star-twinkle 3.8s ease-in-out infinite 1.2s; }
+    .animate-twinkle-3 { animation: star-twinkle 3.4s ease-in-out infinite 2.1s; }
+
+    @keyframes progress-fill {
+      0% { width: 0%; opacity: 0.4; }
+      50% { opacity: 1; }
+      100% { width: 100%; opacity: 0.95; }
+    }
+    .animate-progress-gold {
+      animation: progress-fill 3.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+
+    @keyframes fade-in {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fade-in { animation: fade-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+  </style>
+</head>
+<body class="m-0 p-0 selection:bg-amber-500/30 selection:text-amber-100">
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect, useRef } = React;
+
+    // ============================================================================
+    // 🔗 外部連結設定區 (之後只要把網址填在雙引號中間即可！)
+    // ============================================================================
+    const EXTERNAL_LINKS = {
+      // 1. 真人深度解牌連結 (例如：LINE 官方帳號、IG 私訊、預約表單)
+      humanReading: "https://line.me/R/ti/p/@your_id",
+      
+      // 2. 專屬香氣訂製連結 (例如：調香問卷、訂製商品頁、IG 連結)
+      customPerfume: "https://your-custom-perfume-link.com",
+      
+      // 3. 斗內 / 隨喜贊助連結 (例如：Buy Me a Coffee、綠界贊助、街口、PayPal)
+      donate: "https://www.buymeacoffee.com/your_id"
+    };
+
+    // --- 精緻極細介面圖示 ---
+    const Sparkles = ({ className }) => (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/></svg>
+    );
+    const Droplets = ({ className }) => (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M7 16.3c2.2 0 4-1.83 4-4.05 0-1.16-.57-2.26-1.71-3.19S7.29 6.75 7 5.3c-.29 1.45-1.14 2.84-2.29 3.76S3 11.1 3 12.25c0 2.22 1.8 4.05 4 4.05z"/><path d="M12.56 6.6A10.97 10.97 0 0 0 14 3.02c.5 2.5 2 4.9 4 6.5s3 3.5 3 5.5a6.98 6.98 0 0 1-11.91 4.97"/></svg>
+    );
+    const RefreshCw = ({ className }) => (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg>
+    );
+    const ChevronDown = ({ className }) => (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m6 9 6 6 6-6"/></svg>
+    );
+    const ChevronUp = ({ className }) => (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m18 15-6-6-6 6"/></svg>
+    );
+    const Shield = ({ className }) => (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/></svg>
+    );
+    const Sun = ({ className }) => (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+    );
+    const Moon = ({ className }) => (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    );
+    const History = ({ className }) => (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/></svg>
+    );
+    const Copy = ({ className }) => (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" className={className}><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+    );
+    const Check = ({ className }) => (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M20 6 9 17l-5-5"/></svg>
+    );
+    const FlaskConical = ({ className }) => (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M10 2v7.527a2 2 0 0 1-.211.896L4.72 20.55a1 1 0 0 0 .9 1.45h12.76a1 1 0 0 0 .9-1.45l-5.069-10.127A2 2 0 0 1 14 9.527V2"/><path d="M8.5 2h7"/><path d="M7 16h10"/></svg>
+    );
+    const X = ({ className }) => (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+    );
+    const MessageCircleHeart = ({ className }) => (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/><path d="M15.8 9.2a2.5 2.5 0 0 0-3.5 0l-.3.4-.35-.3a2.42 2.42 0 1 0-3.2 3.6l3.6 3.5 3.6-3.5c1.2-1.2 1.1-2.7.2-3.7"/></svg>
+    );
+    const CoffeeHeart = ({ className }) => (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M17 8h1a4 4 0 1 1 0 8h-1"/><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"/><path d="M6 2v3"/><path d="M10 2v3"/><path d="M14 2v3"/></svg>
+    );
+    const ArrowUpRight = ({ className }) => (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg>
+    );
+
+    // ============================================================================
+    // 🎨 慕夏新藝術風格 (Art Nouveau) 極細金線蝕刻元件庫
+    // ============================================================================
+
+    const MuchaCorner = ({ className }) => (
+      <svg viewBox="0 0 60 60" fill="none" stroke="currentColor" className={className}>
+        <path d="M2 58 V20 C2 10.059 10.059 2 20 2 H58" strokeWidth="0.85" />
+        <path d="M5.5 58 V22 C5.5 12.887 12.887 5.5 22 5.5 H58" strokeWidth="0.4" />
+        <path d="M5.5 40 C5.5 20 20 5.5 40 5.5" strokeWidth="0.65" />
+        <path d="M12 12 C20 16 24 24 20 30 C16 34 10 30 12 24 C14 20 20 22 18 26" strokeWidth="0.55" strokeLinecap="round" />
+        <path d="M22 5.5 C26 12 34 14 42 5.5" strokeWidth="0.4" />
+        <path d="M5.5 22 C12 26 14 34 5.5 42" strokeWidth="0.4" />
+        <circle cx="10" cy="10" r="1.3" fill="currentColor" />
+        <circle cx="26" cy="9" r="0.9" fill="currentColor" />
+        <circle cx="9" cy="26" r="0.9" fill="currentColor" />
+      </svg>
+    );
+
+    const MuchaDivider = ({ className }) => (
+      <svg viewBox="0 0 280 20" fill="none" stroke="currentColor" className={className}>
+        <line x1="8" y1="10" x2="106" y2="10" strokeWidth="0.45" strokeOpacity="0.6" />
+        <line x1="174" y1="10" x2="272" y2="10" strokeWidth="0.45" strokeOpacity="0.6" />
+        <line x1="30" y1="7.5" x2="90" y2="7.5" strokeWidth="0.25" strokeOpacity="0.35" />
+        <line x1="190" y1="7.5" x2="250" y2="7.5" strokeWidth="0.25" strokeOpacity="0.35" />
+        <path d="M106 10 C118 10 124 3 132 7 C135 9 133 13 130 12 C127 11 129 8 131 9" strokeWidth="0.6" strokeLinecap="round" />
+        <path d="M174 10 C162 10 156 3 148 7 C145 9 147 13 150 12 C153 11 151 8 149 9" strokeWidth="0.6" strokeLinecap="round" />
+        <polygon points="140,2 144,10 140,18 136,10" strokeWidth="0.65" fill="currentColor" fillOpacity="0.15" />
+        <circle cx="140" cy="10" r="1.2" fill="currentColor" />
+        <circle cx="100" cy="10" r="0.9" fill="currentColor" />
+        <circle cx="180" cy="10" r="0.9" fill="currentColor" />
+      </svg>
+    );
+
+    // ★ 全新升級：慕夏新藝術「微距黃金水滴與星時計」抽牌過渡動畫元件 ★
+    const MuchaAlchemicalLoader = ({ breathingStep, isNordic }) => {
+      const primaryGold = isNordic ? '#92400E' : '#EAB308';
+      const lightGold = isNordic ? '#B45309' : '#FEF9C3';
+      const deepGold = isNordic ? '#78350F' : '#A16207';
+      const fillTint = isNordic ? 'rgba(180, 83, 9, 0.06)' : 'rgba(250, 204, 21, 0.06)';
+
+      return (
+        <div className="flex flex-col items-center justify-center py-4 animate-fade-in select-none w-full">
+          <div className="relative w-[260px] h-[320px] shrink-0 flex items-center justify-center mx-auto">
+            <svg viewBox="0 0 260 320" fill="none" className="w-full h-full relative z-10 overflow-visible">
+              <defs>
+                <linearGradient id="fineGoldLinear" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0%" stopColor={lightGold} />
+                  <stop offset="50%" stopColor={primaryGold} />
+                  <stop offset="100%" stopColor={deepGold} />
+                </linearGradient>
+                {/* 立體水滴琥珀金內部漸層 */}
+                <radialGradient id="droplet3DGrad" cx="35%" cy="35%" r="65%">
+                  <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.95" />
+                  <stop offset="35%" stopColor={lightGold} stopOpacity="0.9" />
+                  <stop offset="75%" stopColor={primaryGold} stopOpacity="0.85" />
+                  <stop offset="100%" stopColor={deepGold} stopOpacity="0.95" />
+                </radialGradient>
+                {/* 聖杯液面微光漸層 */}
+                <radialGradient id="poolGlowGrad" cx="50%" cy="50%" r="50%">
+                  <stop offset="0%" stopColor={lightGold} stopOpacity="0.55" />
+                  <stop offset="60%" stopColor={primaryGold} stopOpacity="0.2" />
+                  <stop offset="100%" stopColor={primaryGold} stopOpacity="0" />
+                </radialGradient>
+              </defs>
+
+              {/* 1. 慕夏極細三層拱門畫框 */}
+              <path className="animate-arch-draw" d="M22 296 V120 A108 108 0 0 1 238 120 V296 Z" stroke="url(#fineGoldLinear)" strokeWidth="0.9" fill={fillTint} />
+              <path className="animate-arch-draw" d="M26 292 V120 A104 104 0 0 1 234 120 V292 Z" stroke="url(#fineGoldLinear)" strokeWidth="0.4" opacity="0.8" />
+              <path className="animate-arch-draw" d="M31 287 V120 A99 99 0 0 1 229 120 V287 Z" stroke="url(#fineGoldLinear)" strokeWidth="0.35" strokeDasharray="1.5 2.5" opacity="0.65" />
+
+              <line x1="36" y1="280" x2="224" y2="280" stroke="url(#fineGoldLinear)" strokeWidth="0.45" opacity="0.6" />
+              <line x1="56" y1="284" x2="204" y2="284" stroke="url(#fineGoldLinear)" strokeWidth="0.35" opacity="0.4" />
+              <polygon points="130,276 133.5,280 130,284 126.5,280" stroke="url(#fineGoldLinear)" strokeWidth="0.6" fill={lightGold} />
+
+              {/* 2. 拜占庭珠寶級星時計大光環 (72 道極細放射刻線) */}
+              <g className="animate-halo-spin" style={{ transformOrigin: '130px 118px' }}>
+                <circle cx="130" cy="118" r="82" stroke="url(#fineGoldLinear)" strokeWidth="0.75" />
+                <circle cx="130" cy="118" r="78" stroke="url(#fineGoldLinear)" strokeWidth="0.35" />
+                <circle cx="130" cy="118" r="74" stroke={primaryGold} strokeWidth="1.8" strokeDasharray="0.8 3.2" opacity="0.6" />
+                <circle cx="130" cy="118" r="70" stroke="url(#fineGoldLinear)" strokeWidth="0.4" />
+                <circle cx="130" cy="118" r="64" stroke="url(#fineGoldLinear)" strokeWidth="0.35" strokeDasharray="2 2" opacity="0.5" />
+                
+                {Array.from({ length: 72 }).map((_, idx) => {
+                  const deg = idx * 5;
+                  const isMajor = idx % 6 === 0;
+                  const isMedium = idx % 2 === 0;
+                  return (
+                    <line 
+                      key={deg}
+                      x1="130" y1={isMajor ? "36" : isMedium ? "40" : "43"} 
+                      x2="130" y2="48" 
+                      stroke={lightGold} 
+                      strokeWidth={isMajor ? "0.65" : "0.3"} 
+                      opacity={isMajor ? "0.8" : "0.35"}
+                      transform={`rotate(${deg} 130 118)`}
+                    />
+                  );
+                })}
+                {Array.from({ length: 12 }).map((_, idx) => (
+                  <polygon 
+                    key={idx}
+                    points="130,33 131.5,36 130,39 128.5,36" 
+                    fill={lightGold}
+                    transform={`rotate(${idx * 30} 130 118)`}
+                  />
+                ))}
+              </g>
+
+              {/* 反向微轉的內層神聖幾何十六芒星線網 */}
+              <g className="animate-halo-reverse" style={{ transformOrigin: '130px 118px' }}>
+                <circle cx="130" cy="118" r="54" stroke="url(#fineGoldLinear)" strokeWidth="0.4" />
+                {[0, 22.5, 45, 67.5].map((deg) => (
+                  <polygon 
+                    key={deg}
+                    points="130,64 141,107 184,118 141,129 130,172 119,129 76,118 119,107" 
+                    stroke="url(#fineGoldLinear)" strokeWidth="0.4" fill="none" opacity="0.55"
+                    transform={`rotate(${deg} 130 118)`}
+                  />
+                ))}
+                <circle cx="130" cy="118" r="32" stroke="url(#fineGoldLinear)" strokeWidth="0.35" strokeDasharray="1.5 1.5" />
+              </g>
+
+              {/* 3. 兩側對稱生長的極細新藝術百合花藤 */}
+              <g stroke="url(#fineGoldLinear)" strokeLinecap="round" strokeLinejoin="round">
+                <path className="animate-vine-grow" d="M130 276 C90 272 50 244 46 192 C42 146 66 122 84 118" strokeWidth="0.8" />
+                <path className="animate-vine-grow" d="M130 276 C94 270 56 242 52 192 C48 152 68 128 84 122" strokeWidth="0.35" opacity="0.7" />
+                <path className="animate-vine-grow" d="M50 222 C34 204 34 176 48 164 C58 178 56 204 50 222 Z" fill={fillTint} strokeWidth="0.65" />
+                <path className="animate-vine-grow" d="M48 164 C46 184 48 204 50 222" strokeWidth="0.35" opacity="0.6" />
+                
+                <path className="animate-vine-grow" d="M130 276 C170 272 210 244 214 192 C218 146 194 122 176 118" strokeWidth="0.8" />
+                <path className="animate-vine-grow" d="M130 276 C166 270 204 242 208 192 C212 152 192 128 176 122" strokeWidth="0.35" opacity="0.7" />
+                <path className="animate-vine-grow" d="M210 222 C226 204 226 176 212 164 C202 178 204 204 210 222 Z" fill={fillTint} strokeWidth="0.65" />
+                <path className="animate-vine-grow" d="M212 164 C214 184 212 204 210 222" strokeWidth="0.35" opacity="0.6" />
+              </g>
+
+              {/* 4. 中央精雕蓮花蒸餾花冠 (含葉脈與底部導流花萼) */}
+              <g className="animate-petal-bloom" stroke="url(#fineGoldLinear)">
+                <path d="M130 78 C115 94 115 112 130 124 C145 112 145 94 130 78 Z" fill={fillTint} strokeWidth="0.75" />
+                <line x1="130" y1="80" x2="130" y2="123" strokeWidth="0.35" opacity="0.65" />
+                <path d="M130 88 L124 98 M130 98 L122 108 M130 88 L136 98 M130 98 L138 108" strokeWidth="0.3" opacity="0.55" />
+                <path d="M130 124 C112 114 98 100 106 86 C118 90 126 104 130 124 Z" fill={fillTint} strokeWidth="0.65" />
+                <path d="M130 124 C148 114 162 100 154 86 C142 90 134 104 130 124 Z" fill={fillTint} strokeWidth="0.65" />
+                {/* 精雕導流花萼尖端 */}
+                <path d="M126 122 L130 126 L134 122" strokeWidth="0.6" fill="none" />
+                <circle cx="130" cy="102" r="1.8" fill={lightGold} />
+              </g>
+
+              {/* 5. 底部極細線條聖杯與黃金液池 */}
+              <g stroke="url(#fineGoldLinear)" strokeLinecap="round">
+                <path d="M96 192 C104 213 156 213 164 192" strokeWidth="0.85" fill={fillTint} />
+                <path d="M100 195 C108 210 152 210 160 195" strokeWidth="0.35" opacity="0.65" />
+                {/* 聖杯液面微光池 */}
+                <ellipse cx="130" cy="192" rx="33" ry="4.5" fill="url(#poolGlowGrad)" stroke="url(#fineGoldLinear)" strokeWidth="0.45" />
+                <line x1="130" y1="208" x2="130" y2="276" strokeWidth="0.75" />
+                <line x1="127.5" y1="212" x2="127.5" y2="274" strokeWidth="0.3" opacity="0.5" />
+                <line x1="132.5" y1="212" x2="132.5" y2="274" strokeWidth="0.3" opacity="0.5" />
+                <path d="M108 244 C120 236 140 236 152 244" strokeWidth="0.55" />
+              </g>
+
+              {/* =================================================================
+                  ★ 6. 微距珠寶級黃金水滴系統 (重力游絲 + 表面張力母滴 + 立體折射水滴 + 王冠水花) ★
+                 ================================================================= */}
+              
+              {/* 極細垂直重力引導游絲 */}
+              <line x1="130" y1="126" x2="130" y2="192" stroke="url(#fineGoldLinear)" strokeWidth="0.25" strokeDasharray="1 2.5" opacity="0.45" />
+
+              {/* (A) 花萼尖端正在蓄力的表面張力母液滴 */}
+              <path 
+                className="animate-meniscus"
+                d="M127.5 124 Q130 129.5 132.5 124 Z" 
+                fill="url(#droplet3DGrad)" stroke={lightGold} strokeWidth="0.35"
+              />
+
+              {/* (B) 跟隨在主水滴後方的微小伴生金珠 (Satellite Micro-bead) */}
+              <g className="animate-satellite-drop">
+                <circle cx="130" cy="126" r="1.1" fill={lightGold} />
+                <circle cx="129.6" cy="125.6" r="0.35" fill="#FFFFFF" />
+              </g>
+
+              {/* (C) 主黃金精油水滴 (含雙層外框、側邊高光弧線、內部切面與底部折射點) */}
+              <g className="animate-macro-drop">
+                {/* 水滴主體外廓 */}
+                <path 
+                  d="M130 121 C130 121 124.8 129.2 124.8 133 C124.8 135.9 127.1 138.2 130 138.2 C132.9 138.2 135.2 135.9 135.2 133 C135.2 129.2 130 121 130 121 Z" 
+                  fill="url(#droplet3DGrad)" stroke={lightGold} strokeWidth="0.55"
+                />
+                {/* 內部極細寶石菱形折射刻面 */}
+                <path 
+                  d="M130 123.5 L127.5 132.5 L130 136.5 L132.5 132.5 Z" 
+                  stroke="#FFFFFF" strokeWidth="0.25" fill="none" opacity="0.55"
+                />
+                {/* 左側彎月形高光反射弧線 (Specular Highlight) */}
+                <path 
+                  d="M128.2 126.5 C126.6 129.2 126.3 132 127.2 134.5" 
+                  stroke="#FFFFFF" strokeWidth="0.65" strokeLinecap="round" fill="none" opacity="0.9"
+                />
+                {/* 右下角底部晶體反光點 */}
+                <circle cx="131.8" cy="135.2" r="0.65" fill="#FFFFFF" opacity="0.85" />
+              </g>
+
+              {/* (D) 滴入聖杯瞬間彈起的王冠水花微珠 (Crown Splash) */}
+              <g className="animate-crown-splash" stroke={lightGold} fill={lightGold}>
+                {/* 中央垂直反彈金珠 */}
+                <circle cx="130" cy="188" r="1.15" />
+                <line x1="130" y1="192" x2="130" y2="189" strokeWidth="0.35" opacity="0.7" />
+                {/* 左側微弧飛濺金珠 */}
+                <circle cx="122" cy="190" r="0.75" />
+                <path d="M128 192 Q125 189 122 190" strokeWidth="0.3" fill="none" opacity="0.6" />
+                {/* 右側微弧飛濺金珠 */}
+                <circle cx="138" cy="190" r="0.75" />
+                <path d="M132 192 Q135 189 138 190" strokeWidth="0.3" fill="none" opacity="0.6" />
+              </g>
+
+              {/* (E) 聖杯液面激起的三層同心極細金色水波漣漪 */}
+              <ellipse cx="130" cy="192" rx="22" ry="3.8" stroke={lightGold} strokeWidth="0.55" className="animate-ripple-1" />
+              <ellipse cx="130" cy="192" rx="15" ry="2.6" stroke={primaryGold} strokeWidth="0.4" className="animate-ripple-2" />
+              <ellipse cx="130" cy="192" rx="8" ry="1.4" stroke={lightGold} strokeWidth="0.3" className="animate-ripple-3" />
+
+              {/* 精緻四角星芒微光點綴 */}
+              <g className="animate-twinkle-1" stroke={lightGold} strokeWidth="0.5" fill={lightGold}>
+                <path d="M68 64 L69.5 69.5 L75 71 L69.5 72.5 L68 78 L66.5 72.5 L61 71 L66.5 69.5 Z" />
+              </g>
+              <g className="animate-twinkle-2" stroke={lightGold} strokeWidth="0.5" fill={lightGold}>
+                <path d="M192 64 L193.5 69.5 L199 71 L193.5 72.5 L192 78 L190.5 72.5 L185 71 L190.5 69.5 Z" />
+              </g>
+              <g className="animate-twinkle-3" stroke={lightGold} strokeWidth="0.5" fill={lightGold}>
+                <path d="M130 16 L131.2 20.8 L136 22 L131.2 23.2 L130 28 L128.8 23.2 L124 22 L128.8 20.8 Z" />
+              </g>
+            </svg>
+          </div>
+
+          <div className="space-y-4 w-full text-center mt-2 px-2">
+            <div className="min-h-[3.2rem] flex flex-col items-center justify-center">
+              <p 
+                key={breathingStep}
+                className={`text-[15px] tracking-[0.16em] animate-fade-in leading-relaxed reading-title ${
+                  isNordic ? 'text-stone-800 font-medium' : 'mucha-gold-text'
+                }`}
+              >
+                {breathingStep === 'prepare' && '閉上雙眼，凝神靜氣...'}
+                {breathingStep === 'inhale' && '深吸一口氣，感受植物精萃緩緩凝聚...'}
+                {breathingStep === 'exhale' && '緩緩吐氣，讓香氣在腦海中清澈綻放...'}
+              </p>
+            </div>
+
+            <div className={`w-48 h-[1px] mx-auto rounded-full overflow-hidden relative ${
+              isNordic ? 'bg-amber-900/15' : 'bg-amber-500/15'
+            }`}>
+              <div className={`h-full rounded-full animate-progress-gold ${
+                isNordic 
+                  ? 'bg-gradient-to-r from-amber-700 via-amber-500 to-amber-800' 
+                  : 'bg-gradient-to-r from-amber-500 via-yellow-200 to-amber-400'
+              }`} />
+            </div>
+
+            <p className={`text-[9px] font-display tracking-[0.42em] uppercase ${
+              isNordic ? 'text-amber-900/50' : 'text-amber-400/55'
+            }`}>
+              Sacred Botanical Distillation
+            </p>
+          </div>
+        </div>
+      );
+    };
+
+    const MuchaCardBackArt = ({ type, className }) => (
+      <svg viewBox="0 0 140 200" fill="none" stroke="currentColor" className={className}>
+        <path d="M12 186 V68 A58 58 0 0 1 128 68 V186 Z" strokeWidth="0.85" />
+        <path d="M15.5 182.5 V68 A54.5 54.5 0 0 1 124.5 68 V182.5 Z" strokeWidth="0.4" />
+        <path d="M19 179 V68 A51 51 0 0 1 121 68 V179 Z" strokeWidth="0.35" strokeDasharray="1.5 2" opacity="0.65" />
+        
+        <circle cx="70" cy="72" r="44" strokeWidth="0.75" />
+        <circle cx="70" cy="72" r="41" strokeWidth="0.35" />
+        <circle cx="70" cy="72" r="38" strokeWidth="1.6" strokeDasharray="1 2.8" opacity="0.6" />
+        <circle cx="70" cy="72" r="34.5" strokeWidth="0.4" />
+
+        <path d="M24 176 C24 146 52 138 70 116 C88 138 116 146 116 176" strokeWidth="0.65" opacity="0.8" />
+        <path d="M36 176 C40 154 56 148 70 130 C84 148 100 154 104 176" strokeWidth="0.45" opacity="0.6" />
+        <line x1="70" y1="116" x2="70" y2="179" strokeWidth="0.5" opacity="0.65" />
+        <polygon points="70,130 72.5,134 70,138 67.5,134" fill="currentColor" />
+        <circle cx="52" cy="154" r="1.1" fill="currentColor" />
+        <circle cx="88" cy="154" r="1.1" fill="currentColor" />
+
+        {type === 'sun' && (
+          <g>
+            {Array.from({ length: 16 }).map((_, i) => (
+              <line key={i} x1="70" y1="38" x2="70" y2="45" strokeWidth="0.35" opacity="0.55" transform={`rotate(${i * 22.5} 70 72)`} />
+            ))}
+            <line x1="70" y1="34" x2="70" y2="110" strokeWidth="0.45" opacity="0.6" />
+            <line x1="32" y1="72" x2="108" y2="72" strokeWidth="0.45" opacity="0.6" />
+            <line x1="43" y1="45" x2="97" y2="99" strokeWidth="0.45" opacity="0.6" />
+            <line x1="43" y1="99" x2="97" y2="45" strokeWidth="0.45" opacity="0.6" />
+            <path d="M70 46 Q75 62 70 72 Q65 62 70 46 Z" fill="currentColor" fillOpacity="0.15" strokeWidth="0.65" />
+            <path d="M70 98 Q75 82 70 72 Q65 82 70 98 Z" fill="currentColor" fillOpacity="0.15" strokeWidth="0.65" />
+            <path d="M44 72 Q60 67 70 72 Q60 77 44 72 Z" fill="currentColor" fillOpacity="0.15" strokeWidth="0.65" />
+            <path d="M96 72 Q80 67 70 72 Q80 77 96 72 Z" fill="currentColor" fillOpacity="0.15" strokeWidth="0.65" />
+            <circle cx="70" cy="72" r="10" fill="currentColor" fillOpacity="0.12" strokeWidth="0.75" />
+            <circle cx="70" cy="72" r="5" strokeWidth="0.35" />
+            <circle cx="70" cy="72" r="2.2" fill="currentColor" />
+          </g>
+        )}
+        {type === 'moon' && (
+          <g>
+            <circle cx="70" cy="72" r="26" strokeWidth="0.35" strokeDasharray="1.5 1.5" opacity="0.5" />
+            <path d="M75 43 A29 29 0 1 0 75 101 A34 34 0 0 1 75 43 Z" fill="currentColor" fillOpacity="0.15" strokeWidth="0.8" />
+            <path d="M72 47 A25 25 0 1 0 72 97" strokeWidth="0.35" opacity="0.6" />
+            <path d="M78 60 L80.5 67.5 L88 70 L80.5 72.5 L78 80 L75.5 72.5 L68 70 L75.5 67.5 Z" strokeWidth="0.6" fill="currentColor" fillOpacity="0.2" />
+            <circle cx="56" cy="54" r="0.9" fill="currentColor" />
+            <circle cx="50" cy="72" r="1.1" fill="currentColor" />
+            <circle cx="56" cy="90" r="0.9" fill="currentColor" />
+          </g>
+        )}
+        {type === 'star' && (
+          <g>
+            <polygon points="70,38 76,64 102,72 76,80 70,106 64,80 38,72 64,64" fill="currentColor" fillOpacity="0.15" strokeWidth="0.75" />
+            <polygon points="70,44 73.5,66.5 96,72 73.5,77.5 70,100 66.5,77.5 44,72 66.5,66.5" strokeWidth="0.45" transform="rotate(45 70 72)" />
+            <circle cx="70" cy="72" r="15" strokeWidth="0.4" />
+            <circle cx="70" cy="72" r="11" strokeWidth="0.35" strokeDasharray="1.5 1.5" />
+            <circle cx="70" cy="72" r="2.2" fill="currentColor" />
+          </g>
+        )}
+      </svg>
+    );
+
+    const MuchaBotanicalIllustration = ({ category, isNordic }) => {
+      const palette = {
+        citrus: {
+          primary: isNordic ? '#B45309' : '#FBBF24',
+          secondary: isNordic ? '#D97706' : '#FEF08A',
+          fill: isNordic ? 'rgba(251, 191, 36, 0.12)' : 'rgba(251, 191, 36, 0.1)'
+        },
+        herb: {
+          primary: isNordic ? '#047857' : '#34D399',
+          secondary: isNordic ? '#10B981' : '#A7F3D0',
+          fill: isNordic ? 'rgba(16, 185, 129, 0.12)' : 'rgba(52, 211, 153, 0.1)'
+        },
+        flower: {
+          primary: isNordic ? '#BE123C' : '#FB7185',
+          secondary: isNordic ? '#F43F5E' : '#FECDD3',
+          fill: isNordic ? 'rgba(244, 63, 94, 0.12)' : 'rgba(251, 113, 133, 0.1)'
+        },
+        wood: {
+          primary: isNordic ? '#92400E' : '#F59E0B',
+          secondary: isNordic ? '#B45309' : '#FDE68A',
+          fill: isNordic ? 'rgba(180, 83, 9, 0.12)' : 'rgba(217, 119, 6, 0.1)'
+        }
+      }[category] || {
+        primary: '#FBBF24', secondary: '#FEF08A', fill: 'rgba(251,191,36,0.1)'
+      };
+
+      return (
+        <div className="relative w-[220px] h-[220px] shrink-0 mx-auto my-1 flex items-center justify-center select-none">
+          <svg viewBox="0 0 220 220" fill="none" className="w-full h-full relative z-10 overflow-visible">
+            <defs>
+              <linearGradient id={`fineGrad-${category}`} x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stopColor={palette.secondary} />
+                <stop offset="50%" stopColor={palette.primary} />
+                <stop offset="100%" stopColor={palette.secondary} />
+              </linearGradient>
+            </defs>
+
+            <g className="animate-halo-spin" style={{ transformOrigin: '110px 115px' }}>
+              <circle cx="110" cy="115" r="84" stroke={`url(#fineGrad-${category})`} strokeWidth="0.8" />
+              <circle cx="110" cy="115" r="80" stroke={palette.primary} strokeWidth="0.35" />
+              <circle cx="110" cy="115" r="76" stroke={palette.primary} strokeWidth="2.2" strokeDasharray="1 3.5" opacity="0.5" />
+              <circle cx="110" cy="115" r="72" stroke={`url(#fineGrad-${category})`} strokeWidth="0.45" />
+              <circle cx="110" cy="115" r="67" stroke={palette.primary} strokeWidth="0.3" strokeDasharray="2 2" opacity="0.5" />
+              {Array.from({ length: 36 }).map((_, idx) => {
+                const deg = idx * 10;
+                const isMajor = idx % 3 === 0;
+                return (
+                  <line 
+                    key={deg} x1="110" y1={isMajor ? "31" : "35"} x2="110" y2="42" 
+                    stroke={palette.primary} strokeWidth={isMajor ? "0.6" : "0.3"} opacity={isMajor ? "0.7" : "0.35"}
+                    transform={`rotate(${deg} 110 115)`}
+                  />
+                );
+              })}
+            </g>
+
+            <g className="animate-halo-reverse" style={{ transformOrigin: '110px 115px' }}>
+              <circle cx="110" cy="115" r="56" stroke={palette.primary} strokeWidth="0.4" opacity="0.5" />
+              <polygon points="110,54 123,97 166,115 123,133 110,176 97,133 54,115 97,97" stroke={palette.primary} strokeWidth="0.45" fill={palette.fill} opacity="0.5" />
+              <polygon points="110,54 123,97 166,115 123,133 110,176 97,133 54,115 97,97" stroke={palette.primary} strokeWidth="0.35" opacity="0.35" transform="rotate(45 110 115)" />
+            </g>
+
+            <path d="M34 150 C50 194 170 194 186 150" stroke={`url(#fineGrad-${category})`} strokeWidth="0.95" strokeLinecap="round" />
+            <path d="M40 156 C56 194 164 194 180 156" stroke={palette.primary} strokeWidth="0.4" strokeLinecap="round" opacity="0.7" />
+            <path d="M48 164 C68 196 152 196 172 164" stroke={palette.primary} strokeWidth="0.4" strokeDasharray="1.5 2.5" opacity="0.6" />
+
+            {category === 'citrus' && (
+              <g stroke={`url(#fineGrad-${category})`} strokeLinecap="round" strokeLinejoin="round">
+                <path d="M64 166 C64 120 88 94 110 66 C132 94 156 120 156 166" strokeWidth="0.85" />
+                <path d="M68 166 C68 124 90 98 110 72 C130 98 152 124 152 166" strokeWidth="0.35" opacity="0.65" />
+                <line x1="110" y1="66" x2="110" y2="158" strokeWidth="0.65" />
+                
+                <circle cx="110" cy="122" r="24" fill={palette.fill} strokeWidth="0.95" />
+                <circle cx="110" cy="122" r="21.5" strokeWidth="0.35" />
+                <circle cx="110" cy="122" r="18" strokeWidth="0.4" strokeDasharray="1.5 1.5" />
+                {[0, 45, 90, 135, 180, 225, 270, 315].map((deg) => (
+                  <path 
+                    key={deg} d="M110 122 L105 106 Q110 103 115 106 Z" 
+                    strokeWidth="0.4" fill={palette.fill}
+                    transform={`rotate(${deg} 110 122)`}
+                  />
+                ))}
+                <circle cx="110" cy="122" r="2.2" fill={palette.secondary} />
+
+                <path d="M110 94 C88 84 70 96 74 112 C86 112 102 104 110 94 Z" fill={palette.fill} strokeWidth="0.8" />
+                <path d="M110 94 C94 96 82 104 74 112" strokeWidth="0.4" />
+                <path d="M94 97 L88 92 M86 101 L80 97" strokeWidth="0.35" />
+
+                <path d="M110 94 C132 84 150 96 146 112 C134 112 118 104 110 94 Z" fill={palette.fill} strokeWidth="0.8" />
+                <path d="M110 94 C126 96 138 104 146 112" strokeWidth="0.4" />
+                <path d="M126 97 L132 92 M134 101 L140 97" strokeWidth="0.35" />
+
+                <circle cx="110" cy="64" r="2.5" fill={palette.secondary} />
+                {[0, 72, 144, 216, 288].map((deg) => (
+                  <path 
+                    key={deg} d="M110 64 C106 54 114 54 110 64" 
+                    strokeWidth="0.6" fill={palette.fill}
+                    transform={`rotate(${deg} 110 64)`}
+                  />
+                ))}
+                <path d="M110 152 C110 152 105.5 160 105.5 163.5 A4.5 4.5 0 0 0 114.5 163.5 C114.5 160 110 152 110 152 Z" fill={palette.secondary} strokeWidth="0.6" />
+              </g>
+            )}
+
+            {category === 'herb' && (
+              <g stroke={`url(#fineGrad-${category})`} strokeLinecap="round" strokeLinejoin="round">
+                <line x1="110" y1="174" x2="110" y2="50" strokeWidth="0.9" />
+                <line x1="108" y1="170" x2="108" y2="65" strokeWidth="0.3" opacity="0.5" />
+                <line x1="112" y1="170" x2="112" y2="65" strokeWidth="0.3" opacity="0.5" />
+
+                <path d="M110 146 C84 142 64 124 70 106 C86 112 104 128 110 146 Z" fill={palette.fill} strokeWidth="0.85" />
+                <path d="M110 146 C92 132 78 120 70 106" strokeWidth="0.45" />
+                <path d="M94 134 L82 134 M84 124 L74 122" strokeWidth="0.35" />
+
+                <path d="M110 146 C136 142 156 124 150 106 C134 112 116 128 110 146 Z" fill={palette.fill} strokeWidth="0.85" />
+                <path d="M110 146 C128 132 142 120 150 106" strokeWidth="0.45" />
+                <path d="M126 134 L138 134 M136 124 L146 122" strokeWidth="0.35" />
+
+                <path d="M110 118 C86 110 72 90 80 74 C94 82 106 100 110 118 Z" fill={palette.fill} strokeWidth="0.8" />
+                <path d="M110 118 C96 100 86 86 80 74" strokeWidth="0.4" />
+                <path d="M110 118 C134 110 148 90 140 74 C126 82 114 100 110 118 Z" fill={palette.fill} strokeWidth="0.8" />
+                <path d="M110 118 C124 100 134 86 140 74" strokeWidth="0.4" />
+
+                <path d="M110 90 C94 82 88 66 96 56 C104 64 108 76 110 90 Z" fill={palette.fill} strokeWidth="0.75" />
+                <path d="M110 90 C126 82 132 66 124 56 C116 64 112 76 110 90 Z" fill={palette.fill} strokeWidth="0.75" />
+                <path d="M110 56 Q116 42 110 32 Q104 42 110 56 Z" fill={palette.fill} strokeWidth="0.75" />
+                <line x1="110" y1="32" x2="110" y2="56" strokeWidth="0.35" />
+
+                <path d="M110 158 C88 164 68 152 64 136 C62 126 72 122 76 128 C78 132 72 136 70 132" strokeWidth="0.55" />
+                <path d="M110 158 C132 164 152 152 156 136 C158 126 148 122 144 128 C142 132 148 136 150 132" strokeWidth="0.55" />
+              </g>
+            )}
+
+            {category === 'flower' && (
+              <g stroke={`url(#fineGrad-${category})`} strokeLinecap="round" strokeLinejoin="round">
+                <path d="M92 174 C96 148 110 138 110 114" strokeWidth="0.85" />
+                <path d="M128 174 C124 148 110 138 110 114" strokeWidth="0.85" />
+                <line x1="110" y1="126" x2="110" y2="174" strokeWidth="0.4" opacity="0.6" />
+
+                <path d="M110 60 C86 60 68 80 74 106 C80 124 96 132 110 132 C124 132 140 124 146 106 C152 80 134 60 110 60 Z" fill={palette.fill} strokeWidth="0.9" />
+                <path d="M110 64 C90 64 74 82 79 104 C84 120 98 128 110 128 C122 128 136 120 141 104 C146 82 130 64 110 64 Z" strokeWidth="0.35" opacity="0.65" />
+
+                <path d="M110 70 C92 74 82 94 90 112 C96 122 110 126 110 126" strokeWidth="0.75" />
+                <path d="M110 70 C128 74 138 94 130 112 C124 122 110 126 110 126" strokeWidth="0.75" />
+                <path d="M90 88 C100 78 120 78 130 88 C124 106 96 106 90 88 Z" fill={palette.fill} strokeWidth="0.7" />
+                <path d="M96 90 C104 83 116 83 124 90" strokeWidth="0.35" />
+
+                <path d="M96 64 Q110 42 124 64" fill={palette.fill} strokeWidth="0.75" />
+                <line x1="110" y1="94" x2="110" y2="76" strokeWidth="0.45" />
+                <line x1="110" y1="94" x2="100" y2="80" strokeWidth="0.45" />
+                <line x1="110" y1="94" x2="120" y2="80" strokeWidth="0.45" />
+                <circle cx="110" cy="75" r="1.5" fill={palette.secondary} />
+                <circle cx="99" cy="79" r="1.3" fill={palette.secondary} />
+                <circle cx="121" cy="79" r="1.3" fill={palette.secondary} />
+                <circle cx="110" cy="94" r="2.5" fill={palette.secondary} />
+
+                <path d="M110 132 C88 136 72 148 76 160 C90 156 104 144 110 132 Z" fill={palette.fill} strokeWidth="0.7" />
+                <path d="M110 132 C94 144 84 152 76 160" strokeWidth="0.35" />
+                <path d="M110 132 C132 136 148 148 144 160 C130 156 116 144 110 132 Z" fill={palette.fill} strokeWidth="0.7" />
+                <path d="M110 132 C126 144 136 152 144 160" strokeWidth="0.35" />
+              </g>
+            )}
+
+            {category === 'wood' && (
+              <g stroke={`url(#fineGrad-${category})`} strokeLinecap="round" strokeLinejoin="round">
+                <path d="M76 170 C92 158 103 138 104 108 C104 82 86 66 70 62" strokeWidth="0.9" />
+                <path d="M82 172 C96 158 106 138 107 108 C107 80 92 62 76 56" strokeWidth="0.4" opacity="0.7" />
+                <path d="M144 170 C128 158 117 138 116 108 C116 82 134 66 150 62" strokeWidth="0.9" />
+                <path d="M138 172 C124 158 114 138 113 108 C113 80 128 62 144 56" strokeWidth="0.4" opacity="0.7" />
+                
+                <line x1="110" y1="92" x2="110" y2="174" strokeWidth="0.65" />
+                <path d="M94 174 C104 160 108 144 110 116" strokeWidth="0.5" />
+                <path d="M126 174 C116 160 112 144 110 116" strokeWidth="0.5" />
+
+                <path d="M106 96 C94 78 80 74 66 80" strokeWidth="0.7" />
+                <path d="M114 96 C126 78 140 74 154 80" strokeWidth="0.7" />
+
+                <polygon points="110,44 123,68 110,92 97,68" fill={palette.fill} strokeWidth="0.9" />
+                <polygon points="110,50 118,68 110,86 102,68" strokeWidth="0.45" />
+                <line x1="110" y1="44" x2="110" y2="92" strokeWidth="0.4" />
+                <line x1="97" y1="68" x2="123" y2="68" strokeWidth="0.4" />
+                <circle cx="110" cy="68" r="1.8" fill={palette.secondary} />
+
+                <circle cx="70" cy="62" r="2" fill={palette.secondary} strokeWidth="0.4" />
+                <circle cx="150" cy="62" r="2" fill={palette.secondary} strokeWidth="0.4" />
+                <circle cx="66" cy="80" r="1.6" fill={palette.primary} />
+                <circle cx="154" cy="80" r="1.6" fill={palette.primary} />
+              </g>
+            )}
+
+            <g className="animate-twinkle-1" fill={palette.secondary}>
+              <path d="M72 44 L73.2 48.2 L77.5 49.5 L73.2 50.8 L72 55 L70.8 50.8 L66.5 49.5 L70.8 48.2 Z" />
+            </g>
+            <g className="animate-twinkle-2" fill={palette.secondary}>
+              <path d="M148 44 L149.2 48.2 L153.5 49.5 L149.2 50.8 L148 55 L146.8 50.8 L142.5 49.5 L146.8 48.2 Z" />
+            </g>
+            <g className="animate-twinkle-3" fill={palette.secondary}>
+              <path d="M110 18 L111 21.5 L114.5 22.5 L111 23.5 L110 27 L109 23.5 L105.5 22.5 L109 21.5 Z" />
+            </g>
+          </svg>
+        </div>
+      );
+    };
+
+    // ============================================================================
+    // 🌿 51 張 NAHA L1 + L2 植物指引牌卡資料庫
+    // ★ 已恢復前一個版本的「五句詩意分行排版 (\n)」，每行字數精準平衡，手機與電腦皆不突兀斷句 ★
+    // ============================================================================
+    const oilsData = [
+      // Citrus
+      {
+        id: 1, name: "檸檬", enName: "Lemon", category: "citrus",
+        energy: "代表著清晰、明亮與秩序。\n擁有乾淨俐落的清新果香，\n能如晨光般穿透迷霧，\n為繁雜的思緒帶來秩序，\n找回專注而清澈的決斷力。",
+        shadow: "此刻或許思緒雜亂，\n或正陷於猶豫不決的泥淖。\n檸檬能幫助你在混亂中看見核心，\n切斷過多的干擾，\n讓眼前的一切豁然開朗。",
+        blend: "【澄澈思緒】檸檬 ＋ 桉油醇迷迭香 ＋ 薄荷",
+        safety: "光敏性：若塗抹於肌膚，12 小時內請避開陽光直射。"
+      },
+      {
+        id: 2, name: "甜橙", enName: "Sweet Orange", category: "citrus",
+        energy: "代表著純真、溫暖與陽光般的豐盛。\n散發著圓潤的氣息，\n能瞬間融化內心的冰冷與嚴肅，\n為生活注入一股暖流，\n帶來無憂無慮的喜悅。",
+        shadow: "最近或許太過嚴肅，\n或者因擔憂未來而感到匱乏。\n甜橙能喚醒你久違的童心，\n驅散內心的陰霾，\n讓生活重回放鬆流動的狀態。",
+        blend: "【暖陽午後】甜橙 ＋ 波旁天竺葵 ＋ 大西洋雪松",
+        safety: "保存提醒：柑橘類分子較活潑，開封後建議於半年內使用完畢。"
+      },
+      {
+        id: 3, name: "佛手柑", enName: "Bergamot", category: "citrus",
+        energy: "代表著釋放、流動與溫柔的陽光。\n優雅細緻的柑橘花香，\n能溫柔地承接所有的情緒，\n讓陽光穿透陰霾，\n學會溫柔地擁抱不完美的自己。",
+        shadow: "可能是外表開朗，\n但內心壓抑的「微笑憂鬱」。\n佛手柑能安撫那些自我批判的聲音，\n修復受傷的自信，\n讓你知道不需要完美也值得被愛。",
+        blend: "【溫柔擁抱】佛手柑 ＋ 真正薰衣草 ＋ 乳香",
+        safety: "強光敏性：含佛手柑內酯，塗抹肌膚後務必避光，建議於夜晚使用。"
+      },
+      {
+        id: 4, name: "檸檬香茅", enName: "Lemongrass", category: "citrus",
+        energy: "代表著啟動、煥然一新與斷捨離。\n帶有強勁的草本能量，\n能像一陣清風般掃除陳舊的氣場，\n震碎僵化的模式，\n騰出空間迎接新的機遇。",
+        shadow: "正受困於陳舊的能量，\n或在停滯的關係中感到身心疲憊。\n檸檬香茅能為你的身心進行大掃除，\n讓停滯的能量重新流動起來。",
+        blend: "【氣場煥新】檸檬香茅 ＋ 絲柏 ＋ 澳洲尤加利",
+        safety: "刺激性：醛類含量高，對肌膚較刺激，塗抹務必低濃度稀釋。"
+      },
+      {
+        id: 25, name: "葡萄柚", enName: "Grapefruit", category: "citrus",
+        energy: "代表著輕盈、流動與自我的欣賞。\n帶著微酸微苦的清爽果香，\n能掃除身體與心理的滯重感，\n幫助你放下對外在標準的追逐，\n找回如微風般自在的輕快節奏。",
+        shadow: "近期或許因壓力而想透過外物填補空虛，\n或對自己的狀態感到不滿與挑剔。\n葡萄柚能帶走停滯的沉重能量，\n讓你重新喜歡上此刻真實的自己。",
+        blend: "【輕盈節奏】葡萄柚 ＋ 杜松 ＋ 絲柏",
+        safety: "光敏性：塗抹肌膚後 12 小時內請避免強烈日曬。"
+      },
+
+      // Leaf & Herb
+      {
+        id: 5, name: "薄荷", enName: "Peppermint", category: "herb",
+        energy: "代表著洞察、清醒與打破僵局。\n那股直衝腦門的清涼氣息，\n能瞬間冷卻過熱的情緒，\n為意志力注入清新的能量，\n帶來豁然開朗的全新視野。",
+        shadow: "目前感到卡關、無力，\n或只想暫時逃避現實。\n薄荷能幫助你打破停滯不前的僵局，\n找回行動的魄力與清晰的方向感。",
+        blend: "【靈感甦醒】薄荷 ＋ 甜羅勒 ＋ 檸檬",
+        safety: "禁忌：兩歲以下幼兒、蠶豆症患者避免使用；睡前慎用以免精神過好。"
+      },
+      {
+        id: 6, name: "澳洲尤加利", enName: "Eucalyptus Radiata", category: "herb",
+        energy: "代表著寬闊、流動與呼吸的空間。\n清透的葉片香氣能打開緊縮的胸腔，\n消融內在的窒息感，\n支持你在生活中，\n重新獲得大口呼吸的自在與從容。",
+        shadow: "覺得被責任或環境束縛，\n感到有些受限與壓抑。\n澳洲尤加利能協助你打破自我設限，\n清理淤塞的能量，找回自由。",
+        blend: "【自由深呼吸】澳洲尤加利 ＋ 膠冷杉 ＋ 大西洋雪松",
+        safety: "溫和：氣味較藍膠尤加利溫和，但仍應避開眼周與臉部直接塗抹。"
+      },
+      {
+        id: 7, name: "茶樹", enName: "Tea Tree", category: "herb",
+        energy: "代表著純淨、界線與獨立的自我。\n樸實堅定的藥草氣息，\n能建立一道隱形的防護罩，\n過濾掉不屬於你的雜訊，\n讓你保有最乾淨純粹的狀態。",
+        shadow: "是否不小心過度付出了？\n或容易受到他人情緒的干擾。\n茶樹能幫你清理情緒毒素，\n堅定地守護原則，\n在紛擾中找回清晰的界線。",
+        blend: "【純淨結界】茶樹 ＋ 檸檬 ＋ 玫瑰草",
+        safety: "毛孩提醒：高濃度茶樹對犬貓具毒性，家有毛孩請保持空間通風並避免接觸。"
+      },
+      {
+        id: 8, name: "桉油醇迷迭香", enName: "Rosemary Ct. Cineole", category: "herb",
+        energy: "代表著自信、記憶與自我認同。\n鮮明的氣息如同一盞明燈，\n能喚醒內在深處的智慧與潛能，\n讓你在追求目標的路上目光如炬。",
+        shadow: "在忙碌中迷失了方向，\n或對自己的能力感到懷疑。\n迷迭香能幫助你找回「我是誰」的篤定感，\n堅定自我價值。",
+        blend: "【堅定中軸】桉油醇迷迭香 ＋ 大西洋雪松 ＋ 佛手柑",
+        safety: "禁忌：高血壓、癲癇患者及孕婦請避免使用。"
+      },
+      {
+        id: 9, name: "甜馬鬱蘭", enName: "Sweet Marjoram", category: "herb",
+        energy: "代表著平衡、陪伴與內在的安寧。\n厚實的草本香氣像一個溫暖的擁抱，\n能填補內心的空缺，\n安撫奔波疲憊的靈魂，\n帶給你深層的休息。",
+        shadow: "因害怕寂寞而緊抓著不適合的關係，\n或身心已經極度疲憊。\n甜馬鬱蘭能療癒心輪的劇痛與孤獨感，\n找回與自己相處的平靜。",
+        blend: "【靜夜安神】甜馬鬱蘭 ＋ 羅馬洋甘菊 ＋ 甜橙",
+        safety: "注意：放鬆副交感神經效果強，開車或需高度專注時請勿使用。"
+      },
+      {
+        id: 10, name: "玫瑰草", enName: "Palmarosa", category: "herb",
+        energy: "代表著柔韌、適應與隨遇而安。\n兼具草本與花香的特質，\n象徵著水的智慧，能軟化僵硬的原則，\n讓愛與能量重新順暢流動，以柔克剛。",
+        shadow: "因過度固執，\n或想掌控一切而感到心累。\n玫瑰草能幫助你軟化僵硬的心防，\n溫柔地適應環境的每一個變化。",
+        blend: "【柔韌心流】玫瑰草 ＋ 花梨木 ＋ 乳香",
+        safety: "安全：性質相當溫和親膚，適合大多數膚質日常保養。"
+      },
+      {
+        id: 21, name: "苦橙葉", enName: "Petitgrain", category: "herb",
+        energy: "代表著梳理、釋放與心靈的餘裕。\n帶著微苦卻回甘的青澀葉片香，\n能溫和地撐開內在被擠壓的空間，\n讓緊繃的神經一條條鬆開，\n在日常的縫隙中找回從容。",
+        shadow: "對自己有著過高的期待，\n總是把行事曆與心理空間塞得太滿。\n苦橙葉提醒你留白的重要，\n放下必須時刻完美的執念。",
+        blend: "【日常留白】苦橙葉 ＋ 佛手柑 ＋ 檀香",
+        safety: "安全：不具光敏性且極為溫和，連敏感時期也能安心使用。"
+      },
+      {
+        id: 22, name: "快樂鼠尾草", enName: "Clary Sage", category: "herb",
+        energy: "代表著直覺、靈感與打破框架。\n帶有微醺麝香調的草本氣息，\n能鬆動過度緊繃的理性大腦，\n引領你進入潛意識的花園，\n看見意想不到的創造力與可能性。",
+        shadow: "太習慣用大腦分析一切，\n卻忽略了身體與直覺的聲音。\n快樂鼠尾草能帶你放下過度的控制，\n在微醺般的放鬆中找回靈感。",
+        blend: "【微醺靈感】快樂鼠尾草 ＋ 波旁天竺葵 ＋ 葡萄柚",
+        safety: "注意：使用前後請勿飲酒（易加深醉意）；孕婦及乳腺相關病史者請避開。"
+      },
+      {
+        id: 26, name: "綠花白千層", enName: "Niaouli", category: "herb",
+        energy: "代表著淨化、強化與清晰的防禦。\n帶有穿透力卻比茶樹更圓潤的葉片香，\n能掃除心智的混濁與疲態，\n在混亂的外在環境中，\n為你撐起一片乾淨透明的保護傘。",
+        shadow: "近期或許覺得外界干擾太多，\n能量場變得雜亂而容易疲倦。\n綠花白千層能幫你過濾掉不必要的消耗，\n讓身心回到清明且受保護的狀態。",
+        blend: "【清透防護】綠花白千層 ＋ 薄荷 ＋ 檸檬",
+        safety: "注意：具有輕微類雌激素特性，孕婦與幼童建議謹慎低劑量使用。"
+      },
+      {
+        id: 27, name: "甜茴香", enName: "Sweet Fennel", category: "herb",
+        energy: "代表著消化、表達與落實的勇氣。\n帶著八角般溫潤甘甜的草本香料氣息，\n能幫助你消化龐雜的資訊與情緒，\n將積壓在心口的話語，\n溫柔而順暢地釋放出來。",
+        shadow: "總是把委屈或想法吞進肚子裡，\n或是想得太多卻無法化為實際行動。\n甜茴香能溫暖緊縮的腹部與心房，\n支持你勇敢表達真實的感受。",
+        blend: "【溫暖梳理】甜茴香 ＋ 甜橙 ＋ 薑",
+        safety: "禁忌：含反式洋茴香腦，孕婦、哺乳期、幼童及雌激素相關病史者請避免使用。"
+      },
+      {
+        id: 28, name: "月桂", enName: "Bay Laurel", category: "herb",
+        energy: "代表著榮耀、突破與跨越自我懷疑。\n揉合了果香、辛香與葉片香的豐富層次，\n如同古希臘象徵勝利的桂冠，\n能為你注入肯定自我的底氣，\n勇敢站上屬於你的舞台。",
+        shadow: "明明已經準備好了，\n卻因為冒牌者症候群而不敢展現自己。\n月桂能驅散內在的膽怯與猶豫，\n讓你抬起頭，看見自己走過的路有多閃耀。",
+        blend: "【桂冠加冕】月桂 ＋ 佛手柑 ＋ 黑雲杉",
+        safety: "刺激性：可能引起少數人皮膚敏感，務必低劑量稀釋後使用，孕婦避開。"
+      },
+      {
+        id: 29, name: "松紅梅", enName: "Manuka", category: "herb",
+        energy: "代表著溫柔的防禦、修復與深層安定。\n來自紐西蘭大地的蜂蜜藥草香，\n不像一般防護精油那樣凌厲，\n而是以柔軟卻堅韌的姿態，\n溫柔包覆每一顆過度敏感的心。",
+        shadow: "對周遭環境的變化太過敏銳，\n容易因為他人的眼神或話語而受傷。\n松紅梅能為敏感的靈魂築起溫暖的軟墊，\n讓你在安全感中慢慢修復。",
+        blend: "【大地蜜語】松紅梅 ＋ 真正薰衣草 ＋ 檀香",
+        safety: "安全：性質相當溫和且親膚性極佳，適合日常情緒與肌膚照護。"
+      },
+      {
+        id: 30, name: "沉香醇百里香", enName: "Thyme Ct. Linalool", category: "herb",
+        energy: "代表著溫和的勇氣、韌性與純真力量。\n褪去了傳統百里香的嗆辣，\n轉化為清新甜美的草本氣息，\n能像春風般溫柔地提振低迷的元氣，\n找回面對生活的熱忱。",
+        shadow: "長期處於慢性消耗中，\n感覺心靈的電池已經快要見底。\n沉香醇百里香能以最不費力的方式，\n一滴滴為你把勇氣與活力重新注滿。",
+        blend: "【春風元氣】沉香醇百里香 ＋ 澳洲尤加利 ＋ 甜橙",
+        safety: "安全：是百里香家族中最溫和的品種，老人與兒童皆可低劑量安心使用。"
+      },
+      {
+        id: 31, name: "甜羅勒", enName: "Sweet Basil", category: "herb",
+        energy: "代表著專注、直覺與理清混亂。\n清甜中帶著一絲微涼辛香的草本能量，\n能瞬間掃除腦袋裡的漿糊感，\n讓過載的思緒重新對焦，\n找回俐落明快的節奏。",
+        shadow: "思慮過度、腦袋停不下來，\n反而讓自己陷入精神疲勞與焦慮。\n甜羅勒能幫你把分散的注意力收回來，\n安住於當下正在做的每一件小事。",
+        blend: "【明快對焦】甜羅勒 ＋ 佛手柑 ＋ 桉油醇迷迭香",
+        safety: "禁忌：塗抹需低劑量稀釋（1% 以下）；孕婦、哺乳期與幼童請避免使用。"
+      },
+      {
+        id: 32, name: "馬鞭草酮迷迭香", enName: "Rosemary Ct. Verbenone", category: "herb",
+        energy: "代表著更新、排解與溫柔的蛻變。\n氣味比一般迷迭香更加細緻優雅，\n能幫助你代謝掉累積已久的陳舊情緒，\n在自我對話中鬆開執念，\n迎來身心的輕盈再生。",
+        shadow: "把太多過去的懊悔與悶氣留在心底，\n導致內在能量停滯不前。\n馬鞭草酮迷迭香能溫和地疏通心靈的淤塞，\n讓新的養分重新流進生命裡。",
+        blend: "【優雅煥新】馬鞭草酮迷迭香 ＋ 檸檬 ＋ 波旁天竺葵",
+        safety: "禁忌：含有酮類分子，孕婦、哺乳期、幼童及癲癇患者請避免使用。"
+      },
+      {
+        id: 33, name: "穗花薰衣草", enName: "Spike Lavender", category: "herb",
+        energy: "代表著行動力、通透與堅強的支撐。\n帶著樟腦與尤加利般的清涼草本香，\n比起真正薰衣草多了一份爽朗的英氣，\n能迅速掃除胸口的鬱悶，\n為你帶來果斷前行的力量。",
+        shadow: "在委屈與壓力下感到胸悶氣短，\n想哭卻又覺得自己必須堅強。\n穗花薰衣草能為你撐開呼吸的空間，\n陪你帥氣地跨過眼前的阻礙。",
+        blend: "【爽朗英氣】穗花薰衣草 ＋ 綠花白千層 ＋ 薄荷",
+        safety: "注意：含樟腦與桉油醇，氣味較強勁，兩歲以下幼兒與孕婦請避開。"
+      },
+
+      // Flower
+      {
+        id: 11, name: "真正薰衣草", enName: "True Lavender", category: "flower",
+        energy: "代表著母愛、包容與無條件的呵護。\n甜美溫柔的花香是療癒的代名詞，\n能平撫所有的焦慮與不安，\n帶給你如回到母親懷抱般的深層安全感。",
+        shadow: "習慣壓抑委屈，\n總是當個照顧者卻忽略了自己。\n薰衣草輕聲告訴你「可以休息了」，\n允許你像個孩子般徹底放鬆。",
+        blend: "【搖籃曲晚安】真正薰衣草 ＋ 甜橙 ＋ 苦橙葉",
+        safety: "低血壓：低血壓患者若過量使用，偶爾會感到些許慵懶無力。"
+      },
+      {
+        id: 12, name: "波旁天竺葵", enName: "Geranium Bourbon", category: "flower",
+        energy: "代表著和諧、平衡與情緒的調節。\n融合了玫瑰的甜美與薄荷的清涼，\n能在理性與感性之間搭起橋樑，\n讓你在忙碌的生活中，\n找回最舒適的身心平衡點。",
+        shadow: "在工作與生活，\n或理性與感性間失去了平衡。\n天竺葵能調節起伏不定的情緒天平，\n緩解完美主義帶來的焦慮。",
+        blend: "【優雅平衡】波旁天竺葵 ＋ 廣藿香 ＋ 佛手柑",
+        safety: "敏感：氣味馥郁，敏感肌建議維持低劑量稀釋使用。"
+      },
+      {
+        id: 13, name: "羅馬洋甘菊", enName: "Roman Chamomile", category: "flower",
+        energy: "代表著天真、守護與純淨的寧靜。\n有著如蘋果般的溫暖甜香，\n能像溫柔的雙手輕拍著背，\n讓你在風雨中，\n依然能保有內心那份純淨的安穩。",
+        shadow: "近期神經緊繃，\n易怒或缺乏安全感。\n羅馬洋甘菊能安撫像驚弓之鳥般的情緒，\n溫柔地化解所有的防衛。",
+        blend: "【純淨安撫】羅馬洋甘菊 ＋ 真正薰衣草 ＋ 苦橙葉",
+        safety: "過敏：極少數對菊科植物嚴重過敏者，使用前建議先做貼膚測試。"
+      },
+      {
+        id: 14, name: "完全依蘭", enName: "Ylang Ylang Complete", category: "flower",
+        energy: "代表著熱情、魅力與生命的歡愉。\n濃郁奢華的異國花香，\n能喚醒沈睡已久的感官享受，\n鼓勵你展現真實的自我，\n享受身為女性的自信與美麗。",
+        shadow: "生活過於嚴肅，\n壓抑了對快樂與美的渴望。\n依蘭能融化理性的武裝與束縛，\n讓你盡情擁抱生命中的熱情。",
+        blend: "【感官花園】完全依蘭 ＋ 甜橙 ＋ 檀香",
+        safety: "劑量：香氣穿透力極強，過量容易引起頭暈，極低比例即可畫龍點睛。"
+      },
+      {
+        id: 23, name: "大馬士革玫瑰", enName: "Damask Rose", category: "flower",
+        energy: "代表著愛、自我接納與心輪的綻放。\n千朵花瓣淬煉出的馥郁香氣，\n能溫柔地融化心防與失落，\n提醒你先深深地愛自己，\n世界也會以同樣的溫柔回應你。",
+        shadow: "在關係中感到匱乏，\n或曾經因為受傷而把心關了起來。\n玫瑰能輕輕撫平舊有的傷痕，\n讓你重新相信愛與被愛的美好。",
+        blend: "【心輪綻放】大馬士革玫瑰 ＋ 檀香 ＋ 佛手柑",
+        safety: "珍貴提醒：玫瑰精油分子豐富，極低濃度就能帶來極佳的心靈共振。"
+      },
+      {
+        id: 34, name: "茉莉", enName: "Jasmine Absolute", category: "flower",
+        energy: "代表著自信、魅惑與暗夜裡的星光。\n在夜晚綻放的濃郁白花香氣，\n能穿透最深沉的恐懼與自我懷疑，\n帶你擁抱內在真實的渴望，\n散發無需討好他人的迷人光芒。",
+        shadow: "對未來感到悲觀，\n或因過度壓抑情感而覺得生命失去色彩。\n茉莉能溫暖冷卻的心房，\n將停滯的陰性能量轉化為創造的熱情。",
+        blend: "【月夜星光】茉莉 ＋ 佛手柑 ＋ 檀香",
+        safety: "注意：多為溶劑萃取原精，氣味極濃郁，低劑量使用即可；孕期生產前避免使用。"
+      },
+      {
+        id: 35, name: "永久花", enName: "Helichrysum", category: "flower",
+        energy: "代表著化瘀、金色的修復與不凋的生命力。\n帶著溫暖蜂蜜與大地藥草的特殊花香，\n是靈魂深處的超級修護者，\n能溫柔化開那些以為永遠不會好的陳年舊傷。",
+        shadow: "把過去的傷痛結成了硬痂，\n雖然表面說著沒事，心底卻依然隱隱作痛。\n永久花能深入最底層的潛意識，\n陪你把累積已久的情緒瘀青徹底揉開。",
+        blend: "【金色修護】永久花 ＋ 真正薰衣草 ＋ 乳香",
+        safety: "安全：溫和且修護力極強，惟含雙酮成分，孕婦與幼童建議謹慎低劑量使用。"
+      },
+      {
+        id: 36, name: "橙花", enName: "Neroli", category: "flower",
+        energy: "代表著純潔、救贖與高頻的平靜。\n清新脫俗的白色花瓣香氣，\n能瞬間安撫受到驚嚇或重創的靈魂，\n將紛亂的思緒帶往雲端之上的寧靜，\n找回最初的純白無瑕。",
+        shadow: "深陷於長期的焦慮、緊繃或失落中，\n覺得內心怎麼樣都無法真正放鬆下來。\n橙花能像溫柔的天使羽翼般包覆著你，\n接住所有墜落的不安。",
+        blend: "【雲端純白】橙花 ＋ 苦橙葉 ＋ 甜橙",
+        safety: "安全：極為溫和優雅，惟放鬆效果極佳，需要高度集中精神時請酌量。"
+      },
+      {
+        id: 37, name: "德國洋甘菊", enName: "German Chamomile", category: "flower",
+        energy: "代表著冷卻、釋懷與深藍色的平靜。\n富含母菊天藍烴的深邃藥草香，\n如同清涼的湖水，能瞬間澆熄內心的無名火，\n撫平發炎般躁動不安的情緒，\n帶來深層的接納與放下。",
+        shadow: "近期容易因為小事而煩躁動怒，\n或是對某些不公平的待遇耿耿於懷。\n德國洋甘菊能幫你為過熱的情緒降溫，\n在深呼吸中與自己和解。",
+        blend: "【深藍靜謐】德國洋甘菊 ＋ 真正薰衣草 ＋ 大西洋雪松",
+        safety: "注意：對菊科植物嚴重過敏者需留意；具協同藥物作用，服藥期間外用請維持低濃度。"
+      },
+
+      // Wood / Root / Resin / Seed
+      {
+        id: 15, name: "薑", enName: "Ginger", category: "wood",
+        energy: "代表著勇氣、實踐與內在的溫暖。\n辛辣溫暖的大地氣息，\n能驅散身心的寒冷，點燃實踐夢想的熱情，\n將腦中的意念轉化為腳踏實地的行動。",
+        shadow: "雖有想法，\n卻因恐懼而遲遲不敢踏出第一步。\n薑能為你的意志力加溫，\n支持你勇敢跨出改變的那一步。",
+        blend: "【破冰行動】薑 ＋ 甜橙 ＋ 大西洋雪松",
+        safety: "刺激性：具有溫熱感，務必稀釋後再接觸皮膚，並避開敏感部位。"
+      },
+      {
+        id: 16, name: "絲柏", enName: "Cypress", category: "wood",
+        energy: "代表著疏通、流動與重生的力量。\n深遠收斂的木質香氣，\n象徵著生命的循環，能讓停滯的能量流動，\n為新的開始騰出空間，帶來重生的契機。",
+        shadow: "正經歷人生的過渡期，\n卻沈溺於過去或抗拒改變。\n絲柏能陪伴你好好道別，\n讓悲傷流動，在告別中獲得智慧。",
+        blend: "【順流轉化】絲柏 ＋ 波旁天竺葵 ＋ 檸檬",
+        safety: "禁忌：懷孕期間請避免使用。"
+      },
+      {
+        id: 17, name: "乳香", enName: "Frankincense", category: "wood",
+        energy: "代表著智慧、安定與靈魂的視野。\n深沈悠遠的樹脂香氣，\n能引領呼吸慢下來，\n帶給你被宇宙深深支持的安定感，\n在靜心中找回超越物質層面的力量。",
+        shadow: "感到孤單、與世界斷聯，\n或對周遭充滿防衛。\n乳香能幫助你連結天地的能量，\n修復靈魂的創傷，找回內在的平靜。",
+        blend: "【神聖靜心】乳香 ＋ 絲柏 ＋ 苦橙葉",
+        safety: "安全：極為溫和且修護力強，各年齡層皆可安心使用。"
+      },
+      {
+        id: 18, name: "廣藿香", enName: "Patchouli", category: "wood",
+        energy: "代表著穩定、踏實與開運的能量。\n濃郁的泥土與麝香氣息，\n能帶來如大地般厚實的安全感，\n為生活注入穩健的豐盛頻率，\n有著「越陳越香」的寓意。",
+        shadow: "思緒或許有些飄忽，\n或者感到與現實脫節、缺乏安全感。\n廣藿香能將你拉回當下，\n安穩浮躁的心神，找回情緒的平衡。",
+        blend: "【大地豐盛】廣藿香 ＋ 大馬士革玫瑰 ＋ 甜橙",
+        safety: "氣味特性：單聞較為濃郁厚重，與花香、柑橘調合後會呈現迷人的高級感。"
+      },
+      {
+        id: 19, name: "大西洋雪松", enName: "Atlas Cedarwood", category: "wood",
+        energy: "代表著力量、穩重與中軸的建立。\n乾淨沈穩的木質香氣，\n如同一棵參天大樹，能強化內心的支柱，\n給予你不可動搖的靠山感，讓你穩健前行。",
+        shadow: "正對未來感到徬徨，\n或充滿生存的焦慮。\n雪松能給予你強大的支持力量，\n讓你在面對變動時，依然能挺直腰桿。",
+        blend: "【森林靠山】大西洋雪松 ＋ 澳洲尤加利 ＋ 檸檬",
+        safety: "溫和：性質穩定溫和，惟孕期建議暫時避開。"
+      },
+      {
+        id: 20, name: "岩蘭草", enName: "Vetiver", category: "wood",
+        energy: "代表著滋養、定心與深度的休息。\n深厚黏稠的土壤氣息，是強效的定心丸，\n能將能量穩穩地向下拉，\n帶給你高品質的深度睡眠，\n與如大地母親般的滋養。",
+        shadow: "像停不下來的陀螺，\n身心透支卻不敢休息。\n岩蘭草能強迫過度運轉的大腦關機，\n找回安穩的修復力量。",
+        blend: "【深層紮根】岩蘭草 ＋ 真正薰衣草 ＋ 甜馬鬱蘭",
+        safety: "質地提醒：樹脂感極為濃稠，滴出時需稍微傾斜瓶身耐心等待。"
+      },
+      {
+        id: 24, name: "檀香", enName: "Sandalwood", category: "wood",
+        energy: "代表著靜心、慈悲與歲月的從容。\n溫潤綿長的木質奶香，\n能瞬間撫平所有的急躁與執著，\n讓心如止水般清澈，\n在呼吸之間感受當下的圓滿。",
+        shadow: "心裡抓著太多放不下的執念，\n或對某個結果過度強求。\n檀香能溫柔地鬆開你緊握的雙手，\n明白一切的安排都是最好的安排。",
+        blend: "【禪意從容】檀香 ＋ 乳香 ＋ 佛手柑",
+        safety: "安全：極為溫和親膚，留香時間長，是天然調香中最頂級的定香基底。"
+      },
+      {
+        id: 38, name: "胡蘿蔔籽", enName: "Carrot Seed", category: "wood",
+        energy: "代表著滋養、再生與撥雲見日。\n帶著微甜泥土與乾草氣息的種子能量，\n蘊含著破土而出的強大生命力，\n能深層修護乾涸疲憊的身心，\n讓你在休養生息後重新看見清澈的視野。",
+        shadow: "長期處於委屈或自我消耗中，\n感覺內在的養分已經被榨乾。\n胡蘿蔔籽能為你補充足夠的底氣，\n清理累積的負擔，迎來煥然一新的自己。",
+        blend: "【大地回春】胡蘿蔔籽 ＋ 波旁天竺葵 ＋ 甜橙",
+        safety: "禁忌：具有調節機能特性，懷孕與哺乳期間請避免使用。"
+      },
+      {
+        id: 39, name: "沒藥", enName: "Myrrh", category: "wood",
+        energy: "代表著靜默、內省與靈魂的癒合。\n古老而深沉的微苦樹脂香，\n能陪伴你走入內在最安靜的聖殿，\n不帶批判地凝視生命中的苦難，\n將傷痕淬煉為深邃的智慧。",
+        shadow: "害怕面對內心深處的孤獨，\n或是對生命中的無常感到苦澀與抗拒。\n沒藥能溫柔地封存並修護裂痕，\n讓你在靜默中找回不可動搖的平靜。",
+        blend: "【古老聖殿】沒藥 ＋ 乳香 ＋ 甜橙",
+        safety: "禁忌：樹脂質地濃稠；具有活血通經特性，孕婦與哺乳期請避免使用。"
+      },
+      {
+        id: 40, name: "岩玫瑰", enName: "Cistus / Labdanum", category: "wood",
+        energy: "代表著止痛、修補與穿越風暴的魄力。\n濃郁的琥珀樹脂香帶著獨特的溫熱感，\n如同在貧瘠岩石上依然盛開的花朵，\n能緊緊抱住破碎或受驚的心靈，\n賦予你重新站起來的強大生命力。",
+        shadow: "曾經歷過深刻的情感衝擊或失落，\n內心深處還有個尚未止血的傷口。\n岩玫瑰能為靈魂築起溫暖的保護膜，\n融化冰封的防衛，讓愛重新流動。",
+        blend: "【琥珀暖陽】岩玫瑰 ＋ 真正薰衣草 ＋ 佛手柑",
+        safety: "安全：氣味極為濃郁深沉，調香時極低比例即可展現迷人的琥珀底蘊。"
+      },
+      {
+        id: 41, name: "赤松", enName: "Scotch Pine", category: "wood",
+        energy: "代表著骨氣、耐力與高山般的格局。\n乾燥清爽的針葉木質香，\n能瞬間掃除內心的畏縮與渺小感，\n為疲憊的雙肩注入挺拔的支撐力，\n陪你堅定地走完漫長的遠路。",
+        shadow: "總是習慣把別人的過錯攬在自己身上，\n充滿了不必要的罪惡感與自我苛責。\n赤松能幫你卸下不屬於你的重擔，\n在遼闊的森林氣息中找回自信。",
+        blend: "【高山闊野】赤松 ＋ 澳洲尤加利 ＋ 葡萄柚",
+        safety: "注意：請選擇新鮮未氧化的精油，並務必稀釋後再塗抹於肌膚。"
+      },
+      {
+        id: 42, name: "杜松", enName: "Juniper Berry", category: "wood",
+        energy: "代表著淨化、排解與心靈的斷捨離。\n清冽乾淨的漿果木質香，\n是極佳的「能量清道夫」，\n能洗滌沾染在身上的負面情緒與濁氣，\n讓身心重回如山泉水般的清澈。",
+        shadow: "吸收了太多他人的抱怨與負能量，\n卻不知道該如何排解，感到沉重黏膩。\n杜松能幫你把不屬於你的情緒垃圾清理乾淨，\n守住內在的清明。",
+        blend: "【山泉淨化】杜松 ＋ 絲柏 ＋ 檸檬",
+        safety: "禁忌：孕婦及嚴重腎臟疾病患者請避免使用。"
+      },
+      {
+        id: 43, name: "花梨木", enName: "Rosewood", category: "wood",
+        energy: "代表著溫潤、無私的接納與歲月靜好。\n同時擁有木質的沉穩與花朵的甜美，\n不張揚卻極具包容力，\n能溫柔地撫平內在的稜角與焦躁，\n讓你感受到被生命穩穩托住的安心。",
+        shadow: "對自己或身邊的人太過嚴苛，\n在緊繃的標準中失去了生活的溫度。\n花梨木能軟化僵硬的心態，\n找回隨順因緣的溫柔與從容。",
+        blend: "【溫潤歲月】花梨木 ＋ 波旁天竺葵 ＋ 甜橙",
+        safety: "永續提醒：性質極為溫和親膚；選購時建議挑選具合法永續認證之來源。"
+      },
+      {
+        id: 44, name: "穗甘松", enName: "Spikenard", category: "wood",
+        energy: "代表著臣服、寬恕與靈魂的安息。\n生長於喜馬拉雅高海拔的古老根部精油，\n帶著深邃厚重的泥土與麝香調，\n能將極度飄忽或焦慮的心神穩穩拉回地面，\n帶來最深層的臣服與和解。",
+        shadow: "心底還抓著某個無法原諒的人事物，\n或是對未知的變化充滿恐懼。\n穗甘松能陪你放下緊抓不放的控制欲，\n在徹底的釋懷中獲得真正的自由。",
+        blend: "【喜馬拉雅靜心】穗甘松 ＋ 乳香 ＋ 真正薰衣草",
+        safety: "安全：鎮靜與扎根效果極強，適合於夜晚、冥想或睡前靜心時使用。"
+      },
+      {
+        id: 45, name: "黑胡椒", enName: "Black Pepper", category: "wood",
+        energy: "代表著點燃、果敢與突破框架的動能。\n乾燥溫暖的辛香氣息，\n能瞬間活絡停滯冰冷的能量場，\n為耐力不足的時刻注入強心針，\n推著你把心裡的藍圖化為真實。",
+        shadow: "陷入拖延與反覆猶豫的迴圈，\n心裡有很多計畫卻遲遲沒有動力執行。\n黑胡椒能點燃內在的生命之火，\n給你直接付諸行動的爽快魄力。",
+        blend: "【熱情點燃】黑胡椒 ＋ 甜橙 ＋ 廣藿香",
+        safety: "刺激性：對皮膚具溫熱刺激感，塗抹務必低濃度稀釋（1% 以下）。"
+      },
+      {
+        id: 46, name: "纈草", enName: "Valerian", category: "wood",
+        energy: "代表著徹底關機、深沉安眠與卸下武裝。\n極為獨特且深沉的古老根部氣息，\n是自然界最強大的「休止符」，\n能強制讓過度緊繃的神經系統，\n進入最深層的修復與沉睡。",
+        shadow: "就算躺在床上，腦袋依然像跑馬燈轉個不停，\n連睡夢中都還在擔心明天的事。\n纈草能幫你拔掉焦慮的電源線，\n讓身心真正地墜入安穩的睡眠。",
+        blend: "【深眠休止符】纈草 ＋ 甜馬鬱蘭 ＋ 甜橙",
+        safety: "氣味與注意：氣味十分濃烈特殊（帶有發酵木質調），極少量與柑橘調合即可；開車前嚴禁使用。"
+      },
+      {
+        id: 47, name: "丁香", enName: "Clove Bud", category: "wood",
+        energy: "代表著界線、熱情與不再委曲求全。\n濃烈溫暖的辛香調具有強大的防護力，\n能驅散心靈的寒意與受害者情結，\n支持你勇敢說出「不」，\n拿回屬於自己的人生主導權。",
+        shadow: "習慣討好他人、害怕衝突，\n在關係裡總是退讓到沒有自己的空間。\n丁香能為你注入火元素般的底氣，\n堅定地守住自己的核心原則。",
+        blend: "【溫暖底氣】丁香 ＋ 甜橙 ＋ 薑",
+        safety: "強刺激性：含高比例丁香酚，塗抹肌膚務必極低濃度稀釋（0.5% 以下），孕婦與幼童避開。"
+      },
+      {
+        id: 48, name: "膠冷杉", enName: "Balsam Fir", category: "wood",
+        energy: "代表著純淨、希望與冬日裡的溫暖庇護。\n帶著淡淡果香與樹脂甜味的針葉氣息，\n宛如走進陽光明媚的北方白雪森林，\n能溫柔洗滌疲憊的呼吸，\n帶來平靜而充滿希望的視野。",
+        shadow: "在日復一日的瑣事中感到視野狹隘，\n心靈像是被關在狹小的房間裡。\n膠冷杉能為你打開一扇通往森林的窗，\n讓清新寬廣的能量重新流進心底。",
+        blend: "【北國森林】膠冷杉 ＋ 大西洋雪松 ＋ 佛手柑",
+        safety: "安全：針葉類中性質非常溫和的品種，適合日常空間擴香與呼吸照護。"
+      },
+      {
+        id: 49, name: "黑雲杉", enName: "Black Spruce", category: "wood",
+        energy: "代表著回充、韌性與深層的底氣。\n沉穩卻又帶著清新空氣感的森林香氣，\n能深入支持長期透支的能量核心，\n在你覺得快要撐不下去的時候，\n成為你最安穩、最堅實的後盾。",
+        shadow: "長期靠著意志力硬撐，\n明明身體已經發出疲憊訊號卻不敢停下來。\n黑雲杉能溫和地為你補充電力，\n讓你明白休息是為了走更長遠的路。",
+        blend: "【森林後盾】黑雲杉 ＋ 澳洲尤加利 ＋ 桉油醇迷迭香",
+        safety: "注意：請選擇新鮮未氧化的精油，並稀釋後使用。"
+      },
+      {
+        id: 50, name: "肉桂", enName: "Cinnamon Bark / Leaf", category: "wood",
+        energy: "代表著生命之火、熱情與創造的喜悅。\n熾熱而甜美的辛香氣息，\n能瞬間融化冷漠、孤寂與心灰意冷，\n重新點燃對生活的渴望與愛火，\n讓你感受到活在當下的溫熱與真實。",
+        shadow: "對生活失去了期待感，\n把心封閉在安全卻冰冷的舒適圈裡。\n肉桂能像冬日壁爐裡的火光般溫暖你，\n喚醒沉睡已久的生命熱情。",
+        blend: "【壁爐暖火】肉桂 ＋ 甜橙 ＋ 乳香",
+        safety: "極強刺激性：肉桂皮含高比例肉桂醛，建議僅作極低劑量擴香；若需塗抹請選肉桂葉並稀釋至 0.5% 以下，孕婦禁用。"
+      },
+      {
+        id: 51, name: "安息香", enName: "Benzoin", category: "wood",
+        energy: "代表著甜美的呵護、安全感與柔軟的包覆。\n帶有香草冰淇淋般溫暖甜潤的樹脂香，\n能瞬間融化內心的孤單與防備，\n像一條柔軟的毛毯緊緊包裹住你，\n帶來無邊無際的寵愛與安心。",
+        shadow: "在堅強的外表下，\n其實非常渴望被理解、被好好地擁抱。\n安息香能溫柔地填補心靈的空洞，\n讓你卸下所有的逞強，安心地依靠。",
+        blend: "【香草毛毯】安息香 ＋ 波旁天竺葵 ＋ 甜橙",
+        safety: "質地提醒：質地極為濃稠，使用時可先以溫水隔水溫熱瓶身，或調入植物油中使用。"
+      }
+    ];
+
+    const shuffleCards = (array) => {
+      const arr = [...array];
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    };
+
+    const getCategoryMeta = (category) => {
+      switch (category) {
+        case 'citrus': 
+          return { title: '果香調 · Citrus', note: '前調 Top Note · 輕盈閃耀的晨光分子', scentHint: '清脆微酸的果皮精油香氣正在腦海中跳躍...' };
+        case 'herb': 
+          return { title: '草本與葉片 · Herb & Leaf', note: '中調 Heart Note · 穿透胸腔的翠綠微風', scentHint: '揉碎新鮮葉片般的清透草本香氣正緩緩散開...' };
+        case 'flower': 
+          return { title: '花香調 · Floral', note: '中後調 Heart Note · 溫柔包覆的花瓣吐息', scentHint: '微風拂過花瓣的馥郁芬芳正輕柔地繚繞鼻息...' };
+        case 'wood': 
+          return { title: '木質、根部與樹脂 · Wood & Resin', note: '後調 Base Note · 深邃綿長的大地底蘊', scentHint: '溫潤沉穩的木質與琥珀樹脂香氣正緩緩沉澱...' };
+        default: 
+          return { title: '植物指引', note: 'Botanical Essence', scentHint: '純淨的植物香氣正在腦海中緩緩綻放...' };
+      }
+    };
+
+    const getCategoryStyle = (category, isNordic) => {
+      if (isNordic) {
+        switch (category) {
+          case 'citrus': return 'from-[#FFFDF8] via-[#FCF4E1] to-[#F3E5C8] border-amber-700/40 text-stone-800 shadow-[0_20px_60px_rgba(180,83,9,0.12)]';
+          case 'herb':   return 'from-[#FAFDFB] via-[#EBF6F0] to-[#DCECE3] border-emerald-800/35 text-stone-800 shadow-[0_20px_60px_rgba(4,120,87,0.12)]';
+          case 'flower': return 'from-[#FFFBFB] via-[#FBECEF] to-[#F4DCE2] border-rose-800/35 text-stone-800 shadow-[0_20px_60px_rgba(190,18,60,0.12)]';
+          case 'wood':   return 'from-[#FBF9F5] via-[#F2E9DC] to-[#E5D7C3] border-amber-900/40 text-stone-800 shadow-[0_20px_60px_rgba(120,53,15,0.14)]';
+          default:       return 'from-stone-100 to-white border-stone-300 text-stone-800';
+        }
+      } else {
+        switch (category) {
+          case 'citrus': return 'from-[#201606]/95 via-[#120c04]/95 to-[#070402]/98 border-amber-400/40 text-amber-50 shadow-[0_0_60px_rgba(245,158,11,0.16)]';
+          case 'herb':   return 'from-[#071a13]/95 via-[#05100c]/95 to-[#030604]/98 border-emerald-400/40 text-amber-50 shadow-[0_0_60px_rgba(16,185,129,0.16)]';
+          case 'flower': return 'from-[#210b12]/95 via-[#120609]/95 to-[#070304]/98 border-rose-400/40 text-amber-50 shadow-[0_0_60px_rgba(244,63,94,0.16)]';
+          case 'wood':   return 'from-[#1e1209]/95 via-[#110a05]/95 to-[#070402]/98 border-amber-500/40 text-amber-50 shadow-[0_0_60px_rgba(217,119,6,0.18)]';
+          default:       return 'from-stone-900 to-black border-amber-500/30 text-amber-50';
+        }
+      }
+    };
+
+    function WavenOracle() {
+      const [dailyCards, setDailyCards] = useState([]);
+      const [currentCard, setCurrentCard] = useState(null);
+      const [isDrawing, setIsDrawing] = useState(false);
+      const [showShadow, setShowShadow] = useState(false); 
+      const [breathingStep, setBreathingStep] = useState('');
+      const [isNordic, setIsNordic] = useState(false);
+      const [history, setHistory] = useState([]);
+      const [showHistory, setShowHistory] = useState(false);
+      const [copied, setCopied] = useState(false);
+
+      const timersRef = useRef([]);
+
+      const clearAllTimers = () => {
+        timersRef.current.forEach(t => clearTimeout(t));
+        timersRef.current = [];
+      };
+
+      const initCards = () => {
+        clearAllTimers();
+        const shuffled = shuffleCards(oilsData);
+        setDailyCards(shuffled.slice(0, 3));
+        setCurrentCard(null);
+        setIsDrawing(false);
+        setBreathingStep('');
+        setShowShadow(false);
+        setCopied(false);
+      };
+
+      useEffect(() => {
+        initCards();
+        try {
+          const savedHistory = window.localStorage.getItem('waven_oracle_history');
+          if (savedHistory) {
+            const parsed = JSON.parse(savedHistory);
+            if (Array.isArray(parsed)) setHistory(parsed);
+          }
+        } catch (e) {}
+        return () => clearAllTimers();
+      }, []);
+
+      const saveToHistory = (card) => {
+        const now = new Date();
+        const timeStr = `${now.getMonth() + 1}/${now.getDate()} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+        const newRecord = { ...card, drawTime: timeStr, recordId: Date.now() };
+        setHistory(prev => {
+          const updated = [newRecord, ...prev].slice(0, 15);
+          try { window.localStorage.setItem('waven_oracle_history', JSON.stringify(updated)); } catch (e) {}
+          return updated;
+        });
+      };
+
+      const pickCard = (index) => {
+        if (isDrawing || !dailyCards[index]) return;
+        clearAllTimers();
+        setIsDrawing(true);
+        setCurrentCard(null);
+        setShowShadow(false); 
+        setCopied(false);
+        
+        const selected = dailyCards[index];
+        
+        setBreathingStep('prepare');
+        const t1 = setTimeout(() => setBreathingStep('inhale'), 1150);
+        const t2 = setTimeout(() => setBreathingStep('exhale'), 2350);
+        const t3 = setTimeout(() => {
+          setCurrentCard(selected);
+          saveToHistory(selected);
+          setIsDrawing(false);
+          setBreathingStep('');
+        }, 3600);
+        
+        timersRef.current.push(t1, t2, t3);
+      };
+
+      const fallbackCopy = (text, callback) => {
+        try {
+          const textArea = document.createElement("textarea");
+          textArea.value = text;
+          textArea.style.position = "fixed";
+          textArea.style.left = "-9999px";
+          document.body.appendChild(textArea);
+          textArea.focus();
+          textArea.select();
+          document.execCommand('copy');
+          document.body.removeChild(textArea);
+          callback();
+        } catch (e) {}
+      };
+
+      const copyCardReading = () => {
+        if (!currentCard) return;
+        const text = `【WAVEN 慕夏植物香氣指引】\n🌿 ${currentCard.name} (${currentCard.enName})\n\n✨ 能量指引：\n${currentCard.energy}\n\n💧 陰影覺察：\n${currentCard.shadow}\n\n🧪 香氣共鳴配方：\n${currentCard.blend}\n\n—— Follow your inner light · WAVEN`;
+        const handleSuccess = () => {
+          setCopied(true);
+          const t = setTimeout(() => setCopied(false), 2500);
+          timersRef.current.push(t);
+        };
+        if (navigator.clipboard && window.isSecureContext) {
+          navigator.clipboard.writeText(text).then(handleSuccess).catch(() => fallbackCopy(text, handleSuccess));
+        } else {
+          fallbackCopy(text, handleSuccess);
+        }
+      };
+
+      const cardBacks = [
+        { 
+          roman: "I",
+          type: "sun",
+          label: "日 · 覺醒",
+          fanClass: "-rotate-2 translate-y-1.5 hover:rotate-0 hover:-translate-y-2.5"
+        },
+        { 
+          roman: "II",
+          type: "moon",
+          label: "月 · 靜心",
+          fanClass: "rotate-0 hover:-translate-y-3"
+        },
+        { 
+          roman: "III",
+          type: "star",
+          label: "星 · 指引",
+          fanClass: "rotate-2 translate-y-1.5 hover:rotate-0 hover:-translate-y-2.5"
+        }
+      ];
+
+      return (
+        <div className={`min-h-[100dvh] font-serif flex flex-col items-center justify-between py-6 px-3.5 relative overflow-x-hidden transition-colors duration-1000 ${
+          isNordic ? 'bg-[#F3ECE0] text-stone-800' : 'bg-[#070503] text-amber-50'
+        }`}>
+          
+          {/* 背景慕夏畫布光暈與石版畫紋理 */}
+          {!isNordic ? (
+            <>
+              <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-[#22160a] via-[#090604] to-[#030201] opacity-95 pointer-events-none"></div>
+              <div className="fixed inset-0 bg-noise opacity-[0.045] pointer-events-none"></div>
+              <div className="fixed -top-24 left-1/2 -translate-x-1/2 w-[500px] h-[320px] bg-amber-600/10 rounded-full filter blur-[120px] pointer-events-none"></div>
+            </>
+          ) : (
+            <>
+              <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-[#FFFDF9] via-[#F3ECE0] to-[#E2D6C1] opacity-95 pointer-events-none"></div>
+              <div className="fixed inset-0 bg-noise opacity-[0.06] pointer-events-none"></div>
+              <div className="fixed -top-24 left-1/2 -translate-x-1/2 w-[500px] h-[320px] bg-amber-300/20 rounded-full filter blur-[110px] pointer-events-none"></div>
+            </>
+          )}
+          
+          {/* ★ 固定 420px 黃金塔羅畫冊容器：確保手機與電腦觀看比例 100% 一致且不壓縮 ★ */}
+          <div className="w-full max-w-[420px] mx-auto flex flex-col flex-1 justify-between z-10">
+
+            {/* Top Header */}
+            <header className="w-full flex justify-between items-center mb-6 shrink-0">
+              <button
+                onClick={() => setIsNordic(!isNordic)}
+                className={`px-3.5 py-2 rounded-full border transition-all duration-500 flex items-center gap-1.5 text-xs tracking-widest shrink-0 ${
+                  isNordic 
+                    ? 'bg-[#FAF6EE]/90 border-amber-800/30 text-stone-700 hover:border-amber-800/60 shadow-sm' 
+                    : 'bg-[#150f09]/90 border-amber-500/30 text-amber-200/85 hover:border-amber-400/70 hover:text-amber-100 shadow-lg'
+                }`}
+              >
+                {isNordic ? <Moon className="w-3.5 h-3.5 text-amber-900" /> : <Sun className="w-3.5 h-3.5 text-amber-300" />}
+                <span>{isNordic ? '慕夏夜金' : '慕夏晨光'}</span>
+              </button>
+
+              <div className="flex flex-col items-center shrink-0">
+                <div className={`text-2xl font-display tracking-[0.28em] font-bold ${
+                  isNordic ? 'text-stone-800' : 'mucha-gold-text drop-shadow-[0_2px_12px_rgba(251,191,36,0.2)]'
+                }`}>
+                  WAVEN
+                </div>
+                <span className={`text-[9px] font-italicSerif italic tracking-[0.35em] ${
+                  isNordic ? 'text-amber-900/60' : 'text-amber-400/60'
+                }`}>
+                  L'Oracle Botanique
+                </span>
+              </div>
+
+              <button
+                onClick={() => setShowHistory(true)}
+                className={`px-3.5 py-2 rounded-full border transition-all duration-500 flex items-center gap-1.5 text-xs tracking-widest relative shrink-0 ${
+                  isNordic 
+                    ? 'bg-[#FAF6EE]/90 border-amber-800/30 text-stone-700 hover:border-amber-800/60 shadow-sm' 
+                    : 'bg-[#150f09]/90 border-amber-500/30 text-amber-200/85 hover:border-amber-400/70 hover:text-amber-100 shadow-lg'
+                }`}
+              >
+                <History className="w-3.5 h-3.5" />
+                <span>香籤簿</span>
+                {history.length > 0 && (
+                  <span className={`w-1.5 h-1.5 rounded-full absolute top-1.5 right-1.5 ${isNordic ? 'bg-amber-700' : 'bg-amber-400 animate-pulse'}`}></span>
+                )}
+              </button>
+            </header>
+
+            {/* Main Stage */}
+            <main className="w-full flex-1 flex flex-col items-center justify-center my-auto">
+              
+              {/* 階段一：慕夏新藝術長拱門牌背選牌區 */}
+              {!currentCard && !isDrawing && (
+                <div className="text-center space-y-6 animate-fade-in w-full py-2">
+                  <div className="space-y-2">
+                    <p className={`text-[10px] font-display tracking-[0.38em] uppercase ${
+                      isNordic ? 'text-amber-800/70' : 'text-amber-400/70'
+                    }`}>
+                      Art Nouveau Botanical Tarot
+                    </p>
+                    <h1 className={`text-2xl tracking-[0.2em] font-normal reading-title ${isNordic ? 'text-stone-800' : 'text-amber-50'}`}>
+                      今日植物香氣指引
+                    </h1>
+                    <MuchaDivider className={`w-56 h-5 mx-auto ${isNordic ? 'text-amber-800/55' : 'text-amber-400/65'}`} />
+                  </div>
+                  
+                  <p className={`poetic-lines text-[13.5px] ${isNordic ? 'text-stone-600' : 'text-amber-100/75'}`}>
+                    請閉上雙眼，做三次深長而緩慢的呼吸{'\n'}想像走進瀰漫芬芳的花房，憑直覺輕觸一張畫牌
+                  </p>
+
+                  {/* 固定 3:5 黃金長寬比網格 */}
+                  <div className="grid grid-cols-3 gap-3.5 pt-3 pb-4 px-1 w-full">
+                    {cardBacks.map((card, index) => (
+                      <button 
+                        key={index}
+                        onClick={() => pickCard(index)}
+                        className={`group relative w-full aspect-[3/5] rounded-t-[2.2rem] rounded-b-xl border transition-all duration-700 ease-out flex flex-col items-center justify-between p-2.5 overflow-hidden shrink-0 ${card.fanClass} ${
+                          isNordic 
+                            ? 'bg-gradient-to-b from-[#FFFDF9] via-[#F7EFE0] to-[#E8DAC2] border-amber-800/35 hover:border-amber-800/80 shadow-[0_12px_30px_rgba(120,53,15,0.1)] hover:shadow-[0_22px_45px_rgba(120,53,15,0.22)]' 
+                            : 'bg-gradient-to-b from-[#1c1308] via-[#110b05] to-[#080503] border-amber-500/35 hover:border-amber-300/85 shadow-[0_15px_35px_rgba(0,0,0,0.9)] hover:shadow-[0_0_35px_rgba(245,158,11,0.3)]'
+                        }`}
+                      >
+                        <div className="absolute inset-0 bg-noise opacity-15 pointer-events-none"></div>
+                        <div className="absolute inset-0 shimmer-sweep pointer-events-none"></div>
+
+                        <span className={`relative z-10 text-[10px] font-display tracking-[0.25em] pt-0.5 shrink-0 ${
+                          isNordic ? 'text-amber-900/70' : 'text-amber-300/75'
+                        }`}>
+                          {card.roman}
+                        </span>
+
+                        <div className="relative z-10 w-full flex-1 flex items-center justify-center my-0.5 min-h-0">
+                          <MuchaCardBackArt 
+                            type={card.type} 
+                            className={`w-full h-full transition-transform duration-700 group-hover:scale-105 ${
+                              isNordic ? 'text-amber-800/75 group-hover:text-amber-900' : 'text-amber-400/80 group-hover:text-amber-200'
+                            }`} 
+                          />
+                        </div>
+
+                        <div className={`relative z-10 text-[11px] tracking-[0.2em] pb-0.5 font-medium whitespace-nowrap shrink-0 transition-colors ${
+                          isNordic ? 'text-stone-700 group-hover:text-amber-950' : 'text-amber-200/85 group-hover:text-amber-50'
+                        }`}>
+                          {card.label}
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* 首頁底部快捷服務列 */}
+                  <div className="pt-4 border-t border-amber-500/15 w-full flex items-center justify-center gap-4 text-xs tracking-[0.12em] whitespace-nowrap">
+                    <a 
+                      href={EXTERNAL_LINKS.humanReading} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className={`flex items-center gap-1 py-1 transition-colors ${
+                        isNordic ? 'text-stone-600 hover:text-amber-900' : 'text-amber-200/70 hover:text-amber-200'
+                      }`}
+                    >
+                      <MessageCircleHeart className="w-3.5 h-3.5 shrink-0" />
+                      <span>真人解牌</span>
+                    </a>
+                    <span className={isNordic ? 'text-stone-300' : 'text-amber-500/25'}>·</span>
+                    <a 
+                      href={EXTERNAL_LINKS.customPerfume} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className={`flex items-center gap-1 py-1 transition-colors ${
+                        isNordic ? 'text-stone-600 hover:text-amber-900' : 'text-amber-200/70 hover:text-amber-200'
+                      }`}
+                    >
+                      <FlaskConical className="w-3.5 h-3.5 shrink-0" />
+                      <span>專屬訂製</span>
+                    </a>
+                    <span className={isNordic ? 'text-stone-300' : 'text-amber-500/25'}>·</span>
+                    <a 
+                      href={EXTERNAL_LINKS.donate} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className={`flex items-center gap-1 py-1 transition-colors ${
+                        isNordic ? 'text-amber-800/80 hover:text-amber-950' : 'text-amber-300/75 hover:text-amber-200'
+                      }`}
+                    >
+                      <CoffeeHeart className="w-3.5 h-3.5 shrink-0" />
+                      <span>隨喜贊助</span>
+                    </a>
+                  </div>
+                </div>
+              )}
+
+              {/* 階段二：微距黃金水滴與星時計過渡動畫 */}
+              {isDrawing && (
+                <MuchaAlchemicalLoader breathingStep={breathingStep} isNordic={isNordic} />
+              )}
+
+              {/* 階段三：慕夏新藝術古典植物畫牌揭曉 (恢復前版詩意分行排版) */}
+              {currentCard && (
+                <div className="w-full animate-mucha-reveal space-y-5 pb-8 relative">
+                  
+                  <div className="text-center px-2">
+                    <p className={`text-xs italic tracking-[0.14em] flex items-center justify-center gap-1.5 ${
+                      isNordic ? 'text-amber-900/80' : 'text-amber-300/85'
+                    }`}>
+                      <Sparkles className="w-3.5 h-3.5 shrink-0" />
+                      <span className="reading-title">{getCategoryMeta(currentCard.category).scentHint}</span>
+                    </p>
+                  </div>
+
+                  {/* 慕夏新藝術拱門畫框本體 */}
+                  <div className={`relative rounded-t-[3.5rem] rounded-b-3xl overflow-hidden border p-3 backdrop-blur-xl bg-gradient-to-b transition-all duration-700 ${getCategoryStyle(currentCard.category, isNordic)}`}>
+                    
+                    <div className="absolute inset-0 bg-noise opacity-15 pointer-events-none"></div>
+
+                    <div className={`relative z-10 rounded-t-[2.8rem] rounded-b-2xl border px-4 py-6 sm:p-6 ${
+                      isNordic ? 'border-amber-800/30 bg-white/55' : 'border-amber-400/30 bg-[#090603]/55'
+                    }`}>
+                      <MuchaCorner className={`w-10 h-10 absolute top-3 left-3 pointer-events-none ${isNordic ? 'text-amber-800/60' : 'text-amber-400/65'}`} />
+                      <MuchaCorner className={`w-10 h-10 absolute top-3 right-3 rotate-90 pointer-events-none ${isNordic ? 'text-amber-800/60' : 'text-amber-400/65'}`} />
+                      <MuchaCorner className={`w-10 h-10 absolute bottom-3 left-3 -rotate-90 pointer-events-none ${isNordic ? 'text-amber-800/60' : 'text-amber-400/65'}`} />
+                      <MuchaCorner className={`w-10 h-10 absolute bottom-3 right-3 rotate-180 pointer-events-none ${isNordic ? 'text-amber-800/60' : 'text-amber-400/65'}`} />
+
+                      {/* 畫牌上半部 */}
+                      <div className={`text-center pb-5 border-b relative ${
+                        isNordic ? 'border-amber-800/15' : 'border-amber-500/15'
+                      }`}>
+                        <div className="flex items-center justify-center mb-1">
+                          <span className={`text-[10px] font-display tracking-[0.22em] uppercase px-3.5 py-0.5 rounded-full border whitespace-nowrap ${
+                            isNordic 
+                              ? 'bg-[#FAF3E3] border-amber-800/25 text-amber-950' 
+                              : 'bg-[#1a1208] border-amber-400/30 text-amber-200'
+                          }`}>
+                            NO. {String(currentCard.id).padStart(2, '0')} · {getCategoryMeta(currentCard.category).title}
+                          </span>
+                        </div>
+
+                        {/* 核心慕夏植物花窗插畫 */}
+                        <MuchaBotanicalIllustration category={currentCard.category} isNordic={isNordic} />
+
+                        <div className="relative inline-block px-4 py-1 mt-1">
+                          <h2 className={`text-3xl tracking-[0.2em] font-medium whitespace-nowrap ${
+                            isNordic ? 'text-stone-800' : 'mucha-gold-text drop-shadow-sm'
+                          }`}>
+                            {currentCard.name}
+                          </h2>
+                          <p className={`text-xs font-italicSerif italic tracking-[0.24em] mt-1 ${
+                            isNordic ? 'text-stone-500' : 'text-amber-200/75'
+                          }`}>
+                            {currentCard.enName}
+                          </p>
+                        </div>
+
+                        <p className={`text-[11px] mt-1.5 tracking-[0.12em] whitespace-nowrap ${
+                          isNordic ? 'text-amber-900/75' : 'text-amber-400/75'
+                        }`}>
+                          ✦ {getCategoryMeta(currentCard.category).note} ✦
+                        </p>
+                      </div>
+
+                      {/* ★ 畫牌下半部：恢復前版「五句詩意分行排版 (poetic-lines)」 ★ */}
+                      <div className="py-6 space-y-6">
+                        <div className="space-y-3.5 text-center">
+                          <div className={`inline-flex items-center gap-2 uppercase text-xs tracking-[0.26em] ${
+                            isNordic ? 'text-amber-900 font-medium' : 'text-amber-300'
+                          }`}>
+                            <Sparkles className="w-3.5 h-3.5 shrink-0" />
+                            <span>植物能量指引</span>
+                            <Sparkles className="w-3.5 h-3.5 shrink-0" />
+                          </div>
+                          <p className={`poetic-lines text-[14.5px] sm:text-[15px] text-center ${
+                            isNordic ? 'text-stone-700' : 'text-amber-50/95'
+                          }`}>
+                            {currentCard.energy}
+                          </p>
+                        </div>
+
+                        <MuchaDivider className={`w-56 h-5 mx-auto ${isNordic ? 'text-amber-800/40' : 'text-amber-400/45'}`} />
+
+                        <div className="space-y-3">
+                          <button 
+                            onClick={() => setShowShadow(!showShadow)}
+                            className={`w-full flex items-center justify-center gap-2 text-xs tracking-[0.2em] py-1.5 transition-all ${
+                              isNordic ? 'text-stone-600 hover:text-amber-950' : 'text-amber-300/90 hover:text-amber-100'
+                            }`}
+                          >
+                            <Droplets className="w-3.5 h-3.5 shrink-0" />
+                            <span>內在陰影覺察（點擊展開）</span>
+                            {showShadow ? <ChevronUp className="w-3.5 h-3.5 shrink-0" /> : <ChevronDown className="w-3.5 h-3.5 shrink-0" />}
+                          </button>
+                          
+                          {showShadow && (
+                            <div className="animate-fade-in">
+                              <div className={`py-4 px-3 rounded-xl border ${
+                                isNordic 
+                                  ? 'bg-[#FAF5E8]/90 border-amber-800/20 text-stone-700 shadow-inner' 
+                                  : 'bg-[#080503]/75 border-amber-500/20 text-amber-100/90 shadow-inner'
+                              }`}>
+                                <p className="poetic-lines text-[13.5px] sm:text-[14px] text-center">
+                                  {currentCard.shadow}
+                                </p>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+
+                        {currentCard.blend && (
+                          <div className={`p-4 rounded-xl border relative overflow-hidden ${
+                            isNordic 
+                              ? 'bg-gradient-to-r from-[#FAF3E0] via-white to-[#FAF3E0] border-amber-800/25 text-stone-800' 
+                              : 'bg-gradient-to-r from-amber-950/35 via-[#181109]/90 to-amber-950/35 border-amber-400/25 text-amber-100'
+                          }`}>
+                            <div className={`flex items-center justify-center gap-2 text-xs tracking-[0.2em] mb-2 ${
+                              isNordic ? 'text-amber-900 font-medium' : 'text-amber-300'
+                            }`}>
+                              <FlaskConical className="w-3.5 h-3.5 shrink-0" />
+                              <span>香氣共鳴配方箋</span>
+                            </div>
+                            <p className="text-[13.5px] text-center leading-relaxed tracking-[0.08em] font-medium reading-title">
+                              {currentCard.blend}
+                            </p>
+                          </div>
+                        )}
+
+                        <div className={`pt-1 flex flex-col items-center gap-1.5 text-[11.5px] tracking-wider ${
+                          isNordic ? 'text-stone-500' : 'text-amber-400/65'
+                        }`}>
+                          <div className="flex items-center gap-1.5">
+                            <Shield className="w-3 h-3 shrink-0" />
+                            <span>芳療師貼心提醒</span>
+                          </div>
+                          <p className="text-center leading-relaxed px-2 reading-title">{currentCard.safety}</p>
+                        </div>
+                      </div>
+
+                      <div className={`pt-4 border-t text-center text-[9px] font-display tracking-[0.38em] uppercase ${
+                        isNordic ? 'border-amber-800/15 text-stone-400' : 'border-amber-500/15 text-amber-500/40'
+                      }`}>
+                        Waven Art Nouveau Tarot · NAHA Collection
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 基本操作按鈕 */}
+                  <div className="grid grid-cols-2 gap-3 pt-1">
+                    <button 
+                      onClick={copyCardReading}
+                      className={`flex items-center justify-center gap-2 py-3 px-4 rounded-full border transition-all duration-300 text-xs tracking-[0.15em] whitespace-nowrap shadow-sm ${
+                        isNordic 
+                          ? 'bg-[#FAF6EE] border-amber-800/30 text-stone-800 hover:bg-white' 
+                          : 'bg-[#150f09] border-amber-500/35 text-amber-200 hover:border-amber-300'
+                      }`}
+                    >
+                      {copied ? <Check className="w-4 h-4 text-emerald-400 shrink-0" /> : <Copy className="w-4 h-4 shrink-0" />}
+                      <span>{copied ? '已收入剪貼簿' : '珍藏今日香籤'}</span>
+                    </button>
+
+                    <button 
+                      onClick={initCards}
+                      className={`flex items-center justify-center gap-2 py-3 px-4 rounded-full border transition-all duration-500 text-xs tracking-[0.15em] whitespace-nowrap shadow-sm group ${
+                        isNordic 
+                          ? 'bg-stone-800 border-stone-800 text-stone-50 hover:bg-stone-700' 
+                          : 'bg-amber-900/30 border-amber-400/45 text-amber-100 hover:border-amber-300 hover:bg-amber-800/40'
+                      }`}
+                    >
+                      <RefreshCw className="w-4 h-4 group-hover:rotate-180 transition-transform duration-700 shrink-0" />
+                      <span>重新洗牌</span>
+                    </button>
+                  </div>
+
+                  {/* 進階商業服務與斗內贊助專區 */}
+                  <div className={`mt-4 p-5 rounded-2xl border relative overflow-hidden transition-all ${
+                    isNordic 
+                      ? 'bg-[#FAF6EE]/90 border-amber-800/25 shadow-sm' 
+                      : 'bg-[#110c07]/90 border-amber-500/25 shadow-[0_10px_30px_rgba(0,0,0,0.6)]'
+                  }`}>
+                    <div className="text-center space-y-1 mb-4">
+                      <p className={`text-[9px] font-display tracking-[0.32em] uppercase ${
+                        isNordic ? 'text-amber-800/60' : 'text-amber-400/60'
+                      }`}>
+                        Bespoke Aromatherapy & Guidance
+                      </p>
+                      <h3 className={`text-[13.5px] tracking-[0.12em] font-medium reading-title ${
+                        isNordic ? 'text-stone-800' : 'text-amber-100'
+                      }`}>
+                        想深入了解牌卡訊息，或將今日香氣化為真實？
+                      </h3>
+                    </div>
+
+                    <div className="space-y-2.5 mb-3">
+                      <a
+                        href={EXTERNAL_LINKS.humanReading}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={`group relative p-3.5 rounded-xl border transition-all duration-300 flex items-center justify-between overflow-hidden ${
+                          isNordic
+                            ? 'bg-white border-amber-800/25 hover:border-amber-800/60 hover:shadow-md'
+                            : 'bg-gradient-to-br from-[#1d140b] to-[#120c06] border-amber-500/30 hover:border-amber-300/70'
+                        }`}
+                      >
+                        <div className="absolute inset-0 shimmer-sweep pointer-events-none"></div>
+                        <div className="flex items-center gap-3 relative z-10 min-w-0">
+                          <div className={`p-2.5 rounded-full border shrink-0 ${
+                            isNordic ? 'bg-amber-50 border-amber-700/25 text-amber-800' : 'bg-amber-950/50 border-amber-400/30 text-amber-300'
+                          }`}>
+                            <MessageCircleHeart className="w-4 h-4" />
+                          </div>
+                          <div className="text-left min-w-0">
+                            <div className={`text-xs font-medium tracking-[0.14em] truncate ${
+                              isNordic ? 'text-stone-800' : 'text-amber-100'
+                            }`}>
+                              預約真人深度解牌
+                            </div>
+                            <div className={`text-[11px] tracking-wider mt-0.5 truncate ${
+                              isNordic ? 'text-stone-500' : 'text-amber-400/60'
+                            }`}>
+                              芳療師一對一傾聽與專屬牌陣剖析
+                            </div>
+                          </div>
+                        </div>
+                        <ArrowUpRight className={`w-4 h-4 shrink-0 ml-2 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 ${
+                          isNordic ? 'text-amber-800/60' : 'text-amber-400/70'
+                        }`} />
+                      </a>
+
+                      <a
+                        href={EXTERNAL_LINKS.customPerfume}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={`group relative p-3.5 rounded-xl border transition-all duration-300 flex items-center justify-between overflow-hidden ${
+                          isNordic
+                            ? 'bg-white border-amber-800/25 hover:border-amber-800/60 hover:shadow-md'
+                            : 'bg-gradient-to-br from-[#1d140b] to-[#120c06] border-amber-500/30 hover:border-amber-300/70'
+                        }`}
+                      >
+                        <div className="absolute inset-0 shimmer-sweep pointer-events-none"></div>
+                        <div className="flex items-center gap-3 relative z-10 min-w-0">
+                          <div className={`p-2.5 rounded-full border shrink-0 ${
+                            isNordic ? 'bg-amber-50 border-amber-700/25 text-amber-800' : 'bg-amber-950/50 border-amber-400/30 text-amber-300'
+                          }`}>
+                            <FlaskConical className="w-4 h-4" />
+                          </div>
+                          <div className="text-left min-w-0">
+                            <div className={`text-xs font-medium tracking-[0.14em] truncate ${
+                              isNordic ? 'text-stone-800' : 'text-amber-100'
+                            }`}>
+                              專屬個人香氣訂製
+                            </div>
+                            <div className={`text-[11px] tracking-wider mt-0.5 truncate ${
+                              isNordic ? 'text-stone-500' : 'text-amber-400/60'
+                            }`}>
+                              依今日植物指引為您調配守護香水
+                            </div>
+                          </div>
+                        </div>
+                        <ArrowUpRight className={`w-4 h-4 shrink-0 ml-2 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 ${
+                          isNordic ? 'text-amber-800/60' : 'text-amber-400/70'
+                        }`} />
+                      </a>
+                    </div>
+
+                    <a
+                      href={EXTERNAL_LINKS.donate}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={`group w-full py-3 px-3.5 rounded-xl border transition-all duration-300 flex items-center justify-center gap-2 text-xs tracking-[0.1em] ${
+                        isNordic
+                          ? 'bg-amber-100/50 border-amber-800/20 text-amber-950 hover:bg-amber-100/80'
+                          : 'bg-amber-500/10 border-amber-400/25 text-amber-200 hover:bg-amber-500/20 hover:border-amber-300/50'
+                      }`}
+                    >
+                      <CoffeeHeart className="w-4 h-4 shrink-0 transition-transform duration-300 group-hover:scale-110" />
+                      <span className="truncate">隨喜贊助一杯花草茶，支持這座香氣聖殿</span>
+                      <ArrowUpRight className="w-3.5 h-3.5 shrink-0 opacity-70" />
+                    </a>
+                  </div>
+
+                </div>
+              )}
+            </main>
+
+          </div>
+
+          {/* 香籤簿（個人歷史紀錄抽屜） */}
+          {showHistory && (
+            <div className="fixed inset-0 z-50 flex justify-end bg-black/65 backdrop-blur-sm animate-fade-in">
+              <div className={`w-full max-w-[360px] h-full p-6 flex flex-col justify-between overflow-y-auto border-l shadow-2xl ${
+                isNordic ? 'bg-[#FAF6EE] border-stone-300 text-stone-800' : 'bg-[#0d0906] border-amber-500/25 text-amber-50'
+              }`}>
+                <div className="space-y-5">
+                  <div className={`flex items-center justify-between pb-4 border-b ${isNordic ? 'border-stone-200' : 'border-amber-500/20'}`}>
+                    <div>
+                      <div className="flex items-center gap-2 tracking-[0.2em] text-base">
+                        <History className="w-4 h-4" />
+                        <span>個人香籤簿</span>
+                      </div>
+                      <p className={`text-[10px] mt-1 ${isNordic ? 'text-stone-400' : 'text-amber-500/40'}`}>
+                        紀錄僅保存於您的瀏覽器中，完全私密
+                      </p>
+                    </div>
+                    <button onClick={() => setShowHistory(false)} className="p-1.5 rounded-full hover:bg-stone-500/10">
+                      <X className="w-5 h-5" />
+                    </button>
+                  </div>
+
+                  {history.length === 0 ? (
+                    <p className={`text-center py-12 text-xs tracking-widest ${isNordic ? 'text-stone-400' : 'text-amber-500/40'}`}>
+                      尚無抽牌紀錄，開始今日的第一次香氣連結吧
+                    </p>
+                  ) : (
+                    <div className="space-y-3">
+                      {history.map((item) => (
+                        <button
+                          key={item.recordId}
+                          onClick={() => {
+                            setCurrentCard(item);
+                            setShowShadow(false);
+                            setShowHistory(false);
+                          }}
+                          className={`w-full text-left p-4 rounded-xl border transition-all flex items-center justify-between ${
+                            isNordic 
+                              ? 'bg-white border-stone-200/90 hover:border-amber-700/50 shadow-sm' 
+                              : 'bg-[#16100a] border-amber-500/20 hover:border-amber-400/50'
+                          }`}
+                        >
+                          <div className="pr-2 min-w-0">
+                            <div className="flex items-center gap-2">
+                              <span className="text-base font-medium tracking-wider shrink-0">{item.name}</span>
+                              <span className={`text-[10px] font-italicSerif italic truncate ${isNordic ? 'text-stone-400' : 'text-amber-300/50'}`}>
+                                {item.enName}
+                              </span>
+                            </div>
+                            <p className={`text-xs mt-1 truncate ${isNordic ? 'text-stone-500' : 'text-amber-100/60'}`}>
+                              {item.blend}
+                            </p>
+                          </div>
+                          <span className={`text-[10px] font-mono shrink-0 ${isNordic ? 'text-stone-400' : 'text-amber-500/40'}`}>
+                            {item.drawTime}
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {history.length > 0 && (
+                  <button
+                    onClick={() => {
+                      setHistory([]);
+                      try { window.localStorage.removeItem('waven_oracle_history'); } catch (e) {}
+                    }}
+                    className={`mt-6 w-full py-2.5 text-xs tracking-widest border rounded-lg transition-colors ${
+                      isNordic 
+                        ? 'border-stone-300 text-stone-500 hover:text-stone-800 hover:bg-stone-200/50' 
+                        : 'border-amber-500/20 text-amber-500/50 hover:text-amber-300 hover:bg-amber-950/30'
+                    }`}
+                  >
+                    清空本機香籤紀錄
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<WavenOracle />);
+  </script>
+</body>
+</html>
