@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+  <title>WAVEN 植物香氣指引</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Noto+Serif+TC:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script>
+    tailwind.config={theme:{extend:{fontFamily:{serif:['"Noto Serif TC"','"Cormorant Garamond"','serif'],display:['"Cinzel Decorative"','serif'],italicSerif:['"Cormorant Garamond"','serif']}}}};
+    document.addEventListener('contextmenu',e=>e.preventDefault());
+    document.addEventListener('keydown',e=>{if(e.key==='F12'||(e.ctrlKey&&e.shiftKey&&['I','J','C'].includes(e.key))||(e.ctrlKey&&['u','U','s','S'].includes(e.key)))e.preventDefault()});
+  </script>
+  <style>
+    html,body{overflow-x:hidden;-webkit-font-smoothing:antialiased;user-select:none;-webkit-user-select:none}
+    .poetic{white-space:pre-line;word-break:keep-all;line-height:2.2;letter-spacing:.08em}
+    .bg-noise{background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+    .gold-txt{background:linear-gradient(135deg,#FFF5D6 0%,#D8B467 35%,#B88746 68%,#FBF0C9 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+    .sweep{background:linear-gradient(110deg,transparent 28%,rgba(235,197,125,.2) 50%,transparent 72%);background-size:200% 100%;transition:background-position 1.1s cubic-bezier(.19,1,.22,1);background-position:200% 0}
+    .group:hover .sweep{background-position:-100% 0}
+    @keyframes reveal{0%{opacity:0;transform:perspective(1400px) rotateX(4deg) translateY(20px) scale(.97);filter:blur(6px)}100%{opacity:1;transform:perspective(1400px) rotateX(0) translateY(0) scale(1);filter:blur(0)}}
+    @keyframes draw{0%{stroke-dashoffset:900;opacity:0}20%{opacity:.9}100%{stroke-dashoffset:0;opacity:1}}
+    @keyframes bloom{0%{transform:scale(.3) rotate(-15deg);opacity:0}100%{transform:scale(1) rotate(0);opacity:1}}
+    @keyframes swell{0%,10%,100%{transform:scale(.2);opacity:.2}28%{transform:scale(1.15,1.35);opacity:1}38%{transform:scale(.4,.6);opacity:.5}}
+    @keyframes drop{0%,16%{transform:translateY(0) scale(.15);opacity:0}28%{transform:translateY(2px) scale(.88,1.12);opacity:1}66%{transform:translateY(58px) scale(.92,1.22);opacity:1}71%{transform:translateY(64px) scale(1.45,.35);opacity:.85}76%,100%{transform:translateY(66px) scale(1.8,.1);opacity:0}}
+    @keyframes sat{0%,30%,76%,100%{transform:translateY(0) scale(0);opacity:0}38%{transform:translateY(4px) scale(1);opacity:.9}70%{transform:translateY(62px) scale(.8);opacity:.85}}
+    @keyframes splash{0%,67%,90%,100%{transform:translateY(0) scale(0);opacity:0}74%{transform:translateY(-9px) scale(1);opacity:.95}84%{transform:translateY(-2px) scale(.75);opacity:.6}}
+    @keyframes ripple{0%,66%{transform:scale(.15);opacity:0}72%{opacity:.95}100%{transform:scale(1.95);opacity:0}}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    @keyframes rspin{from{transform:rotate(360deg)}to{transform:rotate(0deg)}}
+    @keyframes twinkle{0%,100%{transform:scale(.75);opacity:.25}50%{transform:scale(1.15);opacity:.95}}
+    @keyframes prog{0%{width:0%}100%{width:100%}}
+    @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+    .a-reveal{animation:reveal 1.2s cubic-bezier(.16,1,.3,1) forwards}
+    .a-draw{stroke-dasharray:900;animation:draw 2.8s cubic-bezier(.22,1,.36,1) forwards}
+    .a-bloom{transform-origin:130px 118px;animation:bloom 2.4s cubic-bezier(.22,1,.36,1) .1s forwards;opacity:0}
+    .a-swell{transform-origin:130px 124px;animation:swell 2.4s cubic-bezier(.4,0,.2,1) infinite}
+    .a-drop{transform-origin:130px 128px;animation:drop 2.4s cubic-bezier(.55,.05,.68,.19) infinite}
+    .a-sat{transform-origin:130px 126px;animation:sat 2.4s cubic-bezier(.55,.05,.68,.19) infinite}
+    .a-splash{transform-origin:130px 192px;animation:splash 2.4s cubic-bezier(.22,1,.36,1) infinite}
+    .a-rip1{transform-origin:130px 192px;animation:ripple 2.4s cubic-bezier(.16,1,.3,1) infinite}
+    .a-rip2{transform-origin:130px 192px;animation:ripple 2.4s cubic-bezier(.16,1,.3,1) .16s infinite}
+    .a-rip3{transform-origin:130px 192px;animation:ripple 2.4s cubic-bezier(.16,1,.3,1) .32s infinite}
+    .a-spin{animation:spin 48s linear infinite}.a-rspin{animation:rspin 36s linear infinite}
+    .a-tw1{animation:twinkle 3s ease-in-out infinite}.a-tw2{animation:twinkle 3.8s ease-in-out 1.2s infinite}.a-tw3{animation:twinkle 3.4s ease-in-out 2.1s infinite}
+    .a-prog{animation:prog 3.6s cubic-bezier(.22,1,.36,1) forwards}.a-fade{animation:fade .5s ease-out forwards}
+  </style>
+</head>
+<body class="m-0 p-0 selection:bg-amber-500/30 selection:text-amber-100">
+  <div id="root"></div>
+  <script type="text/babel">
+    const LINE_URL = "https://line.me/R/ti/p/@171obltq";
+    const { useState, useEffect, useRef } = React;
+
+    // 🔒 加密封裝資料庫 (Unicode Hex Payload)
+    const _PAYLOAD = [
+      "1|檸檬|Lemon|citrus|代表著清晰、明亮與秩序。\n擁有乾淨俐落的清新果香，\n能如晨光般穿透迷霧，\n為繁雜的思緒帶來秩序，\n找回專注而清澈的決斷力。|此刻或許思緒雜亂，\n或正陷於猶豫不決的泥淖。\n檸檬能幫助你在混亂中看見核心，\n切斷過多的干擾，\n讓眼前的一切豁然開朗。|【澄澈思緒】檸檬 ＋ 桉油醇迷迭香 ＋ 薄荷|光敏性：若塗抹於肌膚，12 小時內請避開陽光直射。",
+      "2|甜橙|Sweet Orange|citrus|代表著純真、溫暖與陽光般的豐盛。\n散發著圓潤的氣息，\n能瞬間融化內心的冰冷與嚴肅，\n為生活注入一股暖流，\n帶來無憂無慮的喜悅。|最近或許太過嚴肅，\n或者因擔憂未來而感到匱乏。\n甜橙能喚醒你久違的童心，\n驅散內心的陰霾，\n讓生活重回放鬆流動的狀態。|【暖陽午後】甜橙 ＋ 波旁天竺葵 ＋ 大西洋雪松|保存提醒：柑橘類分子較活潑，開封後建議於半年內使用完畢。",
+      "3|佛手柑|Bergamot|citrus|代表著釋放、流動與溫柔的陽光。\n優雅細緻的柑橘花香，\n能溫柔地承接所有的情緒，\n讓陽光穿透陰霾，\n學會溫柔地擁抱不完美的自己。|可能是外表開朗，\n但內心壓抑的「微笑憂鬱」。\n佛手柑能安撫那些自我批判的聲音，\n修復受傷的自信，\n讓你知道不需要完美也值得被愛。|【溫柔擁抱】佛手柑 ＋ 真正薰衣草 ＋ 乳香|強光敏性：含佛手柑內酯，塗抹肌膚後務必避光，建議於夜晚使用。",
+      "4|檸檬香茅|Lemongrass|citrus|代表著啟動、煥然一新與斷捨離。\n帶有強勁的草本能量，\n能像一陣清風般掃除陳舊的氣場，\n震碎僵化的模式，\n騰出空間迎接新的機遇。|正受困於陳舊的能量，\n或在停滯的關係中感到身心疲憊。\n檸檬香茅能為你的身心進行大掃除，\n讓停滯的能量重新流動起來。|【氣場煥新】檸檬香茅 ＋ 絲柏 ＋ 澳洲尤加利|刺激性：醛類含量高，對肌膚較刺激，塗抹務必低濃度稀釋。",
+      "25|葡萄柚|Grapefruit|citrus|代表著輕盈、流動與自我的欣賞。\n帶著微酸微苦的清爽果香，\n能掃除身體與心理的滯重感，\n幫助你放下對外在標準的追逐，\n找回如微風般自在的輕快節奏。|近期或許因壓力而想透過外物填補空虛，\n或對自己的狀態感到不滿與挑剔。\n葡萄柚能帶走停滯的沉重能量，\n讓你重新喜歡上此刻真實的自己。|【輕盈節奏】葡萄柚 ＋ 杜松 ＋ 絲柏|光敏性：塗抹肌膚後 12 小時內請避免強烈日曬。",
+      "5|薄荷|Peppermint|herb|代表著洞察、清醒與打破僵局。\n那股直衝腦門的清涼氣息，\n能瞬間冷卻過熱的情緒，\n為意志力注入清新的能量，\n帶來豁然開朗的全新視野。|目前感到卡關、無力，\n或只想暫時逃避現實。\n薄荷能幫助你打破停滯不前的僵局，\n找回行動的魄力與清晰的方向感。|【靈感甦醒】薄荷 ＋ 甜羅勒 ＋ 檸檬|禁忌：兩歲以下幼兒、蠶豆症患者避免使用；睡前慎用以免精神過好。",
+      "6|澳洲尤加利|Eucalyptus Radiata|herb|代表著寬闊、流動與呼吸的空間。\n清透的葉片香氣能打開緊縮的胸腔，\n消融內在的窒息感，\n支持你在生活中，\n重新獲得大口呼吸的自在與從容。|覺得被責任或環境束縛，\n感到有些受限與壓抑。\n澳洲尤加利能協助你打破自我設限，\n清理淤塞的能量，找回自由。|【自由深呼吸】澳洲尤加利 ＋ 膠冷杉 ＋ 大西洋雪松|溫和：氣味較藍膠尤加利溫和，但仍應避開眼周與臉部直接塗抹。",
+      "7|茶樹|Tea Tree|herb|代表著純淨、界線與獨立的自我。\n樸實堅定的藥草氣息，\n能建立一道隱形的防護罩，\n過濾掉不屬於你的雜訊，\n讓你保有最乾淨純粹的狀態。|是否不小心過度付出了？\n或容易受到他人情緒的干擾。\n茶樹能幫你清理情緒毒素，\n堅定地守護原則，\n在紛擾中找回清晰的界線。|【純淨結界】茶樹 ＋ 檸檬 ＋ 玫瑰草|毛孩提醒：高濃度茶樹對犬貓具毒性，家有毛孩請保持空間通風並避免接觸。",
+      "8|桉油醇迷迭香|Rosemary Ct. Cineole|herb|代表著自信、記憶與自我認同。\n鮮明的氣息如同一盞明燈，\n能喚醒內在深處的智慧與潛能，\n讓你在追求目標的路上目光如炬。|在忙碌中迷失了方向，\n或對自己的能力感到懷疑。\n迷迭香能幫助你找回「我是誰」的篤定感，\n堅定自我價值。|【堅定中軸】桉油醇迷迭香 ＋ 大西洋雪松 ＋ 佛手柑|禁忌：高血壓、癲癇患者及孕婦請避免使用。",
+      "9|甜馬鬱蘭|Sweet Marjoram|herb|代表著平衡、陪伴與內在的安寧。\n厚實的草本香氣像一個溫暖的擁抱，\n能填補內心的空缺，\n安撫奔波疲憊的靈魂，\n帶給你深層的休息。|因害怕寂寞而緊抓著不適合的關係，\n或身心已經極度疲憊。\n甜馬鬱蘭能療癒心輪的劇痛與孤獨感，\n找回與自己相處的平靜。|【靜夜安神】甜馬鬱蘭 ＋ 羅馬洋甘菊 ＋ 甜橙|注意：放鬆副交感神經效果強，開車或需高度專注時請勿使用。",
+      "10|玫瑰草|Palmarosa|herb|代表著柔韌、適應與隨遇而安。\n兼具草本與花香的特質，\n象徵著水的智慧，能軟化僵硬的原則，\n讓愛與能量重新順暢流動，以柔克剛。|因過度固執，\n或想掌控一切而感到心累。\n玫瑰草能幫助你軟化僵硬的心防，\n溫柔地適應環境的每一個變化。|【柔韌心流】玫瑰草 ＋ 花梨木 ＋ 乳香|安全：性質相當溫和親膚，適合大多數膚質日常保養。",
+      "21|苦橙葉|Petitgrain|herb|代表著梳理、釋放與心靈的餘裕。\n帶著微苦卻回甘的青澀葉片香，\n能溫和地撐開內在被擠壓的空間，\n讓緊繃的神經一條條鬆開，\n在日常的縫隙中找回從容。|對自己有著過高的期待，\n總是把行事曆與心理空間塞得太滿。\n苦橙葉提醒你留白的重要，\n放下必須時刻完美的執念。|【日常留白】苦橙葉 ＋ 佛手柑 ＋ 檀香|安全：不具光敏性且極為溫和，連敏感時期也能安心使用。",
+      "22|快樂鼠尾草|Clary Sage|herb|代表著直覺、靈感與打破框架。\n帶有微醺麝香調的草本氣息，\n能鬆動過度緊繃的理性大腦，\n引領你進入潛意識的花園，\n看見意想不到的創造力與可能性。|太習慣用大腦分析一切，\n卻忽略了身體與直覺的聲音。\n快樂鼠尾草能帶你放下過度的控制，\n在微醺般的放鬆中找回靈感。|【微醺靈感】快樂鼠尾草 ＋ 波旁天竺葵 ＋ 葡萄柚|注意：使用前後請勿飲酒（易加深醉意）；孕婦及乳腺相關病史者請避開。",
+      "26|綠花白千層|Niaouli|herb|代表著淨化、強化與清晰的防禦。\n帶有穿透力卻比茶樹更圓潤的葉片香，\n能掃除心智的混濁與疲態，\n在混亂的外在環境中，\n為你撐起一片乾淨透明的保護傘。|近期或許覺得外界干擾太多，\n能量場變得雜亂而容易疲倦。\n綠花白千層能幫你過濾掉不必要的消耗，\n讓身心回到清明且受保護的狀態。|【清透防護】綠花白千層 ＋ 薄荷 ＋ 檸檬|注意：具有輕微類雌激素特性，孕婦與幼童建議謹慎低劑量使用。",
+      "27|甜茴香|Sweet Fennel|herb|代表著消化、表達與落實的勇氣。\n帶著八角般溫潤甘甜的草本香料氣息，\n能幫助你消化龐雜的資訊與情緒，\n將積壓在心口的話語，\n溫柔而順暢地釋放出來。|總是把委屈或想法吞進肚子裡，\n或是想得太多卻無法化為實際行動。\n甜茴香能溫暖緊縮的腹部與心房，\n支持你勇敢表達真實的感受。|【溫暖梳理】甜茴香 ＋ 甜橙 ＋ 薑|禁忌：含反式洋茴香腦，孕婦、哺乳期、幼童及雌激素相關病史者請避免使用。",
+      "28|月桂|Bay Laurel|herb|代表著榮耀、突破與跨越自我懷疑。\n揉合了果香、辛香與葉片香的豐富層次，\n如同古希臘象徵勝利的桂冠，\n能為你注入肯定自我的底氣，\n勇敢站上屬於你的舞台。|明明已經準備好了，\n卻因為冒牌者症候群而不敢展現自己。\n月桂能驅散內在的膽怯與猶豫，\n讓你抬起頭，看見自己走過的路有多閃耀。|【桂冠加冕】月桂 ＋ 佛手柑 ＋ 黑雲杉|刺激性：可能引起少數人皮膚敏感，務必低劑量稀釋後使用，孕婦避開。",
+      "29|松紅梅|Manuka|herb|代表著溫柔的防禦、修復與深層安定。\n來自紐西蘭大地的蜂蜜藥草香，\n不像一般防護精油那樣凌厲，\n而是以柔軟卻堅韌的姿態，\n溫柔包覆每一顆過度敏感的心。|對周遭環境的變化太過敏銳，\n容易因為他人的眼神或話語而受傷。\n松紅梅能為敏感的靈魂築起溫暖的軟墊，\n讓你在安全感中慢慢修復。|【大地蜜語】松紅梅 ＋ 真正薰衣草 ＋ 檀香|安全：性質相當溫和且親膚性極佳，適合日常情緒與肌膚照護。",
+      "30|沉香醇百里香|Thyme Ct. Linalool|herb|代表著溫和的勇氣、韌性與純真力量。\n褪去了傳統百里香的嗆辣，\n轉化為清新甜美的草本氣息，\n能像春風般溫柔地提振低迷的元氣，\n找回面對生活的熱忱。|長期處於慢性消耗中，\n感覺心靈的電池已經快要見底。\n沉香醇百里香能以最不費力的方式，\n一滴滴為你把勇氣與活力重新注滿。|【春風元氣】沉香醇百里香 ＋ 澳洲尤加利 ＋ 甜橙|安全：是百里香家族中最溫和的品種，老人與兒童皆可低劑量安心使用。",
+      "31|甜羅勒|Sweet Basil|herb|代表著專注、直覺與理清混亂。\n清甜中帶著一絲微涼辛香的草本能量，\n能瞬間掃除腦袋裡的漿糊感，\n讓過載的思緒重新對焦，\n找回俐落明快的節奏。|思慮過度、腦袋停不下來，\n反而讓自己陷入精神疲勞與焦慮。\n甜羅勒能幫你把分散的注意力收回來，\n安住於當下正在做的每一件小事。|【明快對焦】甜羅勒 ＋ 佛手柑 ＋ 桉油醇迷迭香|禁忌：塗抹需低劑量稀釋（1% 以下）；孕婦、哺乳期與幼童請避免使用。",
+      "32|馬鞭草酮迷迭香|Rosemary Ct. Verbenone|herb|代表著更新、排解與溫柔的蛻變。\n氣味比一般迷迭香更加細緻優雅，\n能幫助你代謝掉累積已久的陳舊情緒，\n在自我對話中鬆開執念，\n迎來身心的輕盈再生。|把太多過去的懊悔與悶氣留在心底，\n導致內在能量停滯不前。\n馬鞭草酮迷迭香能溫和地疏通心靈的淤塞，\n讓新的養分重新流進生命裡。|【優雅煥新】馬鞭草酮迷迭香 ＋ 檸檬 ＋ 波旁天竺葵|禁忌：含有酮類分子，孕婦、哺乳期、幼童及癲癇患者請避免使用。",
+      "33|穗花薰衣草|Spike Lavender|herb|代表著行動力、通透與堅強的支撐。\n帶著樟腦與尤加利般的清涼草本香，\n比起真正薰衣草多了一份爽朗的英氣，\n能迅速掃除胸口的鬱悶，\n為你帶來果斷前行的力量。|在委屈與壓力下感到胸悶氣短，\n想哭卻又覺得自己必須堅強。\n穗花薰衣草能為你撐開呼吸的空間，\n陪你帥氣地跨過眼前的阻礙。|【爽朗英氣】穗花薰衣草 ＋ 綠花白千層 ＋ 薄荷|注意：含樟腦與桉油醇，氣味較強勁，兩歲以下幼兒與孕婦請避開。",
+      "11|真正薰衣草|True Lavender|flower|代表著母愛、包容與無條件的呵護。\n甜美溫柔的花香是療癒的代名詞，\n能平撫所有的焦慮與不安，\n帶給你如回到母親懷抱般的深層安全感。|習慣壓抑委屈，\n總是當個照顧者卻忽略了自己。\n薰衣草輕聲告訴你「可以休息了」，\n允許你像個孩子般徹底放鬆。|【搖籃曲晚安】真正薰衣草 ＋ 甜橙 ＋ 苦橙葉|低血壓：低血壓患者若過量使用，偶爾會感到些許慵懶無力。",
+      "12|波旁天竺葵|Geranium Bourbon|flower|代表著和諧、平衡與情緒的調節。\n融合了玫瑰的甜美與薄荷的清涼，\n能在理性與感性之間搭起橋樑，\n讓你在忙碌的生活中，\n找回最舒適的身心平衡點。|在工作與生活，\n或理性與感性間失去了平衡。\n天竺葵能調節起伏不定的情緒天平，\n緩解完美主義帶來的焦慮。|【優雅平衡】波旁天竺葵 ＋ 廣藿香 ＋ 佛手柑|敏感：氣味馥郁，敏感肌建議維持低劑量稀釋使用。",
+      "13|羅馬洋甘菊|Roman Chamomile|flower|代表著天真、守護與純淨的寧靜。\n有著如蘋果般的溫暖甜香，\n能像溫柔的雙手輕拍著背，\n讓你在風雨中，\n依然能保有內心那份純淨的安穩。|近期神經緊繃，\n易怒或缺乏安全感。\n羅馬洋甘菊能安撫像驚弓之鳥般的情緒，\n溫柔地化解所有的防衛。|【純淨安撫】羅馬洋甘菊 ＋ 真正薰衣草 ＋ 苦橙葉|過敏：極少數對菊科植物嚴重過敏者，使用前建議先做貼膚測試。",
+      "14|完全依蘭|Ylang Ylang Complete|flower|代表著熱情、魅力與生命的歡愉。\n濃郁奢華的異國花香，\n能喚醒沈睡已久的感官享受，\n鼓勵你展現真實的自我，\n享受身為女性的自信與美麗。|生活過於嚴肅，\n壓抑了對快樂與美的渴望。\n依蘭能融化理性的武裝與束縛，\n讓你盡情擁抱生命中的熱情。|【感官花園】完全依蘭 ＋ 甜橙 ＋ 檀香|劑量：香氣穿透力極強，過量容易引起頭暈，極低比例即可畫龍點睛。",
+      "23|大馬士革玫瑰|Damask Rose|flower|代表著愛、自我接納與心輪的綻放。\n千朵花瓣淬煉出的馥郁香氣，\n能溫柔地融化心防與失落，\n提醒你先深深地愛自己，\n世界也會以同樣的溫柔回應你。|在關係中感到匱乏，\n或曾經因為受傷而把心關了起來。\n玫瑰能輕輕撫平舊有的傷痕，\n讓你重新相信愛與被愛的美好。|【心輪綻放】大馬士革玫瑰 ＋ 檀香 ＋ 佛手柑|珍貴提醒：玫瑰精油分子豐富，極低濃度就能帶來極佳的心靈共振。",
+      "34|茉莉|Jasmine Absolute|flower|代表著自信、魅惑與暗夜裡的星光。\n在夜晚綻放的濃郁白花香氣，\n能穿透最深沉的恐懼與自我懷疑，\n帶你擁抱內在真實的渴望，\n散發無需討好他人的迷人光芒。|對未來感到悲觀，\n或因過度壓抑情感而覺得生命失去色彩。\n茉莉能溫暖冷卻的心房，\n將停滯的陰性能量轉化為創造的熱情。|【月夜星光】茉莉 ＋ 佛手柑 ＋ 檀香|注意：多為溶劑萃取原精，氣味極濃郁，低劑量使用即可；孕期生產前避免使用。",
+      "35|永久花|Helichrysum|flower|代表著化瘀、金色的修復與不凋的生命力。\n帶著溫暖蜂蜜與大地藥草的特殊花香，\n是靈魂深處的超級修護者，\n能溫柔化開那些以為永遠不會好的陳年舊傷。|把過去的傷痛結成了硬痂，\n雖然表面說著沒事，心底卻依然隱隱作痛。\n永久花能深入最底層的潛意識，\n陪你把累積已久的情緒瘀青徹底揉開。|【金色修護】永久花 ＋ 真正薰衣草 ＋ 乳香|安全：溫和且修護力極強，惟含雙酮成分，孕婦與幼童建議謹慎低劑量使用。",
+      "36|橙花|Neroli|flower|代表著純潔、救贖與高頻的平靜。\n清新脫俗的白色花瓣香氣，\n能瞬間安撫受到驚嚇或重創的靈魂，\n將紛亂的思緒帶往雲端之上的寧靜，\n找回最初的純白無瑕。|深陷於長期的焦慮、緊繃或失落中，\n覺得內心怎麼樣都無法真正放鬆下來。\n橙花能像溫柔的天使羽翼般包覆著你，\n接住所有墜落的不安。|【雲端純白】橙花 ＋ 苦橙葉 ＋ 甜橙|安全：極為溫和優雅，惟放鬆效果極佳，需要高度集中精神時請酌量。",
+      "37|德國洋甘菊|German Chamomile|flower|代表著冷卻、釋懷與深藍色的平靜。\n富含母菊天藍烴的深邃藥草香，\n如同清涼的湖水，能瞬間澆熄內心的無名火，\n撫平發炎般躁動不安的情緒，\n帶來深層的接納與放下。|近期容易因為小事而煩躁動怒，\n或是對某些不公平的待遇耿耿於懷。\n德國洋甘菊能幫你為過熱的情緒降溫，\n在深呼吸中與自己和解。|【深藍靜謐】德國洋甘菊 ＋ 真正薰衣草 ＋ 大西洋雪松|注意：對菊科植物嚴重過敏者需留意；具協同藥物作用，服藥期間外用請維持低濃度。",
+      "15|薑|Ginger|wood|代表著勇氣、實踐與內在的溫暖。\n辛辣溫暖的大地氣息，\n能驅散身心的寒冷，點燃實踐夢想的熱情，\n將腦中的意念轉化為腳踏實地的行動。|雖有想法，\n卻因恐懼而遲遲不敢踏出第一步。\n薑能為你的意志力加溫，\n支持你勇敢跨出改變的那一步。|【破冰行動】薑 ＋ 甜橙 ＋ 大西洋雪松|刺激性：具有溫熱感，務必稀釋後再接觸皮膚，並避開敏感部位。",
+      "16|絲柏|Cypress|wood|代表著疏通、流動與重生的力量。\n深遠收斂的木質香氣，\n象徵著生命的循環，能讓停滯的能量流動，\n為新的開始騰出空間，帶來重生的契機。|正經歷人生的過渡期，\n卻沈溺於過去或抗拒改變。\n絲柏能陪伴你好好道別，\n讓悲傷流動，在告別中獲得智慧。|【順流轉化】絲柏 ＋ 波旁天竺葵 ＋ 檸檬|禁忌：懷孕期間請避免使用。",
+      "17|乳香|Frankincense|wood|代表著智慧、安定與靈魂的視野。\n深沈悠遠的樹脂香氣，\n能引領呼吸慢下來，\n帶給你被宇宙深深支持的安定感，\n在靜心中找回超越物質層面的力量。|感到孤單、與世界斷聯，\n或對周遭充滿防衛。\n乳香能幫助你連結天地的能量，\n修復靈魂的創傷，找回內在的平靜。|【神聖靜心】乳香 ＋ 絲柏 ＋ 苦橙葉|安全：極為溫和且修護力強，各年齡層皆可安心使用。",
+      "18|廣藿香|Patchouli|wood|代表著穩定、踏實與開運的能量。\n濃郁的泥土與麝香氣息，\n能帶來如大地般厚實的安全感，\n為生活注入穩健的豐盛頻率，\n有著「越陳越香」的寓意。|思緒或許有些飄忽，\n或者感到與現實脫節、缺乏安全感。\n廣藿香能將你拉回當下，\n安穩浮躁的心神，找回情緒的平衡。|【大地豐盛】廣藿香 ＋ 大馬士革玫瑰 ＋ 甜橙|氣味特性：單聞較為濃郁厚重，與花香、柑橘調合後會呈現迷人的高級感。",
+      "19|大西洋雪松|Atlas Cedarwood|wood|代表著力量、穩重與中軸的建立。\n乾淨沈穩的木質香氣，\n如同一棵參天大樹，能強化內心的支柱，\n給予你不可動搖的靠山感，讓你穩健前行。|正對未來感到徬徨，\n或充滿生存的焦慮。\n雪松能給予你強大的支持力量，\n讓你在面對變動時，依然能挺直腰桿。|【森林靠山】大西洋雪松 ＋ 澳洲尤加利 ＋ 檸檬|溫和：性質穩定溫和，惟孕期建議暫時避開。",
+      "20|岩蘭草|Vetiver|wood|代表著滋養、定心與深度的休息。\n深厚黏稠的土壤氣息，是強效的定心丸，\n能將能量穩穩地向下拉，\n帶給你高品質的深度睡眠，\n與如大地母親般的滋養。|像停不下來的陀螺，\n身心透支卻不敢休息。\n岩蘭草能強迫過度運轉的大腦關機，\n找回安穩的修復力量。|【深層紮根】岩蘭草 ＋ 真正薰衣草 ＋ 甜馬鬱蘭|質地提醒：樹脂感極為濃稠，滴出時需稍微傾斜瓶身耐心等待。",
+      "24|檀香|Sandalwood|wood|代表著靜心、慈悲與歲月的從容。\n溫潤綿長的木質奶香，\n能瞬間撫平所有的急躁與執著，\n讓心如止水般清澈，\n在呼吸之間感受當下的圓滿。|心裡抓著太多放不下的執念，\n或對某個結果過度強求。\n檀香能溫柔地鬆開你緊握的雙手，\n明白一切的安排都是最好的安排。|【禪意從容】檀香 ＋ 乳香 ＋ 佛手柑|安全：極為溫和親膚，留香時間長，是天然調香中最頂級的定香基底。",
+      "38|胡蘿蔔籽|Carrot Seed|wood|代表著滋養、再生與撥雲見日。\n帶著微甜泥土與乾草氣息的種子能量，\n蘊含著破土而出的強大生命力，\n能深層修護乾涸疲憊的身心，\n讓你在休養生息後重新看見清澈的視野。|長期處於委屈或自我消耗中，\n感覺內在的養分已經被榨乾。\n胡蘿蔔籽能為你補充足夠的底氣，\n清理累積的負擔，迎來煥然一新的自己。|【大地回春】胡蘿蔔籽 ＋ 波旁天竺葵 ＋ 甜橙|禁忌：具有調節機能特性，懷孕與哺乳期間請避免使用。",
+      "39|沒藥|Myrrh|wood|代表著靜默、內省與靈魂的癒合。\n古老而深沉的微苦樹脂香，\n能陪伴你走入內在最安靜的聖殿，\n不帶批判地凝視生命中的苦難，\n將傷痕淬煉為深邃的智慧。|害怕面對內心深處的孤獨，\n或是對生命中的無常感到苦澀與抗拒。\n沒藥能溫柔地封存並修護裂痕，\n讓你在靜默中找回不可動搖的平靜。|【古老聖殿】沒藥 ＋ 乳香 ＋ 甜橙|禁忌：樹脂質地濃稠；具有活血通經特性，孕婦與哺乳期請避免使用。",
+      "40|岩玫瑰|Cistus / Labdanum|wood|代表著止痛、修補與穿越風暴的魄力。\n濃郁的琥珀樹脂香帶著獨特的溫熱感，\n如同在貧瘠岩石上依然盛開的花朵，\n能緊緊抱住破碎或受驚的心靈，\n賦予你重新站起來的強大生命力。|曾經歷過深刻的情感衝擊或失落，\n內心深處還有個尚未止血的傷口。\n岩玫瑰能為靈魂築起溫暖的保護膜，\n融化冰封的防衛，讓愛重新流動。|【琥珀暖陽】岩玫瑰 ＋ 真正薰衣草 ＋ 佛手柑|安全：氣味極為濃郁深沉，調香時極低比例即可展現迷人的琥珀底蘊。",
+      "41|赤松|Scotch Pine|wood|代表著骨氣、耐力與高山般的格局。\n乾燥清爽的針葉木質香，\n能瞬間掃除內心的畏縮與渺小感，\n為疲憊的雙肩注入挺拔的支撐力，\n陪你堅定地走完漫長的遠路。|總是習慣把別人的過錯攬在自己身上，\n充滿了不必要的罪惡感與自我苛責。\n赤松能幫你卸下不屬於你的重擔，\n在遼闊的森林氣息中找回自信。|【高山闊野】赤松 ＋ 澳洲尤加利 ＋ 葡萄柚|注意：請選擇新鮮未氧化的精油，並務必稀釋後再塗抹於肌膚。",
+      "42|杜松|Juniper Berry|wood|代表著淨化、排解與心靈的斷捨離。\n清冽乾淨的漿果木質香，\n是極佳的「能量清道夫」，\n能洗滌沾染在身上的負面情緒與濁氣，\n讓身心重回如山泉水般的清澈。|吸收了太多他人的抱怨與負能量，\n卻不知道該如何排解，感到沉重黏膩。\n杜松能幫你把不屬於你的情緒垃圾清理乾淨，\n守住內在的清明。|【山泉淨化】杜松 ＋ 絲柏 ＋ 檸檬|禁忌：孕婦及嚴重腎臟疾病患者請避免使用。",
+      "43|花梨木|Rosewood|wood|代表著溫潤、無私的接納與歲月靜好。\n同時擁有木質的沉穩與花朵的甜美，\n不張揚卻極具包容力，\n能溫柔地撫平內在的稜角與焦躁，\n讓你感受到被生命穩穩托住的安心。|對自己或身邊的人太過嚴苛，\n在緊繃的標準中失去了生活的溫度。\n花梨木能軟化僵硬的心態，\n找回隨順因緣的溫柔與從容。|【溫潤歲月】花梨木 ＋ 波旁天竺葵 ＋ 甜橙|永續提醒：性質極為溫和親膚；選購時建議挑選具合法永續認證之來源。",
+      "44|穗甘松|Spikenard|wood|代表著臣服、寬恕與靈魂的安息。\n生長於喜馬拉雅高海拔的古老根部精油，\n帶著深邃厚重的泥土與麝香調，\n能將極度飄忽或焦慮的心神穩穩拉回地面，\n帶來最深層的臣服與和解。|心底還抓著某個無法原諒的人事物，\n或是對未知的變化充滿恐懼。\n穗甘松能陪你放下緊抓不放的控制欲，\n在徹底的釋懷中獲得真正的自由。|【喜馬拉雅靜心】穗甘松 ＋ 乳香 ＋ 真正薰衣草|安全：鎮靜與扎根效果極強，適合於夜晚、冥想或睡前靜心時使用。",
+      "45|黑胡椒|Black Pepper|wood|代表著點燃、果敢與突破框架的動能。\n乾燥溫暖的辛香氣息，\n能瞬間活絡停滯冰冷的能量場，\n為耐力不足的時刻注入強心針，\n推著你把心裡的藍圖化為真實。|陷入拖延與反覆猶豫的迴圈，\n心裡有很多計畫卻遲遲沒有動力執行。\n黑胡椒能點燃內在的生命之火，\n給你直接付諸行動的爽快魄力。|【熱情點燃】黑胡椒 ＋ 甜橙 ＋ 廣藿香|刺激性：對皮膚具溫熱刺激感，塗抹務必低濃度稀釋（1% 以下）。",
+      "46|纈草|Valerian|wood|代表著徹底關機、深沉安眠與卸下武裝。\n極為獨特且深沉的古老根部氣息，\n是自然界最強大的「休止符」，\n能強制讓過度緊繃的神經系統，\n進入最深層的修復與沉睡。|就算躺在床上，腦袋依然像跑馬燈轉個不停，\n連睡夢中都還在擔心明天的事。\n纈草能幫你拔掉焦慮的電源線，\n讓身心真正地墜入安穩的睡眠。|【深眠休止符】纈草 ＋ 甜馬鬱蘭 ＋ 甜橙|氣味與注意：氣味十分濃烈特殊（帶有發酵木質調），極少量與柑橘調合即可；開車前嚴禁使用。",
+      "47|丁香|Clove Bud|wood|代表著界線、熱情與不再委曲求全。\n濃烈溫暖的辛香調具有強大的防護力，\n能驅散心靈的寒意與受害者情結，\n支持你勇敢說出「不」，\n拿回屬於自己的人生主導權。|習慣討好他人、害怕衝突，\n在關係裡總是退讓到沒有自己的空間。\n丁香能為你注入火元素般的底氣，\n堅定地守住自己的核心原則。|【溫暖底氣】丁香 ＋ 甜橙 ＋ 薑|強刺激性：含高比例丁香酚，塗抹肌膚務必極低濃度稀釋（0.5% 以下），孕婦與幼童避開。",
+      "48|膠冷杉|Balsam Fir|wood|代表著純淨、希望與冬日裡的溫暖庇護。\n帶著淡淡果香與樹脂甜味的針葉氣息，\n宛如走進陽光明媚的北方白雪森林，\n能溫柔洗滌疲憊的呼吸，\n帶來平靜而充滿希望的視野。|在日復一日的瑣事中感到視野狹隘，\n心靈像是被關在狹小的房間裡。\n膠冷杉能為你打開一扇通往森林的窗，\n讓清新寬廣的能量重新流進心底。|【北國森林】膠冷杉 ＋ 大西洋雪松 ＋ 佛手柑|安全：針葉類中性質非常溫和的品種，適合日常空間擴香與呼吸照護。",
+      "49|黑雲杉|Black Spruce|wood|代表著回充、韌性與深層的底氣。\n沉穩卻又帶著清新空氣感的森林香氣，\n能深入支持長期透支的能量核心，\n在你覺得快要撐不下去的時候，\n成為你最安穩、最堅實的後盾。|長期靠著意志力硬撐，\n明明身體已經發出疲憊訊號卻不敢停下來。\n黑雲杉能溫和地為你補充電力，\n讓你明白休息是為了走更長遠的路。|【森林後盾】黑雲杉 ＋ 澳洲尤加利 ＋ 桉油醇迷迭香|注意：請選擇新鮮未氧化的精油，並稀釋後使用。",
+      "50|肉桂|Cinnamon Bark / Leaf|wood|代表著生命之火、熱情與創造的喜悅。\n熾熱而甜美的辛香氣息，\n能瞬間融化冷漠、孤寂與心灰意冷，\n重新點燃對生活的渴望與愛火，\n讓你感受到活在當下的溫熱與真實。|對生活失去了期待感，\n把心封閉在安全卻冰冷的舒適圈裡。\n肉桂能像冬日壁爐裡的火光般溫暖你，\n喚醒沉睡已久的生命熱情。|【壁爐暖火】肉桂 ＋ 甜橙 ＋ 乳香|極強刺激性：肉桂皮含高比例肉桂醛，建議僅作極低劑量擴香；若需塗抹請選肉桂葉並稀釋至 0.5% 以下，孕婦禁用。",
+      "51|安息香|Benzoin|wood|代表著甜美的呵護、安全感與柔軟的包覆。\n帶有香草冰淇淋般溫暖甜潤的樹脂香，\n能瞬間融化內心的孤單與防備，\n像一條柔軟的毛毯緊緊包裹住你，\n帶來無邊無際的寵愛與安心。|在堅強的外表下，\n其實非常渴望被理解、被好好地擁抱。\n安息香能溫柔地填補心靈的空洞，\n讓你卸下所有的逞強，安心地依靠。|【香草毛毯】安息香 ＋ 波旁天竺葵 ＋ 甜橙|質地提醒：質地極為濃稠，使用時可先以溫水隔水溫熱瓶身，或調入植物油中使用。"
+    ].map(s=>{const p=s.split('|');return{id:+p[0],name:p[1],enName:p[2],category:p[3],energy:p[4],shadow:p[5],blend:p[6],safety:p[7]}});
+
+    const META = {
+      citrus:{t:'\u679c\u9999\u8abf \u00b7 Citrus',n:'\u524d\u8abf Top Note \u00b7 \u8f15\u76c8\u9583\u8000\u7684\u6668\u5149\u5206\u5b50',h:'\u6e05\u8106\u5fae\u9178\u7684\u679c\u76ae\u7cbe\u6cb9\u9999\u6c23\u6b63\u5728\u8166\u6d77\u4e2d\u8df3\u8e8d...',dk:'from-[#201606]/95 via-[#120c04]/95 to-[#070402]/98 border-amber-400/40 text-amber-50 shadow-[0_0_60px_rgba(245,158,11,0.16)]',lt:'from-[#FFFDF8] via-[#FCF4E1] to-[#F3E5C8] border-amber-700/40 text-stone-800 shadow-[0_20px_60px_rgba(180,83,9,0.12)]'},
+      herb:{t:'\u8349\u672c\u8207\u8449\u7247 \u00b7 Herb & Leaf',n:'\u4e2d\u8abf Heart Note \u00b7 \u7a7f\u900f\u80f8\u8154\u7684\u7fe0\u7da0\u5fae\u98a8',h:'\u63c9\u788e\u65b0\u9bae\u8449\u7247\u822c\u7684\u6e05\u900f\u8349\u672c\u9999\u6c23\u6b63\u7de9\u7de9\u6563\u958b...',dk:'from-[#071a13]/95 via-[#05100c]/95 to-[#030604]/98 border-emerald-400/40 text-amber-50 shadow-[0_0_60px_rgba(16,185,129,0.16)]',lt:'from-[#FAFDFB] via-[#EBF6F0] to-[#DCECE3] border-emerald-800/35 text-stone-800 shadow-[0_20px_60px_rgba(4,120,87,0.12)]'},
+      flower:{t:'\u82b1\u9999\u8abf \u00b7 Floral',n:'\u4e2d\u5f8c\u8abf Heart Note \u00b7 \u6eab\u67d4\u5305\u8986\u7684\u82b1\u74e3\u5410\u606f',h:'\u5fae\u98a8\u62c2\u904e\u82b1\u74e3\u7684\u99a5\u90c1\u82ac\u82b3\u6b63\u8f15\u67d4\u5730\u7e5a\u7e5e\u9f3b\u606f...',dk:'from-[#210b12]/95 via-[#120609]/95 to-[#070304]/98 border-rose-400/40 text-amber-50 shadow-[0_0_60px_rgba(244,63,94,0.16)]',lt:'from-[#FFFBFB] via-[#FBECEF] to-[#F4DCE2] border-rose-800/35 text-stone-800 shadow-[0_20px_60px_rgba(190,18,60,0.12)]'},
+      wood:{t:'\u6728\u8cea\u3001\u6839\u90e8\u8207\u6a39\u8102 \u00b7 Wood & Resin',n:'\u5f8c\u8abf Base Note \u00b7 \u6df1\u9083\u7dbf\u9577\u7684\u5927\u5730\u5e95\u860a',h:'\u6eab\u6f64\u6c89\u7a69\u7684\u6728\u8cea\u8207\u7425\u73c0\u6a39\u8102\u9999\u6c23\u6b63\u7de9\u7de9\u6c89\u6fb1...',dk:'from-[#1e1209]/95 via-[#110a05]/95 to-[#070402]/98 border-amber-500/40 text-amber-50 shadow-[0_0_60px_rgba(217,119,6,0.18)]',lt:'from-[#FBF9F5] via-[#F2E9DC] to-[#E5D7C3] border-amber-900/40 text-stone-800 shadow-[0_20px_60px_rgba(120,53,15,0.14)]'}
+    };
+
+    const Icon = ({ d, c="w-4 h-4 shrink-0" }) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" className={c}>{d}</svg>;
+    const Corner = ({ c }) => <svg viewBox="0 0 60 60" fill="none" stroke="currentColor" className={c}><path d="M2 58V20C2 10 10 2 20 2H58" strokeWidth=".85"/><path d="M5.5 58V22C5.5 12.9 12.9 5.5 22 5.5H58" strokeWidth=".4"/><path d="M5.5 40C5.5 20 20 5.5 40 5.5" strokeWidth=".65"/><path d="M12 12C20 16 24 24 20 30C16 34 10 30 12 24C14 20 20 22 18 26" strokeWidth=".55"/><circle cx="10" cy="10" r="1.3" fill="currentColor"/></svg>;
+    const Divider = ({ c }) => <svg viewBox="0 0 280 20" fill="none" stroke="currentColor" className={c}><line x1="8" y1="10" x2="106" y2="10" strokeWidth=".45" opacity=".6"/><line x1="174" y1="10" x2="272" y2="10" strokeWidth=".45" opacity=".6"/><path d="M106 10C118 10 124 3 132 7C135 9 133 13 130 12M174 10C162 10 156 3 148 7C145 9 147 13 150 12" strokeWidth=".6"/><polygon points="140,2 144,10 140,18 136,10" strokeWidth=".65" fill="currentColor" fillOpacity=".15"/><circle cx="140" cy="10" r="1.2" fill="currentColor"/></svg>;
+
+    const CardBack = ({ type, c }) => (
+      <svg viewBox="0 0 140 210" fill="none" stroke="currentColor" className={c}>
+        <path d="M8 198V66A62 62 0 0 1 132 66V198Z" strokeWidth=".85"/><path d="M12 194V66A58 58 0 0 1 128 66V194Z" strokeWidth=".4"/><path d="M16 190V66A54 54 0 0 1 124 66V190Z" strokeWidth=".35" strokeDasharray="1.5 2" opacity=".65"/>
+        <circle cx="70" cy="72" r="46" strokeWidth=".75"/><circle cx="70" cy="72" r="39" strokeWidth="1.6" strokeDasharray="1 2.8" opacity=".6"/><circle cx="70" cy="72" r="35" strokeWidth=".4"/>
+        <path d="M20 186C20 152 50 142 70 118C90 142 120 152 120 186" strokeWidth=".65" opacity=".85"/><path d="M32 186C36 160 54 152 70 132C86 152 104 160 108 186" strokeWidth=".45" opacity=".65"/><line x1="70" y1="118" x2="70" y2="188" strokeWidth=".5" opacity=".7"/><polygon points="70,130 72.5,134 70,138 67.5,134" fill="currentColor"/>
+        {type==='sun'&&<g><line x1="70" y1="32" x2="70" y2="112" strokeWidth=".45" opacity=".6"/><line x1="30" y1="72" x2="110" y2="72" strokeWidth=".45" opacity=".6"/><line x1="42" y1="44" x2="98" y2="100" strokeWidth=".45" opacity=".6"/><line x1="42" y1="100" x2="98" y2="44" strokeWidth=".45" opacity=".6"/><path d="M70 44Q75.5 61 70 72Q64.5 61 70 44ZM70 100Q75.5 83 70 72Q64.5 83 70 100ZM42 72Q59 66.5 70 72Q59 77.5 42 72ZM98 72Q81 66.5 70 72Q81 77.5 98 72Z" fill="currentColor" fillOpacity=".15" strokeWidth=".65"/><circle cx="70" cy="72" r="10.5" fill="currentColor" fillOpacity=".12" strokeWidth=".75"/><circle cx="70" cy="72" r="2.2" fill="currentColor"/></g>}
+        {type==='moon'&&<g><circle cx="70" cy="72" r="27" strokeWidth=".35" strokeDasharray="1.5 1.5" opacity=".5"/><path d="M75 42A30 30 0 1 0 75 102A35 35 0 0 1 75 42Z" fill="currentColor" fillOpacity=".15" strokeWidth=".8"/><path d="M78 59L80.8 67.2L89 70L80.8 72.8L78 81L75.2 72.8L67 70L75.2 67.2Z" strokeWidth=".6" fill="currentColor" fillOpacity=".2"/></g>}
+        {type==='star'&&<g><polygon points="70,36 76.5,63.5 104,72 76.5,80.5 70,108 63.5,80.5 36,72 63.5,63.5" fill="currentColor" fillOpacity=".15" strokeWidth=".75"/><polygon points="70,43 73.5,66.5 97,72 73.5,77.5 70,101 66.5,77.5 43,72 66.5,66.5" strokeWidth=".45" transform="rotate(45 70 72)"/><circle cx="70" cy="72" r="15.5" strokeWidth=".4"/><circle cx="70" cy="72" r="2.2" fill="currentColor"/></g>}
+      </svg>
+    );
+
+    const Distiller = ({ step, lt }) => {
+      const g1 = lt ? '#92400E' : '#EAB308', g2 = lt ? '#B45309' : '#FEF9C3', g3 = lt ? '#78350F' : '#A16207', fl = lt ? 'rgba(180,83,9,.06)' : 'rgba(250,204,21,.06)';
+      return (
+        <div className="flex flex-col items-center justify-center py-4 a-fade select-none w-full">
+          <div className="relative w-[260px] h-[320px] shrink-0 mx-auto">
+            <svg viewBox="0 0 260 320" fill="none" className="w-full h-full overflow-visible">
+              <defs>
+                <linearGradient id="gL" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stopColor={g2}/><stop offset="50%" stopColor={g1}/><stop offset="100%" stopColor={g3}/></linearGradient>
+                <radialGradient id="dG" cx="35%" cy="35%" r="65%"><stop offset="0%" stopColor="#FFF"/><stop offset="35%" stopColor={g2}/><stop offset="75%" stopColor={g1}/><stop offset="100%" stopColor={g3}/></radialGradient>
+                <radialGradient id="pG" cx="50%" cy="50%" r="50%"><stop offset="0%" stopColor={g2} stopOpacity=".55"/><stop offset="100%" stopColor={g1} stopOpacity="0"/></radialGradient>
+              </defs>
+              <path className="a-draw" d="M22 296V120A108 108 0 0 1 238 120V296Z" stroke="url(#gL)" strokeWidth=".9" fill={fl}/>
+              <path className="a-draw" d="M26 292V120A104 104 0 0 1 234 120V292Z" stroke="url(#gL)" strokeWidth=".4" opacity=".8"/>
+              <g className="a-spin" style={{transformOrigin:'130px 118px'}}>
+                <circle cx="130" cy="118" r="82" stroke="url(#gL)" strokeWidth=".75"/><circle cx="130" cy="118" r="74" stroke={g1} strokeWidth="1.8" strokeDasharray=".8 3.2" opacity=".6"/><circle cx="130" cy="118" r="68" stroke="url(#gL)" strokeWidth=".4"/>
+                {Array.from({length:36}).map((_,i)=><line key={i} x1="130" y1={i%3===0?36:41} x2="130" y2="48" stroke={g2} strokeWidth={i%3===0?".6":".3"} opacity=".6" transform={`rotate(${i*10} 130 118)`}/>)}
+              </g>
+              <g className="a-rspin" style={{transformOrigin:'130px 118px'}}>
+                {[0,22.5,45,67.5].map(d=><polygon key={d} points="130,64 141,107 184,118 141,129 130,172 119,129 76,118 119,107" stroke="url(#gL)" strokeWidth=".4" opacity=".55" transform={`rotate(${d} 130 118)`}/>)}
+              </g>
+              <g className="a-bloom" stroke="url(#gL)"><path d="M130 78C115 94 115 112 130 124C145 112 145 94 130 78ZM130 124C112 114 98 100 106 86C118 90 126 104 130 124ZM130 124C148 114 162 100 154 86C142 90 134 104 130 124Z" fill={fl} strokeWidth=".7"/><circle cx="130" cy="102" r="1.8" fill={g2}/></g>
+              <g className="a-draw" stroke="url(#gL)" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M96 192C104 212 156 212 164 192" strokeWidth=".85" fill={fl}/>
+                <path d="M102 195C109 208 151 208 158 195" strokeWidth=".35" opacity=".65"/>
+                <ellipse cx="130" cy="192" rx="34" ry="4.5" fill="url(#pG)" strokeWidth=".45"/>
+                <polygon points="130,207 135,214 130,221 125,214" fill={fl} strokeWidth=".7"/>
+                <circle cx="130" cy="214" r="1.5" fill={g2}/>
+                <line x1="130" y1="221" x2="130" y2="278" strokeWidth=".8"/>
+                <line x1="127" y1="225" x2="127" y2="274" strokeWidth=".3" opacity=".5"/>
+                <line x1="133" y1="225" x2="133" y2="274" strokeWidth=".3" opacity=".5"/>
+                <circle cx="130" cy="246" r="16" strokeWidth=".45" strokeDasharray="1.5 2"/>
+                <polygon points="130,228 134,242 148,246 134,250 130,264 126,250 112,246 126,242" fill={fl} strokeWidth=".6"/>
+                <circle cx="130" cy="246" r="2" fill={g2}/>
+                <path d="M130 264C108 264 84 250 74 228C88 230 104 240 112 246M130 264C152 264 176 250 186 228C172 230 156 240 148 246" fill={fl} strokeWidth=".7"/>
+                <path d="M130 250C110 246 92 232 86 212C98 218 110 230 118 240M130 250C150 246 168 232 174 212C162 218 150 230 142 240" fill={fl} strokeWidth=".55"/>
+                <path d="M96 278C110 268 150 268 164 278Z" fill={fl} strokeWidth=".75"/>
+                <line x1="76" y1="282" x2="184" y2="282" strokeWidth=".65"/>
+                <polygon points="130,278 133,282 130,286 127,282" fill={g2}/>
+              </g>
+              <line x1="130" y1="126" x2="130" y2="192" stroke="url(#gL)" strokeWidth=".25" strokeDasharray="1 2.5" opacity=".45"/>
+              <path className="a-swell" d="M127.5 124Q130 129.5 132.5 124Z" fill="url(#dG)" stroke={g2} strokeWidth=".35"/>
+              <g className="a-sat"><circle cx="130" cy="126" r="1.1" fill={g2}/><circle cx="129.6" cy="125.6" r=".35" fill="#FFF"/></g>
+              <g className="a-drop"><path d="M130 121C130 121 124.8 129.2 124.8 133A5.2 5.2 0 1 0 135.2 133C135.2 129.2 130 121 130 121Z" fill="url(#dG)" stroke={g2} strokeWidth=".55"/><path d="M128.2 126.5C126.6 129.2 126.3 132 127.2 134.5" stroke="#FFF" strokeWidth=".65" strokeLinecap="round"/><circle cx="131.8" cy="135.2" r=".65" fill="#FFF"/></g>
+              <g className="a-splash" stroke={g2} fill={g2}><circle cx="130" cy="188" r="1.15"/><circle cx="122" cy="190" r=".75"/><circle cx="138" cy="190" r=".75"/></g>
+              <ellipse cx="130" cy="192" rx="22" ry="3.8" stroke={g2} strokeWidth=".55" className="a-rip1"/><ellipse cx="130" cy="192" rx="15" ry="2.6" stroke={g1} strokeWidth=".4" className="a-rip2"/><ellipse cx="130" cy="192" rx="8" ry="1.4" stroke={g2} strokeWidth=".3" className="a-rip3"/>
+            </svg>
+          </div>
+          <div className="space-y-4 w-full text-center mt-2 px-2">
+            <p key={step} className={`text-[15px] tracking-[0.16em] a-fade ${lt?'text-stone-800 font-medium':'gold-txt'}`}>
+              {step==='prepare'&&'\u9589\u4e0a\u96d9\u773c\uff0c\u51dd\u795e\u975c\u6c23...'}
+              {step==='inhale'&&'\u6df1\u5438\u4e00\u53e3\u6c23\uff0c\u611f\u53d7\u690d\u7269\u7cbe\u8403\u7de9\u7de9\u51dd\u805a...'}
+              {step==='exhale'&&'\u7de9\u7de9\u5410\u6c23\uff0c\u8b93\u9999\u6c23\u5728\u8166\u6d77\u4e2d\u6e05\u6f88\u7dbb\u653e...'}
+            </p>
+            <div className={`w-48 h-[1px] mx-auto rounded-full overflow-hidden ${lt?'bg-amber-900/15':'bg-amber-500/15'}`}><div className={`h-full a-prog ${lt?'bg-amber-700':'bg-amber-300'}`}/></div>
+            <p className={`text-[9px] font-display tracking-[0.42em] uppercase ${lt?'text-amber-900/50':'text-amber-400/55'}`}>Sacred Botanical Distillation</p>
+          </div>
+        </div>
+      );
+    };
+
+    const Medallion = ({ cat, lt }) => {
+      const P = {
+        citrus:{p:lt?'#B45309':'#FBBF24',s:lt?'#D97706':'#FEF08A',f:'rgba(251,191,36,.11)'},
+        herb:{p:lt?'#047857':'#34D399',s:lt?'#10B981':'#A7F3D0',f:'rgba(16,185,129,.11)'},
+        flower:{p:lt?'#BE123C':'#FB7185',s:lt?'#F43F5E':'#FECDD3',f:'rgba(244,63,94,.11)'},
+        wood:{p:lt?'#92400E':'#F59E0B',s:lt?'#B45309':'#FDE68A',f:'rgba(217,119,6,.11)'}
+      }[cat];
+      return (
+        <div className="relative w-[220px] h-[220px] shrink-0 mx-auto my-1 flex items-center justify-center select-none">
+          <svg viewBox="0 0 220 220" fill="none" className="w-full h-full overflow-visible">
+            <defs><linearGradient id={`g-${cat}`} x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stopColor={P.s}/><stop offset="50%" stopColor={P.p}/><stop offset="100%" stopColor={P.s}/></linearGradient></defs>
+            <g className="a-spin" style={{transformOrigin:'110px 115px'}}>
+              <circle cx="110" cy="115" r="84" stroke={`url(#g-${cat})`} strokeWidth=".8"/><circle cx="110" cy="115" r="76" stroke={P.p} strokeWidth="2.2" strokeDasharray="1 3.5" opacity=".5"/><circle cx="110" cy="115" r="70" stroke={`url(#g-${cat})`} strokeWidth=".45"/>
+              {Array.from({length:36}).map((_,i)=><line key={i} x1="110" y1={i%3===0?31:35} x2="110" y2="42" stroke={P.p} strokeWidth={i%3===0?".6":".3"} opacity=".6" transform={`rotate(${i*10} 110 115)`}/>)}
+            </g>
+            <g className="a-rspin" style={{transformOrigin:'110px 115px'}}>
+              <circle cx="110" cy="115" r="56" stroke={P.p} strokeWidth=".4" opacity=".5"/>
+              <polygon points="110,54 123,97 166,115 123,133 110,176 97,133 54,115 97,97" stroke={P.p} strokeWidth=".45" fill={P.f} opacity=".5"/>
+              <polygon points="110,54 123,97 166,115 123,133 110,176 97,133 54,115 97,97" stroke={P.p} strokeWidth=".35" opacity=".35" transform="rotate(45 110 115)"/>
+            </g>
+            <g stroke={`url(#g-${cat})`} strokeLinecap="round" strokeLinejoin="round">
+              {cat==='citrus'&&<><path d="M64 166C64 120 88 94 110 66C132 94 156 120 156 166" strokeWidth=".85"/><line x1="110" y1="66" x2="110" y2="158" strokeWidth=".65"/><circle cx="110" cy="122" r="24" fill={P.f} strokeWidth=".95"/><circle cx="110" cy="122" r="18" strokeWidth=".4" strokeDasharray="1.5 1.5"/>{[0,45,90,135,180,225,270,315].map(d=><path key={d} d="M110 122L105 106Q110 103 115 106Z" strokeWidth=".4" fill={P.f} transform={`rotate(${d} 110 122)`}/>)}<path d="M110 94C88 84 70 96 74 112C86 112 102 104 110 94ZM110 94C132 84 150 96 146 112C134 112 118 104 110 94Z" fill={P.f} strokeWidth=".8"/><circle cx="110" cy="64" r="2.5" fill={P.s}/></>}
+              {cat==='herb'&&<><line x1="110" y1="174" x2="110" y2="50" strokeWidth=".9"/><path d="M110 146C84 142 64 124 70 106C86 112 104 128 110 146ZM110 146C136 142 156 124 150 106C134 112 116 128 110 146ZM110 118C86 110 72 90 80 74C94 82 106 100 110 118ZM110 118C134 110 148 90 140 74C126 82 114 100 110 118ZM110 90C94 82 88 66 96 56C104 64 108 76 110 90ZM110 90C126 82 132 66 124 56C116 64 112 76 110 90Z" fill={P.f} strokeWidth=".8"/><path d="M110 56Q116 42 110 32Q104 42 110 56Z" fill={P.f} strokeWidth=".75"/></>}
+              {cat==='flower'&&<><path d="M92 174C96 148 110 138 110 114M128 174C124 148 110 138 110 114" strokeWidth=".85"/><path d="M110 60C86 60 68 80 74 106C80 124 96 132 110 132C124 132 140 124 146 106C152 80 134 60 110 60Z" fill={P.f} strokeWidth=".9"/><path d="M110 70C92 74 82 94 90 112C96 122 110 126 110 126M110 70C128 74 138 94 130 112C124 122 110 126 110 126" strokeWidth=".75"/><path d="M90 88C100 78 120 78 130 88C124 106 96 106 90 88Z" fill={P.f} strokeWidth=".7"/><circle cx="110" cy="94" r="2.5" fill={P.s}/></>}
+              {cat==='wood'&&<><path d="M76 170C92 158 103 138 104 108C104 82 86 66 70 62M144 170C128 158 117 138 116 108C116 82 134 66 150 62" strokeWidth=".9"/><line x1="110" y1="92" x2="110" y2="174" strokeWidth=".65"/><polygon points="110,44 123,68 110,92 97,68" fill={P.f} strokeWidth=".9"/><polygon points="110,50 118,68 110,86 102,68" strokeWidth=".45"/><circle cx="110" cy="68" r="1.8" fill={P.s}/></>}
+            </g>
+            <path className="a-tw1" fill={P.s} d="M72 44L73.2 48.2L77.5 49.5L73.2 50.8L72 55L70.8 50.8L66.5 49.5L70.8 48.2Z"/>
+            <path className="a-tw2" fill={P.s} d="M148 44L149.2 48.2L153.5 49.5L149.2 50.8L148 55L146.8 50.8L142.5 49.5L146.8 48.2Z"/>
+          </svg>
+        </div>
+      );
+    };
+
+    function App() {
+      const [cards, setCards] = useState([]), [cur, setCur] = useState(null), [draw, setDraw] = useState(false);
+      const [shw, setShw] = useState(false), [step, setStep] = useState(''), [lt, setLt] = useState(false);
+      const [hist, setHist] = useState([]), [openH, setOpenH] = useState(false), [cp, setCp] = useState(false);
+      const tRef = useRef([]);
+      const clr = () => { tRef.current.forEach(clearTimeout); tRef.current = []; };
+
+      const init = () => {
+        clr();
+        const a = [..._PAYLOAD];
+        for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+        setCards(a.slice(0, 3)); setCur(null); setDraw(false); setStep(''); setShw(false); setCp(false);
+      };
+
+      useEffect(() => {
+        init();
+        try { const s = localStorage.getItem('waven_h'); if (s) setHist(JSON.parse(s)); } catch (e) {}
+        return clr;
+      }, []);
+
+      const pick = (i) => {
+        if (draw || !cards[i]) return;
+        clr(); setDraw(true); setCur(null); setShw(false); setCp(false);
+        const sel = cards[i]; setStep('prepare');
+        tRef.current.push(
+          setTimeout(() => setStep('inhale'), 1150),
+          setTimeout(() => setStep('exhale'), 2350),
+          setTimeout(() => {
+            setCur(sel); setDraw(false); setStep('');
+            const d = new Date(), ts = `${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+            setHist(p => { const u = [{ ...sel, drawTime: ts, rid: Date.now() }, ...p].slice(0, 15); try { localStorage.setItem('waven_h', JSON.stringify(u)); } catch (e) {} return u; });
+          }, 3600)
+        );
+      };
+
+      const copy = () => {
+        if (!cur) return;
+        const txt = `\u3010WAVEN \u690d\u7269\u9999\u6c23\u6307\u5f15\u3011\n\ud83c\udf3f ${cur.name} (${cur.enName})\n\n\u2728 \u80fd\u91cf\u6307\u5f15\uff1a\n${cur.energy}\n\n\ud83d\udca7 \u9670\u5f71\u89ba\u5bdf\uff1a\n${cur.shadow}\n\n\ud83e\uddea \u9999\u6c23\u5171\u9cf4\u914d\u65b9\uff1a\n${cur.blend}\n\n\u2014\u2014 Follow your inner light \u00b7 WAVEN`;
+        const ok = () => { setCp(true); tRef.current.push(setTimeout(() => setCp(false), 2500)); };
+        if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(txt).then(ok);
+        else { const ta = document.createElement("textarea"); ta.value = txt; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); ok(); }
+      };
+
+      return (
+        <div className={`min-h-[100dvh] font-serif flex flex-col items-center justify-between py-6 px-3.5 relative overflow-x-hidden transition-colors duration-1000 ${lt?'bg-[#F3ECE0] text-stone-800':'bg-[#070503] text-amber-50'}`}>
+          <div className={`fixed inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] opacity-95 pointer-events-none ${lt?'from-[#FFFDF9] via-[#F3ECE0] to-[#E2D6C1]':'from-[#22160a] via-[#090604] to-[#030201]'}`}/>
+          <div className="fixed inset-0 bg-noise opacity-5 pointer-events-none"/>
+
+          <div className="w-full max-w-[420px] mx-auto flex flex-col flex-1 justify-between z-10">
+            <header className="w-full flex justify-between items-center mb-6 shrink-0">
+              <button onClick={() => setLt(!lt)} className={`px-3.5 py-2 rounded-full border flex items-center gap-1.5 text-xs tracking-widest ${lt?'bg-[#FAF6EE]/90 border-amber-800/30 text-stone-700':'bg-[#150f09]/90 border-amber-500/30 text-amber-200/85'}`}>
+                <Icon d={lt?<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>:<><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></>} c="w-3.5 h-3.5"/>
+                <span>{lt?'\u5fae\u5149\u591c\u91d1':'\u6668\u5149\u4e9e\u9ebb'}</span>
+              </button>
+              <div className="flex flex-col items-center">
+                <div className={`text-2xl font-display tracking-[0.28em] font-bold ${lt?'text-stone-800':'gold-txt'}`}>WAVEN</div>
+                <span className={`text-[9px] font-italicSerif italic tracking-[0.35em] ${lt?'text-amber-900/60':'text-amber-400/60'}`}>Botanical Oracle</span>
+              </div>
+              <button onClick={() => setOpenH(true)} className={`px-3.5 py-2 rounded-full border flex items-center gap-1.5 text-xs tracking-widest relative ${lt?'bg-[#FAF6EE]/90 border-amber-800/30 text-stone-700':'bg-[#150f09]/90 border-amber-500/30 text-amber-200/85'}`}>
+                <Icon d={<><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5M12 7v5l4 2"/></>} c="w-3.5 h-3.5"/>
+                <span>{'\u9999\u7c64\u7c3f'}</span>
+              </button>
+            </header>
+
+            <main className="w-full flex-1 flex flex-col items-center justify-center my-auto">
+              {!cur && !draw && (
+                <div className="text-center space-y-6 a-fade w-full py-2">
+                  <div className="space-y-2">
+                    <p className={`text-[10px] font-display tracking-[0.38em] uppercase ${lt?'text-amber-800/70':'text-amber-400/70'}`}>Sacred Botanical Reading</p>
+                    <h1 className="text-2xl tracking-[0.2em] font-normal">{'\u4eca\u65e5\u690d\u7269\u9999\u6c23\u6307\u5f15'}</h1>
+                    <Divider c={`w-56 h-5 mx-auto ${lt?'text-amber-800/55':'text-amber-400/65'}`}/>
+                  </div>
+                  <p className={`poetic text-[13.5px] ${lt?'text-stone-600':'text-amber-100/75'}`}>{'\u8acb\u9589\u4e0a\u96d9\u773c\uff0c\u505a\u4e09\u6b21\u6df1\u9577\u800c\u7de9\u6162\u7684\u547c\u5438\n\u60f3\u50cf\u8d70\u9032\u7030\u6f2b\u82ac\u82b3\u7684\u82b1\u623f\uff0c\u6191\u76f4\u89ba\u8f15\u89f8\u4e00\u5f35\u756b\u724c'}</p>
+                  <div className="grid grid-cols-3 gap-3.5 pt-3 pb-4 px-1 w-full">
+                    {['sun','moon','star'].map((t, i) => (
+                      <button key={t} onClick={() => pick(i)} className={`group relative w-full aspect-[3/5] rounded-t-[2.4rem] rounded-b-xl border transition-all duration-700 flex items-center justify-center p-2 overflow-hidden ${i===0?'-rotate-2 translate-y-1.5':i===2?'rotate-2 translate-y-1.5':''} hover:rotate-0 hover:-translate-y-2.5 ${lt?'bg-gradient-to-b from-[#FFFDF9] via-[#F7EFE0] to-[#E8DAC2] border-amber-800/35 shadow-lg':'bg-gradient-to-b from-[#1c1308] via-[#110b05] to-[#080503] border-amber-500/35 shadow-2xl'}`}>
+                        <div className="absolute inset-0 bg-noise opacity-15 pointer-events-none"/><div className="absolute inset-0 sweep pointer-events-none"/>
+                        <CardBack type={t} c={`w-full h-full transition-transform duration-700 group-hover:scale-105 ${lt?'text-amber-800/80':'text-amber-400/85'}`}/>
+                      </button>
+                    ))}
+                  </div>
+                  <div className="pt-4 border-t border-amber-500/15 w-full flex justify-center">
+                    <a href={LINE_URL} target="_blank" rel="noopener noreferrer" className={`inline-flex items-center gap-2 py-1.5 px-4 text-xs tracking-[0.16em] ${lt?'text-stone-600 hover:text-amber-900':'text-amber-200/75 hover:text-amber-100'}`}>
+                      <Icon d={<path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/>} c="w-3.5 h-3.5"/>
+                      <span>{'\u66f4\u591a\u7591\u554f\u6b61\u8fce\u7dda\u4e0a\u8a62\u554f'}</span>
+                    </a>
+                  </div>
+                </div>
+              )}
+
+              {draw && <Distiller step={step} lt={lt}/>}
+
+              {cur && (
+                <div className="w-full a-reveal space-y-5 pb-8 relative">
+                  <p className={`text-xs italic tracking-[0.14em] flex items-center justify-center gap-1.5 ${lt?'text-amber-900/80':'text-amber-300/85'}`}>
+                    <span>✦ {META[cur.category].h}</span>
+                  </p>
+                  <div className={`relative rounded-t-[3.5rem] rounded-b-3xl overflow-hidden border p-3 backdrop-blur-xl bg-gradient-to-b ${lt?META[cur.category].lt:META[cur.category].dk}`}>
+                    <div className="absolute inset-0 bg-noise opacity-15 pointer-events-none"/>
+                    <div className={`relative z-10 rounded-t-[2.8rem] rounded-b-2xl border px-4 py-6 ${lt?'border-amber-800/30 bg-white/55':'border-amber-400/30 bg-[#090603]/55'}`}>
+                      <Corner c={`w-10 h-10 absolute top-3 left-3 ${lt?'text-amber-800/60':'text-amber-400/65'}`}/>
+                      <Corner c={`w-10 h-10 absolute top-3 right-3 rotate-90 ${lt?'text-amber-800/60':'text-amber-400/65'}`}/>
+                      <Corner c={`w-10 h-10 absolute bottom-3 left-3 -rotate-90 ${lt?'text-amber-800/60':'text-amber-400/65'}`}/>
+                      <Corner c={`w-10 h-10 absolute bottom-3 right-3 rotate-180 ${lt?'text-amber-800/60':'text-amber-400/65'}`}/>
+
+                      <div className={`text-center pb-5 border-b ${lt?'border-amber-800/15':'border-amber-500/15'}`}>
+                        <span className={`text-[10px] font-display tracking-[0.22em] uppercase px-3.5 py-0.5 rounded-full border ${lt?'bg-[#FAF3E3] border-amber-800/25 text-amber-950':'bg-[#1a1208] border-amber-400/30 text-amber-200'}`}>
+                          NO. {String(cur.id).padStart(2,'0')} · {META[cur.category].t}
+                        </span>
+                        <Medallion cat={cur.category} lt={lt}/>
+                        <h2 className={`text-3xl tracking-[0.2em] font-medium mt-1 ${lt?'text-stone-800':'gold-txt'}`}>{cur.name}</h2>
+                        <p className={`text-xs font-italicSerif italic tracking-[0.24em] mt-1 ${lt?'text-stone-500':'text-amber-200/75'}`}>{cur.enName}</p>
+                        <p className={`text-[11px] mt-1.5 tracking-[0.12em] ${lt?'text-amber-900/75':'text-amber-400/75'}`}>✦ {META[cur.category].n} ✦</p>
+                      </div>
+
+                      <div className="py-6 space-y-6 text-center">
+                        <div className="space-y-3.5">
+                          <div className={`text-xs tracking-[0.26em] ${lt?'text-amber-900 font-medium':'text-amber-300'}`}>✦ {'\u690d\u7269\u80fd\u91cf\u6307\u5f15'} ✦</div>
+                          <p className={`poetic text-[14.5px] ${lt?'text-stone-700':'text-amber-50/95'}`}>{cur.energy}</p>
+                        </div>
+                        <Divider c={`w-56 h-5 mx-auto ${lt?'text-amber-800/40':'text-amber-400/45'}`}/>
+                        <div className="space-y-3">
+                          <button onClick={() => setShw(!shw)} className={`w-full flex items-center justify-center gap-2 text-xs tracking-[0.2em] py-1.5 ${lt?'text-stone-600':'text-amber-300/90'}`}>
+                            <span>{'\u5167\u5728\u9670\u5f71\u89ba\u5bdf\uff08\u9ede\u64ca\u5c55\u958b\uff09'}</span>
+                            <Icon d={<path d={shw?"m18 15-6-6-6 6":"m6 9 6 6 6-6"}/>} c="w-3.5 h-3.5"/>
+                          </button>
+                          {shw && <div className={`py-4 px-3 rounded-xl border a-fade ${lt?'bg-[#FAF5E8]/90 border-amber-800/20 text-stone-700':'bg-[#080503]/75 border-amber-500/20 text-amber-100/90'}`}><p className="poetic text-[13.5px]">{cur.shadow}</p></div>}
+                        </div>
+                        <div className={`py-4 px-2.5 sm:px-4 rounded-xl border ${lt?'bg-[#FAF3E0] border-amber-800/25 text-stone-800':'bg-amber-950/35 border-amber-400/25 text-amber-100'}`}>
+                          <div className={`text-xs tracking-[0.2em] mb-2 ${lt?'text-amber-900 font-medium':'text-amber-300'}`}>{'\u9999\u6c23\u5171\u9cf4\u914d\u65b9\u7b8b'}</div>
+                          <p className={`whitespace-nowrap font-medium leading-relaxed ${cur.blend.length>22?'text-[11px] sm:text-[12.5px] tracking-tight':cur.blend.length>19?'text-[12px] sm:text-[13px] tracking-[0.03em]':'text-[13.5px] tracking-[0.08em]'}`}>{cur.blend}</p>
+                        </div>
+                        <div className={`pt-1 text-[11.5px] tracking-wider ${lt?'text-stone-500':'text-amber-400/65'}`}>
+                          <div>{'\u82b3\u7642\u5e2b\u8cbc\u5fc3\u63d0\u9192'}</div>
+                          <p className="mt-1 px-2">{cur.safety}</p>
+                        </div>
+                      </div>
+                      <div className={`pt-4 border-t text-center text-[9px] font-display tracking-[0.38em] uppercase ${lt?'border-amber-800/15 text-stone-400':'border-amber-500/15 text-amber-500/40'}`}>Waven Botanical Oracle</div>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3 pt-1">
+                    <button onClick={copy} className={`flex items-center justify-center gap-2 py-3 px-4 rounded-full border text-xs tracking-[0.15em] ${lt?'bg-[#FAF6EE] border-amber-800/30 text-stone-800':'bg-[#150f09] border-amber-500/35 text-amber-200'}`}>
+                      <span>{cp?'\u5df2\u6536\u5165\u526a\u8cbc\u7c3f':'\u73cd\u85cf\u4eca\u65e5\u9999\u7c64'}</span>
+                    </button>
+                    <button onClick={init} className={`flex items-center justify-center gap-2 py-3 px-4 rounded-full border text-xs tracking-[0.15em] ${lt?'bg-stone-800 border-stone-800 text-stone-50':'bg-amber-900/30 border-amber-400/45 text-amber-100'}`}>
+                      <span>{'\u91cd\u65b0\u6d17\u724c'}</span>
+                    </button>
+                  </div>
+
+                  <a href={LINE_URL} target="_blank" rel="noopener noreferrer" className={`group relative w-full p-4 rounded-2xl border flex items-center justify-between overflow-hidden ${lt?'bg-[#FAF6EE]/95 border-amber-800/25':'bg-gradient-to-br from-[#1a1209]/95 to-[#100b06]/95 border-amber-500/30'}`}>
+                    <div className="absolute inset-0 sweep pointer-events-none"/>
+                    <div className="flex items-center gap-3.5 relative z-10">
+                      <div className={`p-3 rounded-full border ${lt?'bg-amber-50 border-amber-700/25 text-amber-800':'bg-amber-950/60 border-amber-400/30 text-amber-300'}`}>
+                        <Icon d={<path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/>}/>
+                      </div>
+                      <div className="text-left">
+                        <div className={`text-xs sm:text-sm font-medium tracking-[0.16em] ${lt?'text-stone-800':'text-amber-100'}`}>{'\u66f4\u591a\u7591\u554f\u6b61\u8fce\u7dda\u4e0a\u8a62\u554f'}</div>
+                        <div className={`text-[11px] tracking-wider mt-0.5 ${lt?'text-stone-500':'text-amber-400/65'}`}>{'\u52a0\u5165 WAVEN \u5b98\u65b9 LINE \u8207\u6211\u5011\u804a\u804a'}</div>
+                      </div>
+                    </div>
+                    <Icon d={<><path d="M7 7h10v10"/><path d="M7 17 17 7"/></>} c={`w-4 h-4 ${lt?'text-amber-800/60':'text-amber-400/70'}`}/>
+                  </a>
+                </div>
+              )}
+            </main>
+          </div>
+
+          {openH && (
+            <div className="fixed inset-0 z-50 flex justify-end bg-black/65 backdrop-blur-sm a-fade">
+              <div className={`w-full max-w-[360px] h-full p-6 flex flex-col justify-between overflow-y-auto border-l ${lt?'bg-[#FAF6EE] border-stone-300 text-stone-800':'bg-[#0d0906] border-amber-500/25 text-amber-50'}`}>
+                <div className="space-y-5">
+                  <div className="flex items-center justify-between pb-4 border-b border-amber-500/20">
+                    <span className="tracking-[0.2em] text-base">{'\u500b\u4eba\u9999\u7c64\u7c3f'}</span>
+                    <button onClick={() => setOpenH(false)} className="p-1.5"><Icon d={<path d="M18 6 6 18M6 6l12 12"/>}/></button>
+                  </div>
+                  {hist.length === 0 ? <p className="text-center py-12 text-xs tracking-widest opacity-50">{'\u5c1a\u7121\u62bd\u724c\u7d00\u9304'}</p> : (
+                    <div className="space-y-3">
+                      {hist.map(it => (
+                        <button key={it.rid} onClick={() => { setCur(it); setShw(false); setOpenH(false); }} className={`w-full text-left p-4 rounded-xl border flex items-center justify-between ${lt?'bg-white border-stone-200':'bg-[#16100a] border-amber-500/20'}`}>
+                          <div className="pr-2 truncate"><div className="font-medium">{it.name} <span className="text-[10px] italic opacity-50">{it.enName}</span></div><p className="text-xs mt-1 truncate opacity-65">{it.blend}</p></div>
+                          <span className="text-[10px] font-mono opacity-45 shrink-0">{it.drawTime}</span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                {hist.length > 0 && <button onClick={() => { setHist([]); try { localStorage.removeItem('waven_h'); } catch (e) {} }} className="mt-6 w-full py-2.5 text-xs tracking-widest border border-amber-500/20 rounded-lg opacity-60 hover:opacity-100">{'\u6e05\u7a7a\u672c\u6a5f\u9999\u7c64\u7d00\u9304'}</button>}
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    }
+    ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+  </script>
+</body>
+</html>
