@@ -24,6 +24,7 @@ jobs:
           mkdir _site
           cp index.html index2.html _site/
           cp Enneagram _site/enneagram.html
+          cp -R assets _site/assets
           touch _site/.nojekyll
       - uses: actions/upload-pages-artifact@v3
         with:
