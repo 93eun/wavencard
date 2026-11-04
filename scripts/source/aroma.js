@@ -1003,6 +1003,9 @@ function App() {
         onClick: init,
         className: `flex items-center justify-center gap-2 py-3 px-4 rounded-full border text-xs tracking-[0.15em] ${lt ? "bg-stone-800 border-stone-800 text-stone-50" : "bg-amber-900/30 border-amber-400/45 text-amber-100"}`
     }, React.createElement("span", null, "\u91cd\u65b0\u6d17\u724c"))), React.createElement("a", {
+        href: "./index.html",
+        className: `flex items-center justify-center min-h-[44px] py-3 px-5 rounded-full border text-xs tracking-[0.15em] transition-colors ${lt ? "border-amber-800/30 text-stone-800 hover:bg-amber-50" : "border-amber-500/35 text-amber-200 hover:bg-amber-900/30"}`
+    }, "\u2190 \u56de\u5230\u9996\u9801"), React.createElement("a", {
         href: LINE_URL,
         target: "_blank",
         rel: "noopener noreferrer",

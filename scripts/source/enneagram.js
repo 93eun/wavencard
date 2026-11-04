@@ -770,7 +770,10 @@ const App = () => {
         className: "text-xs tracking-[0.3em] text-[#a68c60] uppercase mb-3"
     }, "\u2766 \u4f86\u81ea\u690d\u7269\u7cbe\u9748\u7684\u6084\u6084\u8a71 \u2766"), h("p", {
         className: "text-2xl font-normal tracking-[0.15em] text-[#d4af37] italic leading-[1.95]"
-    }, `\u300c${drawn[drawn.length - 1].whisper[0]}`, h("br"), `${drawn[drawn.length - 1].whisper[1]}\u300d`)))), drawn.length === maxCards && h("button", {
+    }, `\u300c${drawn[drawn.length - 1].whisper[0]}`, h("br"), `${drawn[drawn.length - 1].whisper[1]}\u300d`)))), drawn.length === maxCards && h("a", {
+        href: "./index.html",
+        className: "inline-flex items-center justify-center min-h-[44px] mt-8 px-8 py-3 rounded-full border border-[#d4af37]/50 text-[#d4af37] hover:bg-[#d4af37]/15 transition-all tracking-[0.25em] text-xs no-underline"
+    }, "\u2190 \u56de\u5230\u9996\u9801"), drawn.length === maxCards && h("button", {
         onClick: reset,
         className: "mt-10 mb-4 px-8 py-2.5 rounded-full border border-[#d4af37]/50 text-[#d4af37] hover:bg-[#d4af37]/15 transition-all tracking-[0.25em] text-xs uppercase cursor-pointer"
     }, "\u21bb \u91cd\u65b0\u975c\u5fc3\u6d17\u724c\u30fbDraw Again"))), h("footer", {
