@@ -1,4 +1,4 @@
-const {useState: useState, createElement: h} = React;
+const {useState: useState, useEffect: useEffect, createElement: h} = React;
 
 const LINE_ADD_URL = "https://line.me/R/ti/p/@171obltq";
 
@@ -431,23 +431,36 @@ const App = () => {
     const [deck, setDeck] = useState(newDeck);
     const [drawn, setDrawn] = useState([]);
     const [copied, setCopied] = useState(false);
+    const [revealed, setRevealed] = useState(false);
+    const [turning, setTurning] = useState(false);
     const maxCards = mode === "persona" ? 2 : 3;
+    useEffect(() => {
+        if (drawn.length !== maxCards) return;
+        const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        const turnTimer = setTimeout(() => setTurning(true), reduced ? 0 : 450);
+        const revealTimer = setTimeout(() => setRevealed(true), reduced ? 0 : 800);
+        return () => { clearTimeout(turnTimer); clearTimeout(revealTimer); };
+    }, [drawn, maxCards]);
     const switchMode = newMode => {
         setMode(newMode);
         setDeck(newDeck(newMode));
         setDrawn([]);
         setCopied(false);
+        setRevealed(false);
+        setTurning(false);
     };
-    const pickCard = card => {
+    const drawTop = () => {
         setDrawn(previous => {
-            if (previous.length >= maxCards || previous.some(item => item.id === card.id)) return previous;
-            return [...previous, card];
+            if (previous.length >= maxCards) return previous;
+            return [...previous, deck[previous.length]];
         });
     };
     const reset = () => {
         setDeck(newDeck(mode));
         setDrawn([]);
         setCopied(false);
+        setRevealed(false);
+        setTurning(false);
     };
     const copyResultToClipboard = () => {
         const text = mode === "persona" ? `\u3010\u690d\u7269\u4e5d\u578b\u30fb\u4e3b\u526f\u4eba\u683c\u6aa2\u6e2c\u3011\u6211\u62bd\u5230\u7684\u662f\uff1a\u4e3b\u4eba\u683c\u300c${drawn[0].oil}\u30fb${drawn[0].name}\u300d\u3001\u526f\u4eba\u683c\u300c${drawn[1].oil}\u30fb${drawn[1].name}\u300d\uff0c\u60f3\u9810\u7d04\u5c08\u5c6c\u4eba\u683c\u6df1\u5ea6\u89e3\u8b80\u8207\u5ba2\u88fd\u5b88\u8b77\u8abf\u9999\uff01` : `\u3010\u690d\u7269\u4e5d\u578b\u30fb\u7cbe\u6cb9\u5360\u535c\u3011\u6211\u62bd\u5230\u7684\u724c\u9663\u662f\uff1a\u904e\u53bb\u300c${drawn[0].oil}\u300d\u3001\u73fe\u5728\u300c${drawn[1].oil}\u300d\u3001\u672a\u4f86\u300c${drawn[2].oil}\u300d\uff0c\u60f3\u9810\u7d04\u4e00\u5c0d\u4e00\u6df1\u5ea6\u5360\u535c\u89e3\u6790\u8207\u80fd\u91cf\u8abf\u983b\u6cb9\uff01`;
@@ -528,21 +541,26 @@ const App = () => {
         className: `px-9 py-2.5 rounded-full border tracking-[0.22em] text-xs  cursor-pointer ${mode === "divination" ? "bg-[#d4af37] text-[#080706] font-bold border-[#d4af37]" : "bg-transparent border-[#d4af37]/45 text-[#b89d72] hover:text-[#d4af37] hover:border-[#d4af37]"}`
     }, "\u2726 \u5c08\u5c6c\u4e8b\u4ef6\u5360\u535c"))), h("div", {
         className: "flex flex-col items-center"
+    }, !revealed && h("div", {
+        className: "w-full flex flex-col items-center z-20 mb-10"
     }, drawn.length < maxCards && h("div", {
-        className: "w-full flex flex-col items-center  z-20 mb-10"
-    }, h("div", {
-        className: "oracle-card-row w-full mb-8",
-        "aria-label": "\u5361\u724c"
-    }, deck.map((card, index) => h("button", {
-        key: card.id,
-        type: "button",
-        onClick: () => pickCard(card),
-        disabled: drawn.some(item => item.id === card.id),
-        "aria-pressed": drawn.some(item => item.id === card.id),
-        "aria-label": `\u9ede\u64ca\u7b2c ${index + 1} \u5f35\u5361\u724c\u958b\u59cb\u62bd\u724c`,
-        className: "oracle-card-back aspect-[2/3] border border-[#d4af37]/45 rounded-md p-1 sm:p-2 bg-[#120f0c] cursor-pointer focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#d4af37]"
-    }, h(MuchaHalo, {className: "w-full h-full"}))))), drawn.length === maxCards && h("div", {
-        className: `oracle-slots grid grid-cols-1 ${mode === "persona" ? "md:grid-cols-2 max-w-[680px]" : "lg:grid-cols-3 max-w-[940px]"} gap-7 w-full mt-2 justify-items-center`
+        className: "oracle-deck", "aria-label": "\u96a8\u6a5f\u724c\u5806"
+    }, Array.from({length: Math.min(5, deck.length - drawn.length)}, (_, index) => h("div", {
+        key: index, "aria-hidden": true, className: "oracle-deck-layer",
+        style: {transform: `translate(${index * 3}px, ${index * 3}px)`}
+    })), h("button", {
+        type: "button", onClick: drawTop,
+        "aria-label": "\u62bd\u53d6\u6700\u4e0a\u65b9\u7684\u5361\u724c",
+        className: "oracle-deck-top border border-[#d4af37]/60 rounded-md bg-[#120f0c] p-4 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#d4af37]"
+    }, h(MuchaHalo, {className: "w-full h-full"}))), h("div", {
+        className: `oracle-queue ${turning ? "is-turning" : ""}`,
+        role: "group", "aria-label": "\u5df2\u62bd\u51fa\u7684\u5361\u724c", "aria-live": "polite"
+    }, Array.from({length: maxCards}, (_, index) => h("div", {
+        key: index,
+        className: `oracle-queued-card ${drawn[index] ? "is-filled" : ""}`,
+        "aria-label": drawn[index] ? `\u7b2c ${index + 1} \u5f35\u5df2\u62bd\u51fa\uff0c\u5c1a\u672a\u63ed\u66c9` : `\u7b2c ${index + 1} \u5f35\u5f85\u62bd`
+    }, drawn[index] ? h(MuchaHalo, {className: "w-full h-full"}) : h("span", {"aria-hidden": true}, roman[index]))))), revealed && h("div", {
+        className: `oracle-slots oracle-answers grid grid-cols-1 ${mode === "persona" ? "md:grid-cols-2 max-w-[680px]" : "lg:grid-cols-3 max-w-[940px]"} gap-7 w-full mt-2 justify-items-center`
     }, slotLabels.map(((slot, i) => {
         const c = drawn[i], cur = drawn.length === i;
         return h("div", {
@@ -593,7 +611,7 @@ const App = () => {
         }, roman[i]), h("span", {
             className: `text-xs tracking-[0.25em] font-light ${cur ? "text-[#d4af37]/90" : "text-[#8a7054]/45"}`
         }, cur ? `\u7b49\u5f85\u7b2c ${i + 1} \u5f35\u690d\u7269\u724c` : `\u724c\u4f4d 0${i + 1}`)));
-    }))), drawn.length === maxCards && h("div", {
+    }))), revealed && h("div", {
         className: "w-full max-w-[920px] mt-16 "
     }, h("div", {
         className: "bg-[#12100d] px-10 py-12 border border-[#d4af37]/35 rounded-t-[44px] rounded-b-md dark-card-shadow relative overflow-hidden"
@@ -739,10 +757,10 @@ const App = () => {
         className: "text-xs tracking-[0.3em] text-[#a68c60] uppercase mb-3"
     }, "\u2766 \u4f86\u81ea\u690d\u7269\u7cbe\u9748\u7684\u6084\u6084\u8a71 \u2766"), h("p", {
         className: "text-2xl font-normal tracking-[0.15em] text-[#d4af37] italic leading-[1.95]"
-    }, `\u300c${drawn[drawn.length - 1].whisper[0]}`, h("br"), `${drawn[drawn.length - 1].whisper[1]}\u300d`)))), drawn.length === maxCards && h("a", {
+    }, `\u300c${drawn[drawn.length - 1].whisper[0]}`, h("br"), `${drawn[drawn.length - 1].whisper[1]}\u300d`)))), revealed && h("a", {
         href: "./index.html",
         className: "inline-flex items-center justify-center min-h-[44px] mt-8 px-8 py-3 rounded-full border border-[#d4af37]/50 text-[#d4af37] hover:bg-[#d4af37]/15  tracking-[0.25em] text-xs no-underline"
-    }, "\u2190 \u56de\u5230\u9996\u9801"), drawn.length === maxCards && h("button", {
+    }, "\u2190 \u56de\u5230\u9996\u9801"), revealed && h("button", {
         onClick: reset,
         className: "mt-10 mb-4 px-8 py-2.5 rounded-full border border-[#d4af37]/50 text-[#d4af37] hover:bg-[#d4af37]/15  tracking-[0.25em] text-xs uppercase cursor-pointer"
     }, "\u21bb \u91cd\u65b0\u975c\u5fc3\u6d17\u724c\u30fbDraw Again"))), h("footer", {

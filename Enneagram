@@ -33,12 +33,18 @@ html { font-size:100%; }
  .oracle-panel .w-32 { width:3rem; }
 }
 
-.oracle-card-row { --card-width:clamp(72px,10vw,120px); display:flex; flex-wrap:nowrap; justify-content:safe center; gap:0; overflow-x:auto; padding:.75rem .25rem 1rem; scroll-snap-type:x proximity; }
-.oracle-card-back { flex:0 0 var(--card-width); position:relative; scroll-snap-align:center; box-shadow:0 8px 22px #0006; }
-.oracle-card-back + .oracle-card-back { margin-left:calc(var(--card-width) * -.3); }
-.oracle-card-back:focus-visible { z-index:20; }
-.oracle-card-back:not(:disabled):hover { border-color:#e7cf92; }
-.oracle-card-back:disabled { opacity:.25; cursor:default; }
+.oracle-deck { position:relative; width:140px; height:210px; margin:1rem auto 3rem; }
+.oracle-deck-layer { position:absolute; inset:0; border:1px solid #d4af3759; border-radius:6px; background:#17130e; pointer-events:none; }
+.oracle-deck-top { position:relative; width:100%; height:100%; cursor:pointer; box-shadow:0 12px 26px #0008; }
+.oracle-deck-top:hover { border-color:#e7cf92; }
+.oracle-queue { display:flex; justify-content:center; gap:clamp(.5rem,3vw,1.5rem); width:100%; margin-top:1rem; perspective:1000px; }
+.oracle-queued-card { flex:0 1 140px; min-width:0; aspect-ratio:2/3; border:1px dashed #d4af3740; border-radius:6px; display:flex; align-items:center; justify-content:center; padding:.5rem; color:#d4af3759; }
+.oracle-queued-card.is-filled { border:1px solid #d4af3799; background:#120f0c; color:#d4af37; }
+.is-turning .oracle-queued-card.is-filled { animation:oracle-turn-away .35s ease-in forwards; }
+.oracle-answers > div { animation:oracle-turn-answer .35s ease-out both; }
+@keyframes oracle-turn-away { to { transform:rotateY(90deg); } }
+@keyframes oracle-turn-answer { from { transform:perspective(1000px) rotateY(-90deg); } to { transform:perspective(1000px) rotateY(0deg); } }
+@media(prefers-reduced-motion:reduce) { .oracle-queued-card,.oracle-answers > div { animation:none !important; } }
 
 .oracle-background .origin-center { transform-box:view-box; transform-origin:center; animation:oracle-background-turn 120s linear infinite; }
 .oracle-background .origin-center ~ .origin-center { animation-duration:80s; animation-direction:reverse; }
@@ -52,6 +58,6 @@ document.addEventListener('keydown',e=>{if(e.key==='F12'||(e.ctrlKey&&e.shiftKey
 </head>
 <body>
 <div id="root"></div>
-<script src="./assets/enneagram.min.js?v=7857d13036b8d002"></script>
+<script src="./assets/enneagram.min.js?v=985fb4d4498c2d8d"></script>
 </body>
 </html>
