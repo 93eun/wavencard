@@ -430,8 +430,13 @@ const App = () => {
     const drawRandom = () => {
         setDrawn(previous => {
             if (previous.length >= maxCards) return previous;
-            const available = _DATA.filter(card => !previous.some(d => d.id === card.id));
-            return [...previous, available[randomIndex(available.length)]];
+            const available = [..._DATA];
+            const selected = [];
+            for (let i = 0; i < maxCards; i++) {
+                const index = randomIndex(available.length);
+                selected.push(available.splice(index, 1)[0]);
+            }
+            return selected;
         });
     };
     const reset = () => {
@@ -484,7 +489,10 @@ const App = () => {
         className: "oracle-panel w-full border border-[#d4af37]/30 bg-[#0d0b09]/90 backdrop-blur-sm px-12 py-12 rounded-t-[56px] rounded-b-lg shadow-[0_25px_70px_rgba(0,0,0,0.85)]"
     }, h("header", {
         className: "text-center mb-10 w-full"
-    }, h("span", {
+    }, h("nav", {className: "text-left mb-6", "aria-label": "\u9801\u9762\u5c0e\u89bd"}, h("a", {
+        href: "./index.html",
+        className: "inline-flex items-center min-h-[44px] px-4 py-2 rounded-full border border-[#d4af37]/40 text-[#d4af37] text-sm tracking-widest hover:bg-[#d4af37]/10"
+    }, "\u2190 \u56de\u5230\u9996\u9801")), h("span", {
         className: "text-[0.6875rem] font-cinzel tracking-[0.4em] text-[#a68c60] uppercase block mb-3"
     }, "Art Nouveau Botanical Oracle"), h("div", {
         className: "inline-flex items-center justify-center gap-6 mb-3"
@@ -517,21 +525,15 @@ const App = () => {
     }, drawn.length < maxCards && h("div", {
         className: "w-full flex flex-col items-center  z-20 mb-10"
     }, h("div", {
-        className: "mb-5 px-8 py-2.5 rounded-full border border-[#d4af37]/35 bg-[#16130f]"
-    }, h("p", {
-        className: "text-[#d4af37] tracking-[0.22em] font-light text-sm text-center"
-    }, "\u975c\u4e0b\u5fc3\uff0c\u611f\u89ba\u6b64\u523b\u3002\u6e96\u5099\u597d\u6642\uff0c\u8b93\u76f4\u89ba\u6c7a\u5b9a\u62bd\u724c\u7684\u6642\u6a5f\u3002"), h("p", {
-        className: "text-sm text-[#b89d72] text-center leading-relaxed mb-5"
-    }, "\u6bcf\u6b21\u96a8\u6a5f\u62bd\u51fa\u4e00\u5f35\u4e0d\u91cd\u8907\u7684\u690d\u7269\u724c\uff0c\u6c92\u6709\u9810\u8a2d\u7d50\u679c\u3002")), h("div", {
-        className: "w-36 h-48 border border-[#d4af37]/45 rounded-t-full rounded-b-md p-3 mb-6 bg-[#120f0c]",
+        className: "oracle-card-row flex justify-center gap-2 sm:gap-4 w-full max-w-[720px] mb-8",
         "aria-hidden": true
-    }, h(MuchaHalo, {className: "w-full h-full"})), h("button", {
+    }, Array.from({length: 5}, (_, index) => h("div", {
+        key: index,
+        className: "flex-1 min-w-0 max-w-[120px] aspect-[2/3] border border-[#d4af37]/45 rounded-t-full rounded-b-md p-1 sm:p-2 bg-[#120f0c]"
+    }, h(MuchaHalo, {className: "w-full h-full"})))), h("button", {
         onClick: drawRandom,
         className: "min-h-[48px] px-8 py-3 rounded-full bg-[#d4af37] text-[#080706] font-bold text-base tracking-widest border border-[#d4af37] hover:bg-[#e5c349] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#d4af37]"
-    }, drawn.length === 0 ? "\u6191\u76f4\u89ba\u62bd\u724c" : "\u62bd\u51fa\u4e0b\u4e00\u5f35"), h("p", {
-        role: "status", "aria-live": "polite",
-        className: "mt-4 text-sm text-[#b89d72]"
-    }, `\u5df2\u62bd\u51fa ${drawn.length} / ${maxCards} \u5f35`)), h("div", {
+    }, "\u6191\u76f4\u89ba\u62bd\u724c")), drawn.length > 0 && h("div", {
         className: `oracle-slots grid grid-cols-1 ${mode === "persona" ? "md:grid-cols-2 max-w-[680px]" : "lg:grid-cols-3 max-w-[940px]"} gap-7 w-full mt-2 justify-items-center`
     }, slotLabels.map(((slot, i) => {
         const c = drawn[i], cur = drawn.length === i;

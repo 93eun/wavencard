@@ -853,7 +853,10 @@ function App() {
         className: "fixed inset-0 bg-noise opacity-5 pointer-events-none"
     }), React.createElement("div", {
         className: "w-full max-w-[420px] mx-auto flex flex-col flex-1 justify-between z-10"
-    }, React.createElement("header", {
+    }, React.createElement("nav", {className: "mb-3", "aria-label": "\u9801\u9762\u5c0e\u89bd"}, React.createElement("a", {
+        href: "./index.html",
+        className: `inline-flex items-center min-h-[44px] px-4 py-2 rounded-full border text-sm tracking-widest ${lt ? "border-amber-800/30 text-stone-800 hover:bg-amber-50" : "border-amber-500/35 text-amber-200 hover:bg-amber-900/30"}`
+    }, "\u2190 \u56de\u5230\u9996\u9801")), React.createElement("header", {
         className: "w-full flex justify-between items-center mb-6 shrink-0"
     }, React.createElement("button", {
         onClick: () => setLt(!lt),
