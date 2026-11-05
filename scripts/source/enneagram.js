@@ -80,7 +80,7 @@ const MuchaHalo = ({className: className}) => {
         strokeWidth: 1.4,
         opacity: .75
     }), h("g", {
-        className: "origin-center animate-[spin_60s_linear_infinite_reverse]"
+        className: "origin-center "
     }, h("path", {
         d: tri,
         strokeWidth: 1.4,
@@ -104,7 +104,7 @@ const MuchaHalo = ({className: className}) => {
         r: 2,
         fill: "#d4af37"
     }))))), h("g", {
-        className: "origin-center animate-[spin_80s_linear_infinite]"
+        className: "origin-center "
     }, [ ...Array(12) ].map(((_, i) => h("g", {
         key: "l" + i,
         transform: `rotate(${i * 30} 250 250)`
@@ -410,51 +410,33 @@ const BotanicalIcon = ({id: id}) => {
     }, p[id]);
 };
 
-const shuffle = arr => {
-    const a = [ ...arr ];
-    for (let i = a.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [a[i], a[j]] = [ a[j], a[i] ];
-    }
-    return a;
+const randomIndex = length => {
+    const values = new Uint32Array(1);
+    const limit = 0x100000000 - (0x100000000 % length);
+    do { crypto.getRandomValues(values); } while (values[0] >= limit);
+    return values[0] % length;
 };
 
 const App = () => {
     const [mode, setMode] = useState("persona");
-    const [deck, setDeck] = useState((() => shuffle(_DATA)));
     const [drawn, setDrawn] = useState([]);
-    const [hovered, setHovered] = useState(null);
     const [copied, setCopied] = useState(false);
-    const BASE_WIDTH = 1040;
-    const [zoomVal, setZoomVal] = useState(1);
-    useEffect((() => {
-        const handleResize = () => {
-            const vw = document.documentElement.clientWidth || window.innerWidth;
-            setZoomVal(vw < BASE_WIDTH ? vw / BASE_WIDTH : 1);
-        };
-        handleResize();
-        window.addEventListener("resize", handleResize);
-        return () => window.removeEventListener("resize", handleResize);
-    }), []);
     const maxCards = mode === "persona" ? 2 : 3;
-    const remainingDeck = deck.filter((c => !drawn.some((d => d.id === c.id))));
     const switchMode = newMode => {
         setMode(newMode);
         setDrawn([]);
-        setHovered(null);
         setCopied(false);
-        setDeck(shuffle(_DATA));
     };
-    const pickCard = card => {
-        if (drawn.length >= maxCards || drawn.some((d => d.id === card.id))) return;
-        setHovered(null);
-        setDrawn([ ...drawn, card ]);
+    const drawRandom = () => {
+        setDrawn(previous => {
+            if (previous.length >= maxCards) return previous;
+            const available = _DATA.filter(card => !previous.some(d => d.id === card.id));
+            return [...previous, available[randomIndex(available.length)]];
+        });
     };
     const reset = () => {
         setDrawn([]);
-        setHovered(null);
         setCopied(false);
-        setDeck(shuffle(_DATA));
     };
     const copyResultToClipboard = () => {
         const text = mode === "persona" ? `\u3010\u690d\u7269\u4e5d\u578b\u30fb\u4e3b\u526f\u4eba\u683c\u6aa2\u6e2c\u3011\u6211\u62bd\u5230\u7684\u662f\uff1a\u4e3b\u4eba\u683c\u300c${drawn[0].oil}\u30fb${drawn[0].name}\u300d\u3001\u526f\u4eba\u683c\u300c${drawn[1].oil}\u30fb${drawn[1].name}\u300d\uff0c\u60f3\u9810\u7d04\u5c08\u5c6c\u4eba\u683c\u6df1\u5ea6\u89e3\u8b80\u8207\u5ba2\u88fd\u5b88\u8b77\u8abf\u9999\uff01` : `\u3010\u690d\u7269\u4e5d\u578b\u30fb\u7cbe\u6cb9\u5360\u535c\u3011\u6211\u62bd\u5230\u7684\u724c\u9663\u662f\uff1a\u904e\u53bb\u300c${drawn[0].oil}\u300d\u3001\u73fe\u5728\u300c${drawn[1].oil}\u300d\u3001\u672a\u4f86\u300c${drawn[2].oil}\u300d\uff0c\u60f3\u9810\u7d04\u4e00\u5c0d\u4e00\u6df1\u5ea6\u5360\u535c\u89e3\u6790\u8207\u80fd\u91cf\u8abf\u983b\u6cb9\uff01`;
@@ -497,17 +479,13 @@ const App = () => {
     }), h(MuchaHalo, {
         className: "absolute bottom-[-15%] right-[-10%] w-[760px] h-[760px] opacity-[0.05]"
     })), h("div", {
-        style: {
-            width: `${BASE_WIDTH}px`,
-            zoom: zoomVal
-        },
-        className: "px-6 relative z-10 flex flex-col justify-between"
+        className: "oracle-layout w-full max-w-[1040px] px-4 sm:px-6 relative z-10 flex flex-col justify-between"
     }, h("div", {
-        className: "w-full border border-[#d4af37]/30 bg-[#0d0b09]/90 backdrop-blur-sm px-12 py-12 rounded-t-[56px] rounded-b-lg shadow-[0_25px_70px_rgba(0,0,0,0.85)]"
+        className: "oracle-panel w-full border border-[#d4af37]/30 bg-[#0d0b09]/90 backdrop-blur-sm px-12 py-12 rounded-t-[56px] rounded-b-lg shadow-[0_25px_70px_rgba(0,0,0,0.85)]"
     }, h("header", {
         className: "text-center mb-10 w-full"
     }, h("span", {
-        className: "text-[11px] font-cinzel tracking-[0.4em] text-[#a68c60] uppercase block mb-3"
+        className: "text-[0.6875rem] font-cinzel tracking-[0.4em] text-[#a68c60] uppercase block mb-3"
     }, "Art Nouveau Botanical Oracle"), h("div", {
         className: "inline-flex items-center justify-center gap-6 mb-3"
     }, h("span", {
@@ -537,56 +515,37 @@ const App = () => {
     }, "\u2726 \u5c08\u5c6c\u4e8b\u4ef6\u5360\u535c"))), h("div", {
         className: "flex flex-col items-center"
     }, drawn.length < maxCards && h("div", {
-        className: "w-full flex flex-col items-center animate-fade-in z-20 mb-10"
+        className: "w-full flex flex-col items-center  z-20 mb-10"
     }, h("div", {
         className: "mb-5 px-8 py-2.5 rounded-full border border-[#d4af37]/35 bg-[#16130f]"
     }, h("p", {
         className: "text-[#d4af37] tracking-[0.22em] font-light text-sm text-center"
-    }, mode === "persona" ? "\u8acb\u975c\u4e0b\u5fc3\uff0c\u6191\u76f4\u89ba\u5f9e\u724c\u9663\u4e2d\u6311\u9078 2 \u5f35\u724c" : "\u8acb\u5728\u5fc3\u4e2d\u9ed8\u60f3\u4f60\u7684\u554f\u984c\uff0c\u6191\u76f4\u89ba\u5f9e\u724c\u9663\u4e2d\u6311\u9078 3 \u5f35\u724c")), h("div", {
-        className: "relative w-full h-[320px] flex items-center justify-center mt-2 select-none overflow-visible"
-    }, remainingDeck.map(((card, idx) => {
-        const isHover = hovered === card.id;
-        const mid = (remainingDeck.length - 1) / 2;
-        const offset = idx - mid;
-        const deg = offset * 6.2;
-        const x = offset * 46;
-        const y = Math.abs(offset) * Math.abs(offset) * 2.2 - (isHover ? 26 : 0);
-        const scaleCard = isHover ? 1.08 : 1;
-        return h("div", {
-            key: card.id,
-            onClick: () => pickCard(card),
-            onMouseEnter: () => setHovered(card.id),
-            onMouseLeave: () => setHovered(null),
-            style: {
-                transform: `translateX(${x}px) translateY(${y}px) rotate(${deg}deg) scale(${scaleCard})`,
-                zIndex: isHover ? 50 : 10 + idx,
-                transition: "all 0.45s cubic-bezier(0.16, 1, 0.3, 1)"
-            },
-            className: `absolute w-44 h-72 rounded-t-[80px] rounded-b-md p-1.5 bg-gradient-to-b from-[#1e1a15] via-[#120f0c] to-[#0a0806] border border-[#d4af37]/60 dark-card-shadow cursor-pointer hover:border-[#d4af37]`
-        }, h("div", {
-            className: "w-full h-full rounded-t-[74px] rounded-b-sm border border-[#d4af37]/35 relative overflow-hidden flex flex-col items-center justify-center bg-[#0e0c0a]"
-        }, h(MuchaHalo, {
-            className: "w-[92%] h-[92%] opacity-85"
-        }), h("div", {
-            className: "absolute bottom-3.5 bg-[#080706]/90 px-3 py-0.5 rounded-full border border-[#d4af37]/40"
-        }, h("span", {
-            className: "text-[#d4af37] tracking-[0.22em] font-cinzel text-[8px] uppercase"
-        }, "Botanical"))));
-    })))), h("div", {
-        className: `grid ${mode === "persona" ? "grid-cols-2 max-w-[680px]" : "grid-cols-3 max-w-[940px]"} gap-7 w-full mt-2 justify-items-center`
+    }, "\u975c\u4e0b\u5fc3\uff0c\u611f\u89ba\u6b64\u523b\u3002\u6e96\u5099\u597d\u6642\uff0c\u8b93\u76f4\u89ba\u6c7a\u5b9a\u62bd\u724c\u7684\u6642\u6a5f\u3002"), h("p", {
+        className: "text-sm text-[#b89d72] text-center leading-relaxed mb-5"
+    }, "\u6bcf\u6b21\u96a8\u6a5f\u62bd\u51fa\u4e00\u5f35\u4e0d\u91cd\u8907\u7684\u690d\u7269\u724c\uff0c\u6c92\u6709\u9810\u8a2d\u7d50\u679c\u3002")), h("div", {
+        className: "w-36 h-48 border border-[#d4af37]/45 rounded-t-full rounded-b-md p-3 mb-6 bg-[#120f0c]",
+        "aria-hidden": true
+    }, h(MuchaHalo, {className: "w-full h-full"})), h("button", {
+        onClick: drawRandom,
+        className: "min-h-[48px] px-8 py-3 rounded-full bg-[#d4af37] text-[#080706] font-bold text-base tracking-widest border border-[#d4af37] hover:bg-[#e5c349] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#d4af37]"
+    }, drawn.length === 0 ? "\u6191\u76f4\u89ba\u62bd\u724c" : "\u62bd\u51fa\u4e0b\u4e00\u5f35"), h("p", {
+        role: "status", "aria-live": "polite",
+        className: "mt-4 text-sm text-[#b89d72]"
+    }, `\u5df2\u62bd\u51fa ${drawn.length} / ${maxCards} \u5f35`)), h("div", {
+        className: `oracle-slots grid grid-cols-1 ${mode === "persona" ? "md:grid-cols-2 max-w-[680px]" : "lg:grid-cols-3 max-w-[940px]"} gap-7 w-full mt-2 justify-items-center`
     }, slotLabels.map(((slot, i) => {
         const c = drawn[i], cur = drawn.length === i;
         return h("div", {
             key: c ? c.id : `slot-${i}`,
-            className: "flex flex-col items-center animate-fade-in-up"
+            className: "flex flex-col items-center "
         }, h("div", {
             className: "text-center mb-4"
         }, h("span", {
-            className: "text-[10px] font-cinzel tracking-[0.3em] text-[#8a7250] block mb-1"
+            className: "text-[0.625rem] font-cinzel tracking-[0.3em] text-[#8a7250] block mb-1"
         }, slot.tag), h("h3", {
             className: `text-lg font-bold tracking-[0.22em] ${c ? "text-[#d4af37]" : "text-[#6e5a40]"}`
         }, slot.title)), c ? h("div", {
-            className: "w-[295px] bg-gradient-to-b from-[#181511] via-[#100e0b] to-[#0a0907] rounded-md p-3 dark-card-shadow h-full relative group"
+            className: "w-full max-w-[295px] bg-gradient-to-b from-[#181511] via-[#100e0b] to-[#0a0907] rounded-md p-3 dark-card-shadow h-full relative group"
         }, h("div", {
             className: "w-full h-full px-6 py-10 relative overflow-hidden flex flex-col items-center justify-between text-center min-h-[460px]"
         }, h(MuchaArchFrame), h(MuchaHalo, {
@@ -594,38 +553,38 @@ const App = () => {
         }), h("div", {
             className: "w-full flex flex-col items-center pt-4 pb-2 relative z-10"
         }, h("span", {
-            className: "text-[10px] tracking-[0.22em] text-[#0c0a08] bg-[#d4af37]/90 px-3.5 py-0.5 rounded-full font-bold mb-2"
+            className: "text-[0.625rem] tracking-[0.22em] text-[#0c0a08] bg-[#d4af37]/90 px-3.5 py-0.5 rounded-full font-bold mb-2"
         }, c.plantPart), h("span", {
             className: "text-xs tracking-[0.25em] text-[#b89d72] font-light"
         }, `${c.type}\u30fb${c.name}`)), h("div", {
             className: "flex flex-col items-center text-center my-3 relative z-10"
         }, h("div", {
-            className: "mb-4 transform group-hover:scale-105 transition-transform duration-500 bg-[#14110e] rounded-full p-3 border border-[#d4af37]/30"
+            className: "mb-4 transform    bg-[#14110e] rounded-full p-3 border border-[#d4af37]/30"
         }, h(BotanicalIcon, {
             id: c.id
         })), h("h2", {
-            className: "text-3xl font-bold tracking-[0.22em] text-[#d4af37] mt-1 mb-1.5 pl-[0.22em] whitespace-nowrap"
+            className: "text-3xl font-bold tracking-[0.22em] text-[#d4af37] mt-1 mb-1.5 pl-[0.22em] whitespace-normal"
         }, c.oil), h("p", {
             className: "text-xs font-cinzel tracking-[0.22em] text-[#cbb282] uppercase"
         }, c.oilEn), h("p", {
-            className: "text-[11px] italic text-[#8c7651] mt-1 mb-4"
+            className: "text-[0.6875rem] italic text-[#8c7651] mt-1 mb-4"
         }, c.latin), h("div", {
-            className: "text-[11px] font-light tracking-[0.15em] text-[#d4af37]/90 bg-[#d4af37]/10 px-3.5 py-1.5 rounded-full border border-[#d4af37]/25 whitespace-nowrap"
+            className: "text-[0.6875rem] font-light tracking-[0.15em] text-[#d4af37]/90 bg-[#d4af37]/10 px-3.5 py-1.5 rounded-full border border-[#d4af37]/25 whitespace-normal"
         }, c.traits)), h("div", {
             className: "w-full pt-5 pb-1 border-t border-[#d4af37]/20 relative z-10 text-center"
         }, h("span", {
-            className: "block text-center text-[10px] tracking-[0.25em] text-[#a68c60] mb-2"
+            className: "block text-center text-[0.625rem] tracking-[0.25em] text-[#a68c60] mb-2"
         }, "\u2766 \u690d\u7269\u80fd\u91cf\u795d\u798f \u2766"), h("p", {
-            className: "text-[12.5px] leading-[1.95] text-[#e0cfa9] text-center italic font-light"
+            className: "text-[0.78125rem] leading-[1.95] text-[#e0cfa9] text-center italic font-light"
         }, `\u300c${c.lines[0]}`, h("br"), `${c.lines[1]}\u300d`)))) : h("div", {
-            className: `w-[295px] min-h-[460px] mucha-arch border border-dashed flex flex-col items-center justify-center p-8 transition-all duration-500 ${cur ? "border-[#d4af37]/60 bg-[#d4af37]/[0.04]" : "border-[#8a7054]/25 bg-transparent"}`
+            className: `w-full max-w-[295px] min-h-[460px] mucha-arch border border-dashed flex flex-col items-center justify-center p-8 transition-all  ${cur ? "border-[#d4af37]/60 bg-[#d4af37]/[0.04]" : "border-[#8a7054]/25 bg-transparent"}`
         }, h("div", {
-            className: `w-11 h-11 rounded-full border flex items-center justify-center mb-3 font-cinzel text-xs ${cur ? "border-[#d4af37] text-[#d4af37] animate-pulse" : "border-[#8a7054]/30 text-[#8a7054]/45"}`
+            className: `w-11 h-11 rounded-full border flex items-center justify-center mb-3 font-cinzel text-xs ${cur ? "border-[#d4af37] text-[#d4af37] " : "border-[#8a7054]/30 text-[#8a7054]/45"}`
         }, roman[i]), h("span", {
             className: `text-xs tracking-[0.25em] font-light ${cur ? "text-[#d4af37]/90" : "text-[#8a7054]/45"}`
-        }, cur ? `\u8acb\u5f9e\u4e0a\u65b9\u6311\u9078\u7b2c ${i + 1} \u5f35\u724c` : `\u724c\u4f4d 0${i + 1}`)));
+        }, cur ? `\u7b49\u5f85\u7b2c ${i + 1} \u5f35\u690d\u7269\u724c` : `\u724c\u4f4d 0${i + 1}`)));
     }))), drawn.length === maxCards && h("div", {
-        className: "w-full max-w-[920px] mt-16 animate-fade-in-up"
+        className: "w-full max-w-[920px] mt-16 "
     }, h("div", {
         className: "bg-[#12100d] px-10 py-12 border border-[#d4af37]/35 rounded-t-[44px] rounded-b-md dark-card-shadow relative overflow-hidden"
     }, h(MuchaHalo, {
@@ -633,7 +592,7 @@ const App = () => {
     }), h("div", {
         className: "mb-9 relative z-10 text-center"
     }, h("span", {
-        className: "text-[10px] font-cinzel tracking-[0.35em] text-[#a68c60] uppercase block mb-2"
+        className: "text-[0.625rem] font-cinzel tracking-[0.35em] text-[#a68c60] uppercase block mb-2"
     }, mode === "persona" ? "Dual Personality & Aroma Profile" : "Botanical Divination Summary"), h("h3", {
         className: "text-2xl font-bold tracking-[0.22em] text-[#d4af37]"
     }, mode === "persona" ? "\u2726 \u4e3b\u526f\u4eba\u683c\u5256\u6790\u8207\u65e5\u5e38\u63d0\u9192 \u2726" : "\u2726 \u4e8b\u4ef6\u5360\u535c\u89e3\u6790\u8207\u672a\u4f86\u5efa\u8b70 \u2726"), h("div", {
@@ -651,7 +610,7 @@ const App = () => {
     }, "\u4e3b\u4eba\u683c\u672c\u8cea"), h("span", {
         className: "text-lg font-bold tracking-[0.15em] text-[#d4af37]"
     }, drawn[0].oil)), h("p", {
-        className: "text-[15.5px] leading-[2.1] text-[#e0cfa9] font-light"
+        className: "text-[0.96875rem] leading-[2.1] text-[#e0cfa9] font-light"
     }, drawn[0].mainP)), h("div", {
         className: "bg-[#181511] border border-[#d4af37]/25 p-7 rounded-sm"
     }, h("div", {
@@ -661,7 +620,7 @@ const App = () => {
     }, "\u526f\u4eba\u683c\u9632\u79a6"), h("span", {
         className: "text-lg font-bold tracking-[0.15em] text-[#d4af37]"
     }, drawn[1].oil)), h("p", {
-        className: "text-[15.5px] leading-[2.1] text-[#e0cfa9] font-light"
+        className: "text-[0.96875rem] leading-[2.1] text-[#e0cfa9] font-light"
     }, drawn[1].subP)), h("div", {
         className: "bg-[#181511] border border-[#d4af37]/40 p-7 rounded-sm"
     }, h("div", {
@@ -669,7 +628,7 @@ const App = () => {
     }, h("span", {
         className: "text-xs font-bold tracking-widest text-[#d4af37] border border-[#d4af37] px-3 py-1 rounded-sm"
     }, "\u65e5\u5e38\u5efa\u8b70\u8207\u63d0\u9192")), h("p", {
-        className: "text-[15.5px] leading-[2.15] text-[#e0cfa9] font-light"
+        className: "text-[0.96875rem] leading-[2.15] text-[#e0cfa9] font-light"
     }, "\u4f60\u540c\u6642\u64c1\u6709\u300c", h("span", {
         className: "text-[#d4af37] font-medium"
     }, drawn[0].oil), "\u300d\u7684\u6838\u5fc3\u672c\u8cea\uff0c\u4ee5\u53ca\u300c", h("span", {
@@ -679,7 +638,7 @@ const App = () => {
     }, h("h4", {
         className: "text-lg font-bold tracking-[0.18em] text-[#d4af37] mb-3 flex items-center gap-2"
     }, h("span", null, "\u2766"), h("span", null, "\u4e3b\u526f\u4eba\u683c\u7684\u5c08\u5c6c\u9999\u6c23\u8abf\u548c")), h("p", {
-        className: "text-[15px] leading-[2.1] text-[#d8c7a6] font-light mb-6"
+        className: "text-[0.9375rem] leading-[2.1] text-[#d8c7a6] font-light mb-6"
     }, "\u7576\u4e3b\u4eba\u683c\u7684\u300c", h("span", {
         className: "text-[#d4af37] font-semibold"
     }, drawn[0].oil), "\u300d\u9047\u4e0a\u526f\u4eba\u683c\u7684\u300c", h("span", {
@@ -711,7 +670,7 @@ const App = () => {
     }, "\u904e\u53bb\u6839\u6e90"), h("span", {
         className: "text-lg font-bold tracking-[0.15em] text-[#d4af37]"
     }, drawn[0].oil)), h("p", {
-        className: "text-[15.5px] leading-[2.1] text-[#e0cfa9] font-light"
+        className: "text-[0.96875rem] leading-[2.1] text-[#e0cfa9] font-light"
     }, drawn[0].p)), h("div", {
         className: "bg-[#181511] border border-[#d4af37]/25 p-7 rounded-sm"
     }, h("div", {
@@ -721,7 +680,7 @@ const App = () => {
     }, "\u6b63\u5728\u767c\u751f"), h("span", {
         className: "text-lg font-bold tracking-[0.15em] text-[#d4af37]"
     }, drawn[1].oil)), h("p", {
-        className: "text-[15.5px] leading-[2.1] text-[#e0cfa9] font-light"
+        className: "text-[0.96875rem] leading-[2.1] text-[#e0cfa9] font-light"
     }, drawn[1].c)), h("div", {
         className: "bg-[#181511] border border-[#d4af37]/25 p-7 rounded-sm"
     }, h("div", {
@@ -731,7 +690,7 @@ const App = () => {
     }, "\u672a\u4f86\u8d70\u5411"), h("span", {
         className: "text-lg font-bold tracking-[0.15em] text-[#d4af37]"
     }, drawn[2].oil)), h("p", {
-        className: "text-[15.5px] leading-[2.1] text-[#e0cfa9] font-light"
+        className: "text-[0.96875rem] leading-[2.1] text-[#e0cfa9] font-light"
     }, drawn[2].f)), h("div", {
         className: "bg-[#181511] border border-[#d4af37]/40 p-7 rounded-sm"
     }, h("div", {
@@ -739,13 +698,13 @@ const App = () => {
     }, h("span", {
         className: "text-xs font-bold tracking-widest text-[#d4af37] border border-[#d4af37] px-3 py-1 rounded-sm"
     }, "\u7d9c\u5408\u884c\u52d5\u5efa\u8b70")), h("p", {
-        className: "text-[15.5px] leading-[2.15] text-[#e0cfa9] font-light"
+        className: "text-[0.96875rem] leading-[2.15] text-[#e0cfa9] font-light"
     }, "\u73fe\u968e\u6bb5\u8abf\u6574\uff1a", drawn[1].pAdv, h("br"), "\u4e0b\u4e00\u6b65\u884c\u52d5\uff1a", drawn[2].pAdv))), h("div", {
         className: "bg-gradient-to-b from-[#1c1711] to-[#120f0b] border border-[#d4af37]/50 p-8 rounded-sm text-left"
     }, h("h4", {
         className: "text-lg font-bold tracking-[0.18em] text-[#d4af37] mb-3 flex items-center gap-2"
     }, h("span", null, "\u2766"), h("span", null, "\u5c08\u5c6c\u4e8b\u4ef6\u5360\u535c\u6df1\u89e3\u8207\u80fd\u91cf\u8abf\u983b")), h("p", {
-        className: "text-[15px] leading-[2.1] text-[#d8c7a6] font-light mb-6"
+        className: "text-[0.9375rem] leading-[2.1] text-[#d8c7a6] font-light mb-6"
     }, "\u9019\u7d44\u300c", h("span", {
         className: "text-[#d4af37] font-semibold"
     }, `${drawn[0].oil}\u3001${drawn[1].oil}\u3001${drawn[2].oil}`), "\u300d\u724c\u9663\uff0c\u9ede\u51fa\u4e86\u9019\u4ef6\u4e8b\u7684\u95dc\u9375\u8108\u7d61\u3002\u82e5\u60f3\u91dd\u5c0d\u4f60\u5fc3\u4e2d\u7684\u5177\u9ad4\u554f\u984c\u9032\u884c\u66f4\u6df1\u5165\u7684\u7d30\u7bc0\u5256\u6790\uff0c\u6216\u6839\u64da\u9019\u4e09\u652f\u7cbe\u6cb9\u8abf\u914d\u300c\u5c08\u5c6c\u958b\u904b\u8abf\u983b\u6cb9\u300d\uff0c\u6b61\u8fce\u52a0\u5165\u5b98\u65b9 LINE \u9810\u7d04\u3002"), h("div", {
@@ -777,7 +736,7 @@ const App = () => {
         onClick: reset,
         className: "mt-10 mb-4 px-8 py-2.5 rounded-full border border-[#d4af37]/50 text-[#d4af37] hover:bg-[#d4af37]/15 transition-all tracking-[0.25em] text-xs uppercase cursor-pointer"
     }, "\u21bb \u91cd\u65b0\u975c\u5fc3\u6d17\u724c\u30fbDraw Again"))), h("footer", {
-        className: "text-center py-6 text-[#786346] text-[11px] tracking-[0.25em] mt-4 font-cinzel"
+        className: "text-center py-6 text-[#786346] text-[0.6875rem] tracking-[0.25em] mt-4 font-cinzel"
     }, "PLANT ENNEAGRAM & BOTANICAL AROMATHERAPY ORACLE")));
 };
 
