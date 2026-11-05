@@ -1,4 +1,4 @@
-const {useState: useState, useEffect: useEffect, createElement: h} = React;
+const {useState: useState, useEffect: useEffect, useRef: useRef, createElement: h} = React;
 
 const LINE_ADD_URL = "https://line.me/R/ti/p/@171obltq";
 
@@ -433,6 +433,15 @@ const App = () => {
     const [copied, setCopied] = useState(false);
     const [revealed, setRevealed] = useState(false);
     const [turning, setTurning] = useState(false);
+    const [drawing, setDrawing] = useState(false);
+    const queueRef = useRef(null);
+    const activeFlight = useRef(null);
+    const stopFlight = () => {
+        const flight = activeFlight.current;
+        activeFlight.current = null;
+        if (flight) { flight.animation.cancel(); flight.node.remove(); }
+    };
+    useEffect(() => () => stopFlight(), []);
     const maxCards = mode === "persona" ? 2 : 3;
     useEffect(() => {
         if (drawn.length !== maxCards) return;
@@ -442,6 +451,8 @@ const App = () => {
         return () => { clearTimeout(turnTimer); clearTimeout(revealTimer); };
     }, [drawn, maxCards]);
     const switchMode = newMode => {
+        stopFlight();
+        setDrawing(false);
         setMode(newMode);
         setDeck(newDeck(newMode));
         setDrawn([]);
@@ -449,13 +460,51 @@ const App = () => {
         setRevealed(false);
         setTurning(false);
     };
-    const drawTop = () => {
-        setDrawn(previous => {
-            if (previous.length >= maxCards) return previous;
-            return [...previous, deck[previous.length]];
+    const drawTop = event => {
+        if (activeFlight.current || drawn.length >= maxCards) return;
+        const card = deck[drawn.length];
+        const commitCard = () => setDrawn(previous => {
+            if (previous.length >= maxCards || previous.some(item => item.id === card.id)) return previous;
+            return [...previous, card];
         });
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+            commitCard();
+            return;
+        }
+        const source = event.currentTarget;
+        const from = source.getBoundingClientRect();
+        const to = queueRef.current.children[drawn.length].getBoundingClientRect();
+        const node = source.cloneNode(true);
+        node.removeAttribute("aria-label");
+        node.setAttribute("aria-hidden", "true");
+        node.tabIndex = -1;
+        node.classList.add("oracle-flying-card");
+        Object.assign(node.style, {
+            position: "fixed", left: `${from.left}px`, top: `${from.top}px`,
+            width: `${from.width}px`, height: `${from.height}px`, margin: "0",
+            transformOrigin: "top left", pointerEvents: "none", zIndex: "1000"
+        });
+        document.body.appendChild(node);
+        const destination = `translate(${to.left - from.left}px, ${to.top - from.top}px) scale(${to.width / from.width}, ${to.height / from.height})`;
+        const animation = node.animate([
+            {transform: "translate(0,0) scale(1)"},
+            {transform: "translate(0,-30px) scale(1)", offset: .25},
+            {transform: destination}
+        ], {duration: 700, easing: "cubic-bezier(.3,0,.2,1)", fill: "forwards"});
+        const flight = {node, animation};
+        activeFlight.current = flight;
+        setDrawing(true);
+        animation.onfinish = () => {
+            if (activeFlight.current !== flight) return;
+            activeFlight.current = null;
+            node.remove();
+            setDrawing(false);
+            commitCard();
+        };
     };
     const reset = () => {
+        stopFlight();
+        setDrawing(false);
         setDeck(newDeck(mode));
         setDrawn([]);
         setCopied(false);
@@ -544,16 +593,16 @@ const App = () => {
     }, !revealed && h("div", {
         className: "w-full flex flex-col items-center z-20 mb-10"
     }, drawn.length < maxCards && h("div", {
-        className: "oracle-deck", "aria-label": "\u96a8\u6a5f\u724c\u5806"
+        className: `oracle-deck ${drawing ? "is-drawing" : ""}`, "aria-label": "\u96a8\u6a5f\u724c\u5806"
     }, Array.from({length: Math.min(5, deck.length - drawn.length)}, (_, index) => h("div", {
         key: index, "aria-hidden": true, className: "oracle-deck-layer",
-        style: {transform: `translate(${index * 3}px, ${index * 3}px)`}
+        style: {transform: `translateY(${index * 3}px)`}
     })), h("button", {
-        type: "button", onClick: drawTop,
+        type: "button", onClick: drawTop, disabled: drawing, "aria-busy": drawing,
         "aria-label": "\u62bd\u53d6\u6700\u4e0a\u65b9\u7684\u5361\u724c",
         className: "oracle-deck-top border border-[#d4af37]/60 rounded-md bg-[#120f0c] p-4 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#d4af37]"
     }, h(MuchaHalo, {className: "w-full h-full"}))), h("div", {
-        className: `oracle-queue ${turning ? "is-turning" : ""}`,
+        className: `oracle-queue ${turning ? "is-turning" : ""}`, ref: queueRef,
         role: "group", "aria-label": "\u5df2\u62bd\u51fa\u7684\u5361\u724c", "aria-live": "polite"
     }, Array.from({length: maxCards}, (_, index) => h("div", {
         key: index,
