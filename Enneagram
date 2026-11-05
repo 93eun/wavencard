@@ -45,6 +45,6 @@ document.addEventListener('keydown',e=>{if(e.key==='F12'||(e.ctrlKey&&e.shiftKey
 </head>
 <body>
 <div id="root"></div>
-<script src="./assets/enneagram.min.js"></script>
+<script src="./assets/enneagram.min.js?v=564e2d348ee8e1c3"></script>
 </body>
 </html>
