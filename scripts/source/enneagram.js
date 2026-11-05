@@ -417,13 +417,13 @@ const randomIndex = length => {
     return values[0] % length;
 };
 
-const newDeck = () => {
+const newDeck = (mode = "persona") => {
     const cards = [..._DATA];
     for (let i = cards.length - 1; i > 0; i--) {
         const j = randomIndex(i + 1);
         [cards[i], cards[j]] = [cards[j], cards[i]];
     }
-    return cards.slice(0, 5);
+    return cards.slice(0, mode === "persona" ? 9 : 3);
 };
 
 const App = () => {
@@ -434,7 +434,7 @@ const App = () => {
     const maxCards = mode === "persona" ? 2 : 3;
     const switchMode = newMode => {
         setMode(newMode);
-        setDeck(newDeck());
+        setDeck(newDeck(newMode));
         setDrawn([]);
         setCopied(false);
     };
@@ -445,7 +445,7 @@ const App = () => {
         });
     };
     const reset = () => {
-        setDeck(newDeck());
+        setDeck(newDeck(mode));
         setDrawn([]);
         setCopied(false);
     };
@@ -484,7 +484,7 @@ const App = () => {
     return h("div", {
         className: "min-h-screen w-full flex flex-col items-center py-8 relative bg-[radial-gradient(ellipse_at_top,#14110e_0%,#0a0908_60%,#050404_100%)]"
     }, h("div", {
-        className: "fixed inset-0 overflow-hidden pointer-events-none z-0"
+        className: "oracle-background fixed inset-0 overflow-hidden pointer-events-none z-0"
     }, h(MuchaHalo, {
         className: "absolute top-[-15%] left-[-10%] w-[760px] h-[760px] opacity-[0.05]"
     }), h(MuchaHalo, {
@@ -531,7 +531,7 @@ const App = () => {
     }, drawn.length < maxCards && h("div", {
         className: "w-full flex flex-col items-center  z-20 mb-10"
     }, h("div", {
-        className: "oracle-card-row flex justify-center gap-2 sm:gap-4 w-full max-w-[720px] mb-8",
+        className: "oracle-card-row grid grid-cols-3 justify-items-center gap-3 sm:gap-5 w-full max-w-[480px] mb-8",
         "aria-label": "\u5361\u724c"
     }, deck.map((card, index) => h("button", {
         key: card.id,
@@ -540,7 +540,7 @@ const App = () => {
         disabled: drawn.some(item => item.id === card.id),
         "aria-pressed": drawn.some(item => item.id === card.id),
         "aria-label": `\u9ede\u64ca\u7b2c ${index + 1} \u5f35\u5361\u724c\u958b\u59cb\u62bd\u724c`,
-        className: "oracle-card-back flex-1 min-w-0 max-w-[120px] aspect-[2/3] border border-[#d4af37]/45 rounded-t-full rounded-b-md p-1 sm:p-2 bg-[#120f0c] cursor-pointer focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#d4af37]"
+        className: "oracle-card-back w-full min-w-0 max-w-[120px] aspect-[2/3] border border-[#d4af37]/45 rounded-t-full rounded-b-md p-1 sm:p-2 bg-[#120f0c] cursor-pointer focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#d4af37]"
     }, h(MuchaHalo, {className: "w-full h-full"}))))), drawn.length > 0 && h("div", {
         className: `oracle-slots grid grid-cols-1 ${mode === "persona" ? "md:grid-cols-2 max-w-[680px]" : "lg:grid-cols-3 max-w-[940px]"} gap-7 w-full mt-2 justify-items-center`
     }, slotLabels.map(((slot, i) => {
