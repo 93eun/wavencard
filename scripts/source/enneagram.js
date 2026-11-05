@@ -1,4 +1,4 @@
-const {useState: useState, useEffect: useEffect, createElement: h} = React;
+const {useState: useState, useEffect: useEffect, useRef: useRef, createElement: h} = React;
 
 const LINE_ADD_URL = "https://line.me/R/ti/p/@171obltq";
 
@@ -421,25 +421,41 @@ const App = () => {
     const [mode, setMode] = useState("persona");
     const [drawn, setDrawn] = useState([]);
     const [copied, setCopied] = useState(false);
+    const [isShuffling, setIsShuffling] = useState(false);
+    const drawTimer = useRef(null);
+    const drawLocked = useRef(false);
+    useEffect(() => () => clearTimeout(drawTimer.current), []);
+    const cancelDraw = () => {
+        clearTimeout(drawTimer.current);
+        drawLocked.current = false;
+        setIsShuffling(false);
+    };
     const maxCards = mode === "persona" ? 2 : 3;
     const switchMode = newMode => {
+        cancelDraw();
         setMode(newMode);
         setDrawn([]);
         setCopied(false);
     };
     const drawRandom = () => {
-        setDrawn(previous => {
-            if (previous.length >= maxCards) return previous;
-            const available = [..._DATA];
-            const selected = [];
-            for (let i = 0; i < maxCards; i++) {
-                const index = randomIndex(available.length);
-                selected.push(available.splice(index, 1)[0]);
-            }
-            return selected;
-        });
+        if (drawLocked.current || drawn.length) return;
+        drawLocked.current = true;
+        setIsShuffling(true);
+        const available = [..._DATA];
+        const selected = [];
+        for (let i = 0; i < maxCards; i++) {
+            selected.push(available.splice(randomIndex(available.length), 1)[0]);
+        }
+        const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        drawTimer.current = setTimeout(() => {
+            setDrawn(selected);
+            setIsShuffling(false);
+            drawLocked.current = false;
+            drawTimer.current = null;
+        }, reducedMotion ? 0 : 1200);
     };
     const reset = () => {
+        cancelDraw();
         setDrawn([]);
         setCopied(false);
     };
@@ -525,21 +541,29 @@ const App = () => {
     }, drawn.length < maxCards && h("div", {
         className: "w-full flex flex-col items-center  z-20 mb-10"
     }, h("div", {
-        className: "oracle-card-row flex justify-center gap-2 sm:gap-4 w-full max-w-[720px] mb-8",
-        "aria-hidden": true
-    }, Array.from({length: 5}, (_, index) => h("div", {
+        className: `oracle-card-row ${isShuffling ? "is-shuffling" : ""} flex justify-center gap-2 sm:gap-4 w-full max-w-[720px] mb-8`,
+        "aria-label": "\u5361\u724c", "aria-busy": isShuffling
+    }, Array.from({length: 5}, (_, index) => h("button", {
         key: index,
-        className: "flex-1 min-w-0 max-w-[120px] aspect-[2/3] border border-[#d4af37]/45 rounded-t-full rounded-b-md p-1 sm:p-2 bg-[#120f0c]"
+        type: "button",
+        onClick: drawRandom,
+        disabled: isShuffling,
+        "aria-label": `\u9ede\u64ca\u7b2c ${index + 1} \u5f35\u5361\u724c\u958b\u59cb\u62bd\u724c`,
+        style: {"--offset": index - 2, "--tilt": `${(index - 2) * 5}deg`},
+        className: "oracle-card-back flex-1 min-w-0 max-w-[120px] aspect-[2/3] border border-[#d4af37]/45 rounded-t-full rounded-b-md p-1 sm:p-2 bg-[#120f0c] cursor-pointer focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#d4af37]"
     }, h(MuchaHalo, {className: "w-full h-full"})))), h("button", {
         onClick: drawRandom,
+        disabled: isShuffling,
+        "aria-busy": isShuffling,
         className: "min-h-[48px] px-8 py-3 rounded-full bg-[#d4af37] text-[#080706] font-bold text-base tracking-widest border border-[#d4af37] hover:bg-[#e5c349] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#d4af37]"
-    }, "\u6191\u76f4\u89ba\u62bd\u724c")), drawn.length > 0 && h("div", {
+    }, isShuffling ? "\u6d17\u724c\u4e2d\u2026" : "\u6191\u76f4\u89ba\u62bd\u724c")), drawn.length > 0 && h("div", {
         className: `oracle-slots grid grid-cols-1 ${mode === "persona" ? "md:grid-cols-2 max-w-[680px]" : "lg:grid-cols-3 max-w-[940px]"} gap-7 w-full mt-2 justify-items-center`
     }, slotLabels.map(((slot, i) => {
         const c = drawn[i], cur = drawn.length === i;
         return h("div", {
             key: c ? c.id : `slot-${i}`,
-            className: "flex flex-col items-center "
+            className: "oracle-reveal flex flex-col items-center",
+            style: {"--reveal-delay": `${i * 140}ms`}
         }, h("div", {
             className: "text-center mb-4"
         }, h("span", {
