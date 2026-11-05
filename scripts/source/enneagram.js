@@ -1,4 +1,4 @@
-const {useState: useState, useEffect: useEffect, useRef: useRef, createElement: h} = React;
+const {useState: useState, createElement: h} = React;
 
 const LINE_ADD_URL = "https://line.me/R/ti/p/@171obltq";
 
@@ -417,45 +417,35 @@ const randomIndex = length => {
     return values[0] % length;
 };
 
+const newDeck = () => {
+    const cards = [..._DATA];
+    for (let i = cards.length - 1; i > 0; i--) {
+        const j = randomIndex(i + 1);
+        [cards[i], cards[j]] = [cards[j], cards[i]];
+    }
+    return cards.slice(0, 5);
+};
+
 const App = () => {
     const [mode, setMode] = useState("persona");
+    const [deck, setDeck] = useState(newDeck);
     const [drawn, setDrawn] = useState([]);
     const [copied, setCopied] = useState(false);
-    const [isShuffling, setIsShuffling] = useState(false);
-    const drawTimer = useRef(null);
-    const drawLocked = useRef(false);
-    useEffect(() => () => clearTimeout(drawTimer.current), []);
-    const cancelDraw = () => {
-        clearTimeout(drawTimer.current);
-        drawLocked.current = false;
-        setIsShuffling(false);
-    };
     const maxCards = mode === "persona" ? 2 : 3;
     const switchMode = newMode => {
-        cancelDraw();
         setMode(newMode);
+        setDeck(newDeck());
         setDrawn([]);
         setCopied(false);
     };
-    const drawRandom = () => {
-        if (drawLocked.current || drawn.length) return;
-        drawLocked.current = true;
-        setIsShuffling(true);
-        const available = [..._DATA];
-        const selected = [];
-        for (let i = 0; i < maxCards; i++) {
-            selected.push(available.splice(randomIndex(available.length), 1)[0]);
-        }
-        const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-        drawTimer.current = setTimeout(() => {
-            setDrawn(selected);
-            setIsShuffling(false);
-            drawLocked.current = false;
-            drawTimer.current = null;
-        }, reducedMotion ? 0 : 1200);
+    const pickCard = card => {
+        setDrawn(previous => {
+            if (previous.length >= maxCards || previous.some(item => item.id === card.id)) return previous;
+            return [...previous, card];
+        });
     };
     const reset = () => {
-        cancelDraw();
+        setDeck(newDeck());
         setDrawn([]);
         setCopied(false);
     };
@@ -532,38 +522,32 @@ const App = () => {
         className: "flex justify-center gap-6 mt-8"
     }, h("button", {
         onClick: () => switchMode("persona"),
-        className: `px-9 py-2.5 rounded-full border tracking-[0.22em] text-xs transition-all cursor-pointer ${mode === "persona" ? "bg-[#d4af37] text-[#080706] font-bold border-[#d4af37]" : "bg-transparent border-[#d4af37]/45 text-[#b89d72] hover:text-[#d4af37] hover:border-[#d4af37]"}`
+        className: `px-9 py-2.5 rounded-full border tracking-[0.22em] text-xs  cursor-pointer ${mode === "persona" ? "bg-[#d4af37] text-[#080706] font-bold border-[#d4af37]" : "bg-transparent border-[#d4af37]/45 text-[#b89d72] hover:text-[#d4af37] hover:border-[#d4af37]"}`
     }, "\u2726 \u63a2\u7d22\u4e3b\u526f\u4eba\u683c"), h("button", {
         onClick: () => switchMode("divination"),
-        className: `px-9 py-2.5 rounded-full border tracking-[0.22em] text-xs transition-all cursor-pointer ${mode === "divination" ? "bg-[#d4af37] text-[#080706] font-bold border-[#d4af37]" : "bg-transparent border-[#d4af37]/45 text-[#b89d72] hover:text-[#d4af37] hover:border-[#d4af37]"}`
+        className: `px-9 py-2.5 rounded-full border tracking-[0.22em] text-xs  cursor-pointer ${mode === "divination" ? "bg-[#d4af37] text-[#080706] font-bold border-[#d4af37]" : "bg-transparent border-[#d4af37]/45 text-[#b89d72] hover:text-[#d4af37] hover:border-[#d4af37]"}`
     }, "\u2726 \u5c08\u5c6c\u4e8b\u4ef6\u5360\u535c"))), h("div", {
         className: "flex flex-col items-center"
     }, drawn.length < maxCards && h("div", {
         className: "w-full flex flex-col items-center  z-20 mb-10"
     }, h("div", {
-        className: `oracle-card-row ${isShuffling ? "is-shuffling" : ""} flex justify-center gap-2 sm:gap-4 w-full max-w-[720px] mb-8`,
-        "aria-label": "\u5361\u724c", "aria-busy": isShuffling
-    }, Array.from({length: 5}, (_, index) => h("button", {
-        key: index,
+        className: "oracle-card-row flex justify-center gap-2 sm:gap-4 w-full max-w-[720px] mb-8",
+        "aria-label": "\u5361\u724c"
+    }, deck.map((card, index) => h("button", {
+        key: card.id,
         type: "button",
-        onClick: drawRandom,
-        disabled: isShuffling,
+        onClick: () => pickCard(card),
+        disabled: drawn.some(item => item.id === card.id),
+        "aria-pressed": drawn.some(item => item.id === card.id),
         "aria-label": `\u9ede\u64ca\u7b2c ${index + 1} \u5f35\u5361\u724c\u958b\u59cb\u62bd\u724c`,
-        style: {"--offset": index - 2, "--tilt": `${(index - 2) * 5}deg`},
         className: "oracle-card-back flex-1 min-w-0 max-w-[120px] aspect-[2/3] border border-[#d4af37]/45 rounded-t-full rounded-b-md p-1 sm:p-2 bg-[#120f0c] cursor-pointer focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#d4af37]"
-    }, h(MuchaHalo, {className: "w-full h-full"})))), h("button", {
-        onClick: drawRandom,
-        disabled: isShuffling,
-        "aria-busy": isShuffling,
-        className: "min-h-[48px] px-8 py-3 rounded-full bg-[#d4af37] text-[#080706] font-bold text-base tracking-widest border border-[#d4af37] hover:bg-[#e5c349] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#d4af37]"
-    }, isShuffling ? "\u6d17\u724c\u4e2d\u2026" : "\u6191\u76f4\u89ba\u62bd\u724c")), drawn.length > 0 && h("div", {
+    }, h(MuchaHalo, {className: "w-full h-full"}))))), drawn.length > 0 && h("div", {
         className: `oracle-slots grid grid-cols-1 ${mode === "persona" ? "md:grid-cols-2 max-w-[680px]" : "lg:grid-cols-3 max-w-[940px]"} gap-7 w-full mt-2 justify-items-center`
     }, slotLabels.map(((slot, i) => {
         const c = drawn[i], cur = drawn.length === i;
         return h("div", {
             key: c ? c.id : `slot-${i}`,
-            className: "oracle-reveal flex flex-col items-center",
-            style: {"--reveal-delay": `${i * 140}ms`}
+            className: "flex flex-col items-center"
         }, h("div", {
             className: "text-center mb-4"
         }, h("span", {
@@ -603,7 +587,7 @@ const App = () => {
         }, "\u2766 \u690d\u7269\u80fd\u91cf\u795d\u798f \u2766"), h("p", {
             className: "text-[0.78125rem] leading-[1.95] text-[#e0cfa9] text-center italic font-light"
         }, `\u300c${c.lines[0]}`, h("br"), `${c.lines[1]}\u300d`)))) : h("div", {
-            className: `w-full max-w-[295px] min-h-[460px] mucha-arch border border-dashed flex flex-col items-center justify-center p-8 transition-all  ${cur ? "border-[#d4af37]/60 bg-[#d4af37]/[0.04]" : "border-[#8a7054]/25 bg-transparent"}`
+            className: `w-full max-w-[295px] min-h-[460px] mucha-arch border border-dashed flex flex-col items-center justify-center p-8   ${cur ? "border-[#d4af37]/60 bg-[#d4af37]/[0.04]" : "border-[#8a7054]/25 bg-transparent"}`
         }, h("div", {
             className: `w-11 h-11 rounded-full border flex items-center justify-center mb-3 font-cinzel text-xs ${cur ? "border-[#d4af37] text-[#d4af37] " : "border-[#8a7054]/30 text-[#8a7054]/45"}`
         }, roman[i]), h("span", {
@@ -682,7 +666,7 @@ const App = () => {
         target: "_blank",
         rel: "noopener noreferrer",
         onClick: copyResultToClipboard,
-        className: "shrink-0 px-7 py-3.5 bg-[#d4af37] hover:bg-[#e5c349] text-[#080706] font-bold text-xs tracking-[0.2em] rounded-full transition-all cursor-pointer text-center no-underline"
+        className: "shrink-0 px-7 py-3.5 bg-[#d4af37] hover:bg-[#e5c349] text-[#080706] font-bold text-xs tracking-[0.2em] rounded-full  cursor-pointer text-center no-underline"
     }, copied ? "\u2713 \u5df2\u8907\u88fd\u7d50\u679c\uff01\u9ede\u6b64\u52a0\u5165\u5b98\u65b9 LINE \u597d\u53cb" : "\u2726 \u52a0\u5165\u5b98\u65b9 LINE \u597d\u53cb\u30fb\u9810\u7d04\u89e3\u8b80\u8207\u8abf\u9999")))) : h("div", {
         className: "space-y-7 max-w-[800px] mx-auto relative z-10"
     }, h("div", {
@@ -746,7 +730,7 @@ const App = () => {
         target: "_blank",
         rel: "noopener noreferrer",
         onClick: copyResultToClipboard,
-        className: "shrink-0 px-7 py-3.5 bg-[#d4af37] hover:bg-[#e5c349] text-[#080706] font-bold text-xs tracking-[0.2em] rounded-full transition-all cursor-pointer text-center no-underline"
+        className: "shrink-0 px-7 py-3.5 bg-[#d4af37] hover:bg-[#e5c349] text-[#080706] font-bold text-xs tracking-[0.2em] rounded-full  cursor-pointer text-center no-underline"
     }, copied ? "\u2713 \u5df2\u8907\u88fd\u724c\u9663\uff01\u9ede\u6b64\u52a0\u5165\u5b98\u65b9 LINE \u597d\u53cb" : "\u2726 \u52a0\u5165\u5b98\u65b9 LINE \u597d\u53cb\u30fb\u9810\u7d04\u5360\u535c\u8207\u8abf\u9999")))), h("div", {
         className: "w-full h-px bg-gradient-to-r from-transparent via-[#d4af37]/35 to-transparent my-10 relative z-10"
     }), h("div", {
@@ -757,10 +741,10 @@ const App = () => {
         className: "text-2xl font-normal tracking-[0.15em] text-[#d4af37] italic leading-[1.95]"
     }, `\u300c${drawn[drawn.length - 1].whisper[0]}`, h("br"), `${drawn[drawn.length - 1].whisper[1]}\u300d`)))), drawn.length === maxCards && h("a", {
         href: "./index.html",
-        className: "inline-flex items-center justify-center min-h-[44px] mt-8 px-8 py-3 rounded-full border border-[#d4af37]/50 text-[#d4af37] hover:bg-[#d4af37]/15 transition-all tracking-[0.25em] text-xs no-underline"
+        className: "inline-flex items-center justify-center min-h-[44px] mt-8 px-8 py-3 rounded-full border border-[#d4af37]/50 text-[#d4af37] hover:bg-[#d4af37]/15  tracking-[0.25em] text-xs no-underline"
     }, "\u2190 \u56de\u5230\u9996\u9801"), drawn.length === maxCards && h("button", {
         onClick: reset,
-        className: "mt-10 mb-4 px-8 py-2.5 rounded-full border border-[#d4af37]/50 text-[#d4af37] hover:bg-[#d4af37]/15 transition-all tracking-[0.25em] text-xs uppercase cursor-pointer"
+        className: "mt-10 mb-4 px-8 py-2.5 rounded-full border border-[#d4af37]/50 text-[#d4af37] hover:bg-[#d4af37]/15  tracking-[0.25em] text-xs uppercase cursor-pointer"
     }, "\u21bb \u91cd\u65b0\u975c\u5fc3\u6d17\u724c\u30fbDraw Again"))), h("footer", {
         className: "text-center py-6 text-[#786346] text-[0.6875rem] tracking-[0.25em] mt-4 font-cinzel"
     }, "PLANT ENNEAGRAM & BOTANICAL AROMATHERAPY ORACLE")));

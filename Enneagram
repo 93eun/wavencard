@@ -33,27 +33,10 @@ html { font-size:100%; }
  .oracle-panel .w-32 { width:3rem; }
 }
 
-.oracle-card-row { perspective:1000px; padding:1rem 0; }
-.oracle-card-back { transform-origin:50% 85%; box-shadow:0 8px 22px #0006; transition:border-color .2s,box-shadow .2s; }
-.oracle-card-back:not(:disabled):hover { border-color:#e7cf92; box-shadow:0 0 20px #d4af3726; }
-.oracle-card-back:disabled { cursor:wait; }
-.is-shuffling .oracle-card-back { animation:oracle-shuffle 1.2s ease-in-out both; pointer-events:none; }
-.oracle-reveal { animation:oracle-reveal .65s ease-out both; animation-delay:var(--reveal-delay,0ms); }
-@keyframes oracle-shuffle {
- 0% { transform:translateX(0) rotate(0); opacity:1; }
- 25% { transform:translateX(calc(var(--offset) * -108%)) translateY(-8px) rotate(var(--tilt)); }
- 45% { transform:translateX(calc(var(--offset) * -65%)) translateY(-24px) rotate(calc(var(--offset) * -9deg)); }
- 65% { transform:translateX(calc(var(--offset) * -108%)) translateY(-8px) rotate(var(--tilt)); opacity:1; }
- 82% { transform:translateX(0) translateY(-12px) rotate(0); opacity:1; }
- 100% { transform:translateX(0) translateY(-40px) rotateY(75deg); opacity:0; }
-}
-@keyframes oracle-reveal {
- from { opacity:0; transform:perspective(1000px) rotateY(-65deg) translateY(18px); }
- to { opacity:1; transform:perspective(1000px) rotateY(0) translateY(0); }
-}
-@media(prefers-reduced-motion:reduce) {
- .oracle-card-back,.oracle-reveal { animation:none !important; transition:none !important; }
-}
+.oracle-card-row { padding:1rem 0; }
+.oracle-card-back { box-shadow:0 8px 22px #0006; }
+.oracle-card-back:not(:disabled):hover { border-color:#e7cf92; }
+.oracle-card-back:disabled { opacity:.25; cursor:default; }
 </style>
 <script>
 document.addEventListener('contextmenu',e=>e.preventDefault());
