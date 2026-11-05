@@ -141,7 +141,7 @@ const MuchaArchFrame = () => h("svg", {
     strokeWidth: 1,
     opacity: .45
 }), h("path", {
-    d: "M 16 464 L 16 140 A 144 130 0 0 1 304 140 L 304 464 Z",
+    d: "M 16 464 L 16 16 L 304 16 L 304 464 Z",
     stroke: "#d4af37",
     strokeWidth: 1.2,
     opacity: .55
@@ -531,7 +531,7 @@ const App = () => {
     }, drawn.length < maxCards && h("div", {
         className: "w-full flex flex-col items-center  z-20 mb-10"
     }, h("div", {
-        className: "oracle-card-row grid grid-cols-3 justify-items-center gap-3 sm:gap-5 w-full max-w-[480px] mb-8",
+        className: "oracle-card-row w-full mb-8",
         "aria-label": "\u5361\u724c"
     }, deck.map((card, index) => h("button", {
         key: card.id,
@@ -540,8 +540,8 @@ const App = () => {
         disabled: drawn.some(item => item.id === card.id),
         "aria-pressed": drawn.some(item => item.id === card.id),
         "aria-label": `\u9ede\u64ca\u7b2c ${index + 1} \u5f35\u5361\u724c\u958b\u59cb\u62bd\u724c`,
-        className: "oracle-card-back w-full min-w-0 max-w-[120px] aspect-[2/3] border border-[#d4af37]/45 rounded-t-full rounded-b-md p-1 sm:p-2 bg-[#120f0c] cursor-pointer focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#d4af37]"
-    }, h(MuchaHalo, {className: "w-full h-full"}))))), drawn.length > 0 && h("div", {
+        className: "oracle-card-back aspect-[2/3] border border-[#d4af37]/45 rounded-md p-1 sm:p-2 bg-[#120f0c] cursor-pointer focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#d4af37]"
+    }, h(MuchaHalo, {className: "w-full h-full"}))))), drawn.length === maxCards && h("div", {
         className: `oracle-slots grid grid-cols-1 ${mode === "persona" ? "md:grid-cols-2 max-w-[680px]" : "lg:grid-cols-3 max-w-[940px]"} gap-7 w-full mt-2 justify-items-center`
     }, slotLabels.map(((slot, i) => {
         const c = drawn[i], cur = drawn.length === i;
@@ -587,7 +587,7 @@ const App = () => {
         }, "\u2766 \u690d\u7269\u80fd\u91cf\u795d\u798f \u2766"), h("p", {
             className: "text-[0.78125rem] leading-[1.95] text-[#e0cfa9] text-center italic font-light"
         }, `\u300c${c.lines[0]}`, h("br"), `${c.lines[1]}\u300d`)))) : h("div", {
-            className: `w-full max-w-[295px] min-h-[460px] mucha-arch border border-dashed flex flex-col items-center justify-center p-8   ${cur ? "border-[#d4af37]/60 bg-[#d4af37]/[0.04]" : "border-[#8a7054]/25 bg-transparent"}`
+            className: `w-full max-w-[295px] min-h-[460px] rounded-md border border-dashed flex flex-col items-center justify-center p-8   ${cur ? "border-[#d4af37]/60 bg-[#d4af37]/[0.04]" : "border-[#8a7054]/25 bg-transparent"}`
         }, h("div", {
             className: `w-11 h-11 rounded-full border flex items-center justify-center mb-3 font-cinzel text-xs ${cur ? "border-[#d4af37] text-[#d4af37] " : "border-[#8a7054]/30 text-[#8a7054]/45"}`
         }, roman[i]), h("span", {
