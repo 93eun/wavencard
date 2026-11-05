@@ -423,7 +423,7 @@ const newDeck = (mode = "persona") => {
         const j = randomIndex(i + 1);
         [cards[i], cards[j]] = [cards[j], cards[i]];
     }
-    return cards.slice(0, mode === "persona" ? 9 : 3);
+    return cards;
 };
 
 const App = () => {
@@ -499,7 +499,7 @@ const App = () => {
         href: "./index.html",
         className: "inline-flex items-center min-h-[44px] px-4 py-2 rounded-full border border-[#d4af37]/40 text-[#d4af37] text-sm tracking-widest hover:bg-[#d4af37]/10"
     }, "\u2190 \u56de\u5230\u9996\u9801")), h("span", {
-        className: "text-[0.6875rem] font-cinzel tracking-[0.4em] text-[#a68c60] uppercase block mb-3"
+        className: "text-[0.6875rem] font-oracle tracking-[0.4em] text-[#a68c60] uppercase block mb-3"
     }, "Art Nouveau Botanical Oracle"), h("div", {
         className: "inline-flex items-center justify-center gap-6 mb-3"
     }, h("span", {
@@ -551,7 +551,7 @@ const App = () => {
         }, h("div", {
             className: "text-center mb-4"
         }, h("span", {
-            className: "text-[0.625rem] font-cinzel tracking-[0.3em] text-[#8a7250] block mb-1"
+            className: "text-[0.625rem] font-oracle tracking-[0.3em] text-[#8a7250] block mb-1"
         }, slot.tag), h("h3", {
             className: `text-lg font-bold tracking-[0.22em] ${c ? "text-[#d4af37]" : "text-[#6e5a40]"}`
         }, slot.title)), c ? h("div", {
@@ -575,7 +575,7 @@ const App = () => {
         })), h("h2", {
             className: "text-3xl font-bold tracking-[0.22em] text-[#d4af37] mt-1 mb-1.5 pl-[0.22em] whitespace-normal"
         }, c.oil), h("p", {
-            className: "text-xs font-cinzel tracking-[0.22em] text-[#cbb282] uppercase"
+            className: "text-xs font-oracle tracking-[0.22em] text-[#cbb282] uppercase"
         }, c.oilEn), h("p", {
             className: "text-[0.6875rem] italic text-[#8c7651] mt-1 mb-4"
         }, c.latin), h("div", {
@@ -589,7 +589,7 @@ const App = () => {
         }, `\u300c${c.lines[0]}`, h("br"), `${c.lines[1]}\u300d`)))) : h("div", {
             className: `w-full max-w-[295px] min-h-[460px] rounded-md border border-dashed flex flex-col items-center justify-center p-8   ${cur ? "border-[#d4af37]/60 bg-[#d4af37]/[0.04]" : "border-[#8a7054]/25 bg-transparent"}`
         }, h("div", {
-            className: `w-11 h-11 rounded-full border flex items-center justify-center mb-3 font-cinzel text-xs ${cur ? "border-[#d4af37] text-[#d4af37] " : "border-[#8a7054]/30 text-[#8a7054]/45"}`
+            className: `w-11 h-11 rounded-full border flex items-center justify-center mb-3 font-oracle text-xs ${cur ? "border-[#d4af37] text-[#d4af37] " : "border-[#8a7054]/30 text-[#8a7054]/45"}`
         }, roman[i]), h("span", {
             className: `text-xs tracking-[0.25em] font-light ${cur ? "text-[#d4af37]/90" : "text-[#8a7054]/45"}`
         }, cur ? `\u7b49\u5f85\u7b2c ${i + 1} \u5f35\u690d\u7269\u724c` : `\u724c\u4f4d 0${i + 1}`)));
@@ -602,7 +602,7 @@ const App = () => {
     }), h("div", {
         className: "mb-9 relative z-10 text-center"
     }, h("span", {
-        className: "text-[0.625rem] font-cinzel tracking-[0.35em] text-[#a68c60] uppercase block mb-2"
+        className: "text-[0.625rem] font-oracle tracking-[0.35em] text-[#a68c60] uppercase block mb-2"
     }, mode === "persona" ? "Dual Personality & Aroma Profile" : "Botanical Divination Summary"), h("h3", {
         className: "text-2xl font-bold tracking-[0.22em] text-[#d4af37]"
     }, mode === "persona" ? "\u2726 \u4e3b\u526f\u4eba\u683c\u5256\u6790\u8207\u65e5\u5e38\u63d0\u9192 \u2726" : "\u2726 \u4e8b\u4ef6\u5360\u535c\u89e3\u6790\u8207\u672a\u4f86\u5efa\u8b70 \u2726"), h("div", {
@@ -746,7 +746,7 @@ const App = () => {
         onClick: reset,
         className: "mt-10 mb-4 px-8 py-2.5 rounded-full border border-[#d4af37]/50 text-[#d4af37] hover:bg-[#d4af37]/15  tracking-[0.25em] text-xs uppercase cursor-pointer"
     }, "\u21bb \u91cd\u65b0\u975c\u5fc3\u6d17\u724c\u30fbDraw Again"))), h("footer", {
-        className: "text-center py-6 text-[#786346] text-[0.6875rem] tracking-[0.25em] mt-4 font-cinzel"
+        className: "text-center py-6 text-[#786346] text-[0.6875rem] tracking-[0.25em] mt-4 font-oracle"
     }, "PLANT ENNEAGRAM & BOTANICAL AROMATHERAPY ORACLE")));
 };
 

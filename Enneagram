@@ -9,8 +9,8 @@
 <script src="./assets/vendor/react-18.3.1.min.js" crossorigin></script>
 <script src="./assets/vendor/react-dom-18.3.1.min.js" crossorigin></script>
 <style>
-html,body{background:#080706;color:#d4af37;font-family:'Cormorant Garamond','Noto Serif TC',serif;margin:0;padding:0;min-height:100vh;-webkit-user-select:none;user-select:none;overflow-x:hidden}
-.font-cinzel{font-family:'Cinzel','Noto Serif TC',serif}
+html,body{background:#080706;color:#d4af37;font-family:'Noto Serif TC',serif;margin:0;padding:0;min-height:100vh;-webkit-user-select:none;user-select:none;overflow-x:hidden}
+#root, #root *{font-family:'Noto Serif TC',serif}
 .mucha-arch{border-radius:150px 150px 10px 10px}
 .dark-card-shadow{box-shadow:0 18px 42px -8px rgba(0,0,0,0.85),0 0 1px 1px rgba(212,175,55,0.25)}
 ::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:#0a0908}::-webkit-scrollbar-thumb{background:#4a3e28;border-radius:3px}
@@ -33,8 +33,10 @@ html { font-size:100%; }
  .oracle-panel .w-32 { width:3rem; }
 }
 
-.oracle-card-row { display:flex; flex-wrap:nowrap; justify-content:safe center; gap:clamp(.5rem,1.2vw,.875rem); overflow-x:auto; padding:.75rem .25rem 1rem; scroll-snap-type:x proximity; }
-.oracle-card-back { flex:1 0 64px; max-width:120px; scroll-snap-align:center; box-shadow:0 8px 22px #0006; }
+.oracle-card-row { --card-width:clamp(72px,10vw,120px); display:flex; flex-wrap:nowrap; justify-content:safe center; gap:0; overflow-x:auto; padding:.75rem .25rem 1rem; scroll-snap-type:x proximity; }
+.oracle-card-back { flex:0 0 var(--card-width); position:relative; scroll-snap-align:center; box-shadow:0 8px 22px #0006; }
+.oracle-card-back + .oracle-card-back { margin-left:calc(var(--card-width) * -.3); }
+.oracle-card-back:focus-visible { z-index:20; }
 .oracle-card-back:not(:disabled):hover { border-color:#e7cf92; }
 .oracle-card-back:disabled { opacity:.25; cursor:default; }
 
@@ -50,6 +52,6 @@ document.addEventListener('keydown',e=>{if(e.key==='F12'||(e.ctrlKey&&e.shiftKey
 </head>
 <body>
 <div id="root"></div>
-<script src="./assets/enneagram.min.js?v=9b9ee359fee27736"></script>
+<script src="./assets/enneagram.min.js?v=7857d13036b8d002"></script>
 </body>
 </html>
