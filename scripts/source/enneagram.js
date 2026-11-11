@@ -454,9 +454,24 @@ const App = () => {
     useEffect(() => {
         if (drawn.length !== maxCards) return;
         const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-        const turnTimer = setTimeout(() => setTurning(true), reduced ? 0 : 450);
-        const revealTimer = setTimeout(() => setRevealed(true), reduced ? 0 : 800);
-        return () => { clearTimeout(turnTimer); clearTimeout(revealTimer); };
+        let canceled = false;
+        let turns = [];
+        const turnTimer = setTimeout(() => {
+            if (reduced) { setRevealed(true); return; }
+            setTurning(true);
+            turns = [...queueRef.current.children].map(node => node.animate([
+                {transform: "rotateY(0deg)"}, {transform: "rotateY(90deg)"}
+            ], {duration: 500, easing: "ease-in", fill: "forwards"}));
+            Promise.all(turns.map(animation => animation.finished.then(() => true, () => false)))
+                .then(finished => {
+                    if (!canceled && finished.every(Boolean)) setRevealed(true);
+                });
+        }, reduced ? 0 : 450);
+        return () => {
+            canceled = true;
+            clearTimeout(turnTimer);
+            turns.forEach(animation => animation.cancel());
+        };
     }, [drawn, maxCards]);
     const switchMode = newMode => {
         stopSequence();
@@ -495,12 +510,13 @@ const App = () => {
                 const y = node === topRef.current ? 0 : index * 3;
                 const side = index % 2 ? 1 : -1;
                 return play(node, [
-                    {transform: `translate(0,${y}px)`},
-                    {transform: `translate(${side * 36}px,${y - 10}px)`, offset: .23},
-                    {transform: `translate(${-side * 26}px,${y + 5}px)`, offset: .48},
-                    {transform: `translate(${side * 30}px,${y - 6}px)`, offset: .73},
-                    {transform: `translate(0,${y}px)`}
-                ], 1200, run);
+                    {transform: `translate(0,${y}px) rotate(0deg)`},
+                    {transform: `translate(${side * 60}px,${y - 20}px) rotate(${side * 12}deg)`, offset: .2},
+                    {transform: `translate(${-side * 48}px,${y + 8}px) rotate(${-side * 9}deg)`, offset: .42},
+                    {transform: `translate(${side * 56}px,${y - 14}px) rotate(${side * 10}deg)`, offset: .64},
+                    {transform: `translate(${-side * 24}px,${y - 5}px) rotate(${-side * 5}deg)`, offset: .82},
+                    {transform: `translate(0,${y}px) rotate(0deg)`}
+                ], 1500, run);
             }));
             if (!shuffled.every(Boolean) || sequence.current !== run) return;
             setPhase("cut");
@@ -527,16 +543,20 @@ const App = () => {
                 Object.assign(node.style, {
                     position: "fixed", left: `${from.left}px`, top: `${from.top}px`,
                     width: `${from.width}px`, height: `${from.height}px`, margin: "0",
-                    transformOrigin: "top left", pointerEvents: "none", zIndex: "1000"
+                    transformOrigin: "center center", pointerEvents: "none", zIndex: "1000"
                 });
                 overlays.current.add(node);
                 document.body.appendChild(node);
                 setDrawing(true);
+                const dx = to.left + to.width / 2 - from.left - from.width / 2;
+                const dy = to.top + to.height / 2 - from.top - from.height / 2;
                 const landed = await play(node, [
-                    {transform: "translate(0,0) scale(1)"},
-                    {transform: "translate(0,-30px) scale(1)", offset: .25},
-                    {transform: `translate(${to.left - from.left}px, ${to.top - from.top}px) scale(${to.width / from.width}, ${to.height / from.height})`}
-                ], 700, run);
+                    {transform: "perspective(900px) translate(0,0) scale(1) rotateY(0deg) rotateZ(0deg)", boxShadow: "0 12px 26px #0008"},
+                    {transform: "perspective(900px) translate(0,-38px) scale(1.08) rotateY(90deg) rotateZ(-8deg)", boxShadow: "0 0 30px #d4af3755", offset: .2},
+                    {transform: `perspective(900px) translate(${dx * .3}px,${dy * .18}px) scale(1.12) rotateY(180deg) rotateZ(0deg)`, boxShadow: "0 0 42px #d4af3770", offset: .42},
+                    {transform: `perspective(900px) translate(${dx * .65}px,${dy * .55}px) scale(1.04) rotateY(270deg) rotateZ(6deg)`, boxShadow: "0 0 32px #d4af3755", offset: .64},
+                    {transform: `perspective(900px) translate(${dx}px,${dy}px) scale(${to.width / from.width}, ${to.height / from.height}) rotateY(360deg) rotateZ(0deg)`, boxShadow: "0 8px 20px #0008"}
+                ], 1400, run);
                 node.remove();
                 overlays.current.delete(node);
                 if (!landed || sequence.current !== run) return;
