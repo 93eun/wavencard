@@ -35,8 +35,9 @@ html { font-size:100%; }
 
 .oracle-deck { position:relative; width:140px; height:210px; margin:1rem auto 3rem; }
 .oracle-deck-layer { position:absolute; inset:0; border:1px solid #d4af3759; border-radius:6px; background:#17130e; padding:1rem; pointer-events:none; }
-.oracle-deck-top { position:relative; width:100%; height:100%; cursor:default; box-shadow:0 12px 26px #0008; }
-.oracle-start:hover { background:#e5c349; cursor:pointer; }
+.oracle-deck-top { position:relative; width:100%; height:100%; cursor:pointer; box-shadow:0 12px 26px #0008; }
+.oracle-deck-top:not(:disabled):hover { border-color:#e7cf92; }
+.oracle-deck-top:disabled { cursor:wait; }
 
 .oracle-flip-card { position:relative; transform-style:preserve-3d; animation:oracle-result-flip .75s cubic-bezier(.25,.7,.25,1) both; }
 .oracle-flip-card > :not(.oracle-result-back) { backface-visibility:hidden; transform:translateZ(1px); }
@@ -56,6 +57,6 @@ document.addEventListener('keydown',e=>{if(e.key==='F12'||(e.ctrlKey&&e.shiftKey
 </head>
 <body>
 <div id="root"></div>
-<script src="./assets/enneagram.min.js?v=2ca39cc58e02643e"></script>
+<script src="./assets/enneagram.min.js?v=0062f218ac2c2872"></script>
 </body>
 </html>

@@ -1,4 +1,4 @@
-const {useState: useState, createElement: h} = React;
+const {useState: useState, useEffect: useEffect, useRef: useRef, createElement: h} = React;
 
 const LINE_ADD_URL = "https://line.me/R/ti/p/@171obltq";
 
@@ -430,17 +430,48 @@ const App = () => {
     const [mode, setMode] = useState("persona");
     const [drawn, setDrawn] = useState([]);
     const [copied, setCopied] = useState(false);
+    const [selecting, setSelecting] = useState(false);
+    const selection = useRef(null);
+    const cancelSelection = () => {
+        const animation = selection.current;
+        selection.current = null;
+        if (animation) animation.cancel();
+    };
+    useEffect(() => () => cancelSelection(), []);
     const maxCards = mode === "persona" ? 2 : 3;
     const revealed = drawn.length === maxCards;
     const switchMode = newMode => {
+        cancelSelection();
+        setSelecting(false);
         setMode(newMode);
         setDrawn([]);
         setCopied(false);
     };
-    const startReading = () => {
-        setDrawn(previous => previous.length ? previous : newDeck().slice(0, maxCards));
+    const startReading = event => {
+        if (selection.current || drawn.length) return;
+        const cards = newDeck().slice(0, maxCards);
+        const reveal = () => setDrawn(previous => previous.length ? previous : cards);
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+            reveal();
+            return;
+        }
+        const animation = event.currentTarget.animate([
+            {transform: "translateY(0) scale(1)", boxShadow: "0 12px 26px #0008"},
+            {transform: "translateY(-10px) scale(1.14)", boxShadow: "0 0 28px #d4af3755", offset: .65},
+            {transform: "translateY(-12px) scale(1.18)", boxShadow: "0 0 34px #d4af3766"}
+        ], {duration: 380, easing: "ease-out", fill: "forwards"});
+        selection.current = animation;
+        setSelecting(true);
+        animation.onfinish = () => {
+            if (selection.current !== animation) return;
+            selection.current = null;
+            setSelecting(false);
+            reveal();
+        };
     };
     const reset = () => {
+        cancelSelection();
+        setSelecting(false);
         setDrawn([]);
         setCopied(false);
     };
@@ -525,17 +556,16 @@ const App = () => {
         className: "flex flex-col items-center"
     }, !revealed && h("div", {
         className: "w-full flex flex-col items-center z-20 mb-10"
-    }, h("div", {className: "oracle-deck", "aria-hidden": true},
+    }, h("div", {className: "oracle-deck"},
         Array.from({length: 5}, (_, index) => h("div", {
-            key: index, className: "oracle-deck-layer",
+            key: index, className: "oracle-deck-layer", "aria-hidden": true,
             style: {transform: `translateY(${index * 3}px)`}
         }, h(MuchaHalo, {className: "w-full h-full"}))),
-        h("div", {className: "oracle-deck-top border border-[#d4af37]/60 rounded-md bg-[#120f0c] p-4"},
-            h(MuchaHalo, {className: "w-full h-full"}))),
         h("button", {
-            type: "button", onClick: startReading,
-            className: "oracle-start min-h-[48px] px-8 py-3 mb-5 rounded-full border border-[#d4af37] bg-[#d4af37] text-[#080706] text-base tracking-widest focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#d4af37]"
-        }, "\u62bd\u724c")), revealed && h("div", {
+            type: "button", onClick: startReading, disabled: selecting, "aria-busy": selecting,
+            "aria-label": "\u9ede\u9078\u5361\u724c\u62bd\u724c",
+            className: "oracle-deck-top border border-[#d4af37]/60 rounded-md bg-[#120f0c] p-4 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#d4af37]"
+        }, h(MuchaHalo, {className: "w-full h-full"})))), revealed && h("div", {
         className: `oracle-slots oracle-answers grid grid-cols-1 ${mode === "persona" ? "md:grid-cols-2 max-w-[680px]" : "lg:grid-cols-3 max-w-[940px]"} gap-7 w-full mt-2 justify-items-center`
     }, slotLabels.map(((slot, i) => {
         const c = drawn[i], cur = drawn.length === i;
