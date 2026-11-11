@@ -455,8 +455,9 @@ const App = () => {
             reveal();
             return;
         }
+        const currentStyle = getComputedStyle(event.currentTarget);
         const animation = event.currentTarget.animate([
-            {transform: "translateY(0) scale(1)", boxShadow: "0 12px 26px #0008"},
+            {transform: currentStyle.transform, boxShadow: currentStyle.boxShadow},
             {transform: "translateY(-10px) scale(1.14)", boxShadow: "0 0 28px #d4af3755", offset: .65},
             {transform: "translateY(-12px) scale(1.18)", boxShadow: "0 0 34px #d4af3766"}
         ], {duration: 380, easing: "ease-out", fill: "forwards"});
@@ -557,10 +558,6 @@ const App = () => {
     }, !revealed && h("div", {
         className: "w-full flex flex-col items-center z-20 mb-10"
     }, h("div", {className: "oracle-deck"},
-        Array.from({length: 5}, (_, index) => h("div", {
-            key: index, className: "oracle-deck-layer", "aria-hidden": true,
-            style: {transform: `translateY(${index * 3}px)`}
-        }, h(MuchaHalo, {className: "w-full h-full"}))),
         h("button", {
             type: "button", onClick: startReading, disabled: selecting, "aria-busy": selecting,
             "aria-label": "\u9ede\u9078\u5361\u724c\u62bd\u724c",
