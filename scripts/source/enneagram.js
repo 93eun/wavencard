@@ -508,15 +508,18 @@ const App = () => {
             const packet = [...topRef.current.parentElement.querySelectorAll(".oracle-deck-layer"), topRef.current];
             const shuffled = await Promise.all(packet.map((node, index) => {
                 const y = node === topRef.current ? 0 : index * 3;
-                const side = index % 2 ? 1 : -1;
+                const upper = index >= 3;
+                const drop = upper ? (5 - index) * .045 : index * .015;
+                // Two overhand passes: lift a packet, release small packets, square the deck.
                 return play(node, [
                     {transform: `translate(0,${y}px) rotate(0deg)`},
-                    {transform: `translate(${side * 60}px,${y - 20}px) rotate(${side * 12}deg)`, offset: .2},
-                    {transform: `translate(${-side * 48}px,${y + 8}px) rotate(${-side * 9}deg)`, offset: .42},
-                    {transform: `translate(${side * 56}px,${y - 14}px) rotate(${side * 10}deg)`, offset: .64},
-                    {transform: `translate(${-side * 24}px,${y - 5}px) rotate(${-side * 5}deg)`, offset: .82},
+                    {transform: `translate(${upper ? 46 : -34}px,${y + (upper ? -34 : 12)}px) rotate(${upper ? 9 : -6}deg)`, offset: .12},
+                    {transform: `translate(-30px,${y + 12}px) rotate(-5deg)`, offset: .28 + drop},
+                    {transform: `translate(0,${y}px) rotate(0deg)`, offset: .5},
+                    {transform: `translate(${upper ? -46 : 34}px,${y + (upper ? -34 : 12)}px) rotate(${upper ? -9 : 6}deg)`, offset: .62},
+                    {transform: `translate(30px,${y + 12}px) rotate(5deg)`, offset: .78 + drop},
                     {transform: `translate(0,${y}px) rotate(0deg)`}
-                ], 1500, run);
+                ], 1600, run);
             }));
             if (!shuffled.every(Boolean) || sequence.current !== run) return;
             setPhase("cut");
@@ -552,11 +555,12 @@ const App = () => {
                 const dy = to.top + to.height / 2 - from.top - from.height / 2;
                 const landed = await play(node, [
                     {transform: "perspective(900px) translate(0,0) scale(1) rotateY(0deg) rotateZ(0deg)", boxShadow: "0 12px 26px #0008"},
-                    {transform: "perspective(900px) translate(0,-38px) scale(1.08) rotateY(90deg) rotateZ(-8deg)", boxShadow: "0 0 30px #d4af3755", offset: .2},
-                    {transform: `perspective(900px) translate(${dx * .3}px,${dy * .18}px) scale(1.12) rotateY(180deg) rotateZ(0deg)`, boxShadow: "0 0 42px #d4af3770", offset: .42},
-                    {transform: `perspective(900px) translate(${dx * .65}px,${dy * .55}px) scale(1.04) rotateY(270deg) rotateZ(6deg)`, boxShadow: "0 0 32px #d4af3755", offset: .64},
+                    {transform: "perspective(900px) translate(0,-38px) scale(1.08) rotateY(90deg) rotateZ(-8deg)", boxShadow: "0 0 30px #d4af3755", offset: .14},
+                    {transform: `perspective(900px) translate(${dx * .3}px,${dy * .18}px) scale(1.12) rotateY(180deg) rotateZ(0deg)`, boxShadow: "0 0 42px #d4af3770", offset: .28},
+                    {transform: `perspective(900px) translate(${dx * .65}px,${dy * .55}px) scale(1.04) rotateY(270deg) rotateZ(6deg)`, boxShadow: "0 0 32px #d4af3755", offset: .42},
+                    {transform: `perspective(900px) translate(${dx * .8}px,${dy * .75}px) scale(1) rotateY(360deg) rotateZ(0deg)`, boxShadow: "0 0 24px #d4af3744", offset: .6},
                     {transform: `perspective(900px) translate(${dx}px,${dy}px) scale(${to.width / from.width}, ${to.height / from.height}) rotateY(360deg) rotateZ(0deg)`, boxShadow: "0 8px 20px #0008"}
-                ], 1400, run);
+                ], 800, run);
                 node.remove();
                 overlays.current.delete(node);
                 if (!landed || sequence.current !== run) return;
@@ -669,7 +673,7 @@ const App = () => {
     }, Array.from({length: Math.min(5, deck.length - drawn.length)}, (_, index) => h("div", {
         key: index, "aria-hidden": true, className: "oracle-deck-layer",
         style: {transform: `translateY(${index * 3}px)`}
-    })), h("div", {
+    }, h(MuchaHalo, {className: "w-full h-full"}))), h("div", {
         ref: topRef, "aria-hidden": true,
         className: "oracle-deck-top border border-[#d4af37]/60 rounded-md bg-[#120f0c] p-4 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#d4af37]"
     }, h(MuchaHalo, {className: "w-full h-full"}))), drawn.length < maxCards && h("button", {
