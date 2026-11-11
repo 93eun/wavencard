@@ -36,17 +36,7 @@ html { font-size:100%; }
 .oracle-deck { position:relative; width:140px; height:210px; margin:1rem auto 3rem; }
 .oracle-deck-layer { position:absolute; inset:0; border:1px solid #d4af3759; border-radius:6px; background:#17130e; padding:1rem; pointer-events:none; }
 .oracle-deck-top { position:relative; width:100%; height:100%; cursor:default; box-shadow:0 12px 26px #0008; }
-.oracle-deck.is-drawing .oracle-deck-top { visibility:hidden; }
-.oracle-flying-card { font-family:inherit; will-change:transform; backface-visibility:visible; }
-.oracle-start:not(:disabled):hover { background:#e5c349; cursor:pointer; }
-.oracle-queue { display:flex; justify-content:center; gap:clamp(.5rem,3vw,1.5rem); width:100%; margin-top:1rem; perspective:1000px; }
-.oracle-queued-card { flex:0 1 140px; min-width:0; aspect-ratio:2/3; border:1px dashed #d4af3740; border-radius:6px; display:flex; align-items:center; justify-content:center; padding:.5rem; color:#d4af3759; }
-.oracle-queued-card.is-filled { border:1px solid #d4af3799; background:#120f0c; color:#d4af37; animation:oracle-land .35s ease-out; }
-.oracle-answers > div { animation:oracle-turn-answer .5s ease-out both; }
-@keyframes oracle-land { from { box-shadow:0 0 24px #d4af3766; } to { box-shadow:0 0 0 #d4af3700; } }
-@keyframes oracle-turn-away { to { transform:rotateY(90deg); } }
-@keyframes oracle-turn-answer { from { transform:perspective(1000px) rotateY(-90deg); } to { transform:perspective(1000px) rotateY(0deg); } }
-@media(prefers-reduced-motion:reduce) { .oracle-queued-card,.oracle-answers > div { animation:none !important; } }
+.oracle-start:hover { background:#e5c349; cursor:pointer; }
 
 .oracle-background .origin-center { transform-box:view-box; transform-origin:center; animation:oracle-background-turn 120s linear infinite; }
 .oracle-background .origin-center ~ .origin-center { animation-duration:80s; animation-direction:reverse; }
@@ -60,6 +50,6 @@ document.addEventListener('keydown',e=>{if(e.key==='F12'||(e.ctrlKey&&e.shiftKey
 </head>
 <body>
 <div id="root"></div>
-<script src="./assets/enneagram.min.js?v=0db12528645702c4"></script>
+<script src="./assets/enneagram.min.js?v=c06aedde24a5b780"></script>
 </body>
 </html>

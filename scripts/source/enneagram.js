@@ -1,4 +1,4 @@
-const {useState: useState, useEffect: useEffect, useRef: useRef, createElement: h} = React;
+const {useState: useState, createElement: h} = React;
 
 const LINE_ADD_URL = "https://line.me/R/ti/p/@171obltq";
 
@@ -417,7 +417,7 @@ const randomIndex = length => {
     return values[0] % length;
 };
 
-const newDeck = (mode = "persona") => {
+const newDeck = () => {
     const cards = [..._DATA];
     for (let i = cards.length - 1; i > 0; i--) {
         const j = randomIndex(i + 1);
@@ -428,164 +428,21 @@ const newDeck = (mode = "persona") => {
 
 const App = () => {
     const [mode, setMode] = useState("persona");
-    const [deck, setDeck] = useState(newDeck);
     const [drawn, setDrawn] = useState([]);
     const [copied, setCopied] = useState(false);
-    const [revealed, setRevealed] = useState(false);
-    const [turning, setTurning] = useState(false);
-    const [drawing, setDrawing] = useState(false);
-    const [phase, setPhase] = useState("idle");
-    const queueRef = useRef(null);
-    const topRef = useRef(null);
-    const sequence = useRef(0);
-    const busy = useRef(false);
-    const animations = useRef(new Set());
-    const overlays = useRef(new Set());
-    const stopSequence = () => {
-        sequence.current++;
-        busy.current = false;
-        animations.current.forEach(animation => animation.cancel());
-        animations.current.clear();
-        overlays.current.forEach(node => node.remove());
-        overlays.current.clear();
-    };
-    useEffect(() => () => stopSequence(), []);
     const maxCards = mode === "persona" ? 2 : 3;
-    useEffect(() => {
-        if (drawn.length !== maxCards) return;
-        const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-        let canceled = false;
-        let turns = [];
-        const turnTimer = setTimeout(() => {
-            if (reduced) { setRevealed(true); return; }
-            setTurning(true);
-            turns = [...queueRef.current.children].map(node => node.animate([
-                {transform: "rotateY(0deg)"}, {transform: "rotateY(90deg)"}
-            ], {duration: 500, easing: "ease-in", fill: "forwards"}));
-            Promise.all(turns.map(animation => animation.finished.then(() => true, () => false)))
-                .then(finished => {
-                    if (!canceled && finished.every(Boolean)) setRevealed(true);
-                });
-        }, reduced ? 0 : 450);
-        return () => {
-            canceled = true;
-            clearTimeout(turnTimer);
-            turns.forEach(animation => animation.cancel());
-        };
-    }, [drawn, maxCards]);
+    const revealed = drawn.length === maxCards;
     const switchMode = newMode => {
-        stopSequence();
-        setDrawing(false);
-        setPhase("idle");
         setMode(newMode);
-        setDeck(newDeck(newMode));
         setDrawn([]);
         setCopied(false);
-        setRevealed(false);
-        setTurning(false);
     };
-    const play = async (node, frames, duration, run) => {
-        const animation = node.animate(frames, {
-            duration, easing: "cubic-bezier(.3,0,.2,1)", fill: "forwards"
-        });
-        animations.current.add(animation);
-        try { await animation.finished; } catch (_) { return false; }
-        finally { animations.current.delete(animation); animation.cancel(); }
-        return sequence.current === run;
-    };
-    const startReading = async () => {
-        if (busy.current || drawn.length) return;
-        busy.current = true;
-        const run = ++sequence.current;
-        const selected = deck.slice(0, maxCards);
-        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-            setDrawn(selected);
-            busy.current = false;
-            return;
-        }
-        try {
-            setPhase("shuffle");
-            const packet = [...topRef.current.parentElement.querySelectorAll(".oracle-deck-layer"), topRef.current];
-            const shuffled = await Promise.all(packet.map((node, index) => {
-                const y = node === topRef.current ? 0 : index * 3;
-                const upper = index >= 3;
-                const drop = upper ? (5 - index) * .045 : index * .015;
-                // Two overhand passes: lift a packet, release small packets, square the deck.
-                return play(node, [
-                    {transform: `translate(0,${y}px) rotate(0deg)`},
-                    {transform: `translate(${upper ? 46 : -34}px,${y + (upper ? -34 : 12)}px) rotate(${upper ? 9 : -6}deg)`, offset: .12},
-                    {transform: `translate(-30px,${y + 12}px) rotate(-5deg)`, offset: .28 + drop},
-                    {transform: `translate(0,${y}px) rotate(0deg)`, offset: .5},
-                    {transform: `translate(${upper ? -46 : 34}px,${y + (upper ? -34 : 12)}px) rotate(${upper ? -9 : 6}deg)`, offset: .62},
-                    {transform: `translate(30px,${y + 12}px) rotate(5deg)`, offset: .78 + drop},
-                    {transform: `translate(0,${y}px) rotate(0deg)`}
-                ], 1600, run);
-            }));
-            if (!shuffled.every(Boolean) || sequence.current !== run) return;
-            setPhase("cut");
-            const cut = await Promise.all(packet.map((node, index) => {
-                const y = node === topRef.current ? 0 : index * 3;
-                const upper = node === topRef.current || index < 2;
-                return play(node, [
-                    {transform: `translate(0,${y}px)`},
-                    {transform: `translate(${upper ? 50 : -20}px,${y + (upper ? -24 : 0)}px)`, offset: .35},
-                    {transform: `translate(${upper ? 50 : -20}px,${y + (upper ? 18 : -8)}px)`, offset: .65},
-                    {transform: `translate(0,${y}px)`}
-                ], 900, run);
-            }));
-            if (!cut.every(Boolean) || sequence.current !== run) return;
-            setPhase("draw");
-            for (let index = 0; index < maxCards; index++) {
-                if (sequence.current !== run) return;
-                const source = topRef.current;
-                const from = source.getBoundingClientRect();
-                const to = queueRef.current.children[index].getBoundingClientRect();
-                const node = source.cloneNode(true);
-                node.setAttribute("aria-hidden", "true");
-                node.classList.add("oracle-flying-card");
-                Object.assign(node.style, {
-                    position: "fixed", left: `${from.left}px`, top: `${from.top}px`,
-                    width: `${from.width}px`, height: `${from.height}px`, margin: "0",
-                    transformOrigin: "center center", pointerEvents: "none", zIndex: "1000"
-                });
-                overlays.current.add(node);
-                document.body.appendChild(node);
-                setDrawing(true);
-                const dx = to.left + to.width / 2 - from.left - from.width / 2;
-                const dy = to.top + to.height / 2 - from.top - from.height / 2;
-                const landed = await play(node, [
-                    {transform: "perspective(900px) translate(0,0) scale(1) rotateY(0deg) rotateZ(0deg)", boxShadow: "0 12px 26px #0008"},
-                    {transform: "perspective(900px) translate(0,-38px) scale(1.08) rotateY(90deg) rotateZ(-8deg)", boxShadow: "0 0 30px #d4af3755", offset: .14},
-                    {transform: `perspective(900px) translate(${dx * .3}px,${dy * .18}px) scale(1.12) rotateY(180deg) rotateZ(0deg)`, boxShadow: "0 0 42px #d4af3770", offset: .28},
-                    {transform: `perspective(900px) translate(${dx * .65}px,${dy * .55}px) scale(1.04) rotateY(270deg) rotateZ(6deg)`, boxShadow: "0 0 32px #d4af3755", offset: .42},
-                    {transform: `perspective(900px) translate(${dx * .8}px,${dy * .75}px) scale(1) rotateY(360deg) rotateZ(0deg)`, boxShadow: "0 0 24px #d4af3744", offset: .6},
-                    {transform: `perspective(900px) translate(${dx}px,${dy}px) scale(${to.width / from.width}, ${to.height / from.height}) rotateY(360deg) rotateZ(0deg)`, boxShadow: "0 8px 20px #0008"}
-                ], 800, run);
-                node.remove();
-                overlays.current.delete(node);
-                if (!landed || sequence.current !== run) return;
-                setDrawing(false);
-                setDrawn(selected.slice(0, index + 1));
-                // Let React place this card before drawing the next one.
-                await new Promise(resolve => requestAnimationFrame(resolve));
-            }
-        } finally {
-            if (sequence.current === run) {
-                busy.current = false;
-                setDrawing(false);
-                setPhase("idle");
-            }
-        }
+    const startReading = () => {
+        setDrawn(previous => previous.length ? previous : newDeck().slice(0, maxCards));
     };
     const reset = () => {
-        stopSequence();
-        setDrawing(false);
-        setPhase("idle");
-        setDeck(newDeck(mode));
         setDrawn([]);
         setCopied(false);
-        setRevealed(false);
-        setTurning(false);
     };
     const copyResultToClipboard = () => {
         const text = mode === "persona" ? `\u3010\u690d\u7269\u4e5d\u578b\u30fb\u4e3b\u526f\u4eba\u683c\u6aa2\u6e2c\u3011\u6211\u62bd\u5230\u7684\u662f\uff1a\u4e3b\u4eba\u683c\u300c${drawn[0].oil}\u30fb${drawn[0].name}\u300d\u3001\u526f\u4eba\u683c\u300c${drawn[1].oil}\u30fb${drawn[1].name}\u300d\uff0c\u60f3\u9810\u7d04\u5c08\u5c6c\u4eba\u683c\u6df1\u5ea6\u89e3\u8b80\u8207\u5ba2\u88fd\u5b88\u8b77\u8abf\u9999\uff01` : `\u3010\u690d\u7269\u4e5d\u578b\u30fb\u7cbe\u6cb9\u5360\u535c\u3011\u6211\u62bd\u5230\u7684\u724c\u9663\u662f\uff1a\u904e\u53bb\u300c${drawn[0].oil}\u300d\u3001\u73fe\u5728\u300c${drawn[1].oil}\u300d\u3001\u672a\u4f86\u300c${drawn[2].oil}\u300d\uff0c\u60f3\u9810\u7d04\u4e00\u5c0d\u4e00\u6df1\u5ea6\u5360\u535c\u89e3\u6790\u8207\u80fd\u91cf\u8abf\u983b\u6cb9\uff01`;
@@ -668,26 +525,17 @@ const App = () => {
         className: "flex flex-col items-center"
     }, !revealed && h("div", {
         className: "w-full flex flex-col items-center z-20 mb-10"
-    }, drawn.length < maxCards && h("div", {
-        className: `oracle-deck ${drawing ? "is-drawing" : ""}`, "aria-label": "\u96a8\u6a5f\u724c\u5806"
-    }, Array.from({length: Math.min(5, deck.length - drawn.length)}, (_, index) => h("div", {
-        key: index, "aria-hidden": true, className: "oracle-deck-layer",
-        style: {transform: `translateY(${index * 3}px)`}
-    }, h(MuchaHalo, {className: "w-full h-full"}))), h("div", {
-        ref: topRef, "aria-hidden": true,
-        className: "oracle-deck-top border border-[#d4af37]/60 rounded-md bg-[#120f0c] p-4 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#d4af37]"
-    }, h(MuchaHalo, {className: "w-full h-full"}))), drawn.length < maxCards && h("button", {
-        type: "button", onClick: startReading, disabled: phase !== "idle",
-        "data-phase": phase, "aria-busy": phase !== "idle",
-        className: "oracle-start min-h-[48px] px-8 py-3 mb-5 rounded-full border border-[#d4af37] bg-[#d4af37] text-[#080706] text-base tracking-widest disabled:opacity-70 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#d4af37]"
-    }, phase === "shuffle" ? "\u6d17\u724c\u4e2d\u2026" : phase === "cut" ? "\u5207\u724c\u4e2d\u2026" : phase === "draw" ? "\u62bd\u724c\u4e2d\u2026" : "\u958b\u59cb\u62bd\u5361"), h("div", {
-        className: `oracle-queue ${turning ? "is-turning" : ""}`, ref: queueRef,
-        role: "group", "aria-label": "\u5df2\u62bd\u51fa\u7684\u5361\u724c", "aria-live": "polite"
-    }, Array.from({length: maxCards}, (_, index) => h("div", {
-        key: index,
-        className: `oracle-queued-card ${drawn[index] ? "is-filled" : ""}`,
-        "aria-label": drawn[index] ? `\u7b2c ${index + 1} \u5f35\u5df2\u62bd\u51fa\uff0c\u5c1a\u672a\u63ed\u66c9` : `\u7b2c ${index + 1} \u5f35\u5f85\u62bd`
-    }, drawn[index] ? h(MuchaHalo, {className: "w-full h-full"}) : h("span", {"aria-hidden": true}, roman[index]))))), revealed && h("div", {
+    }, h("div", {className: "oracle-deck", "aria-hidden": true},
+        Array.from({length: 5}, (_, index) => h("div", {
+            key: index, className: "oracle-deck-layer",
+            style: {transform: `translateY(${index * 3}px)`}
+        }, h(MuchaHalo, {className: "w-full h-full"}))),
+        h("div", {className: "oracle-deck-top border border-[#d4af37]/60 rounded-md bg-[#120f0c] p-4"},
+            h(MuchaHalo, {className: "w-full h-full"}))),
+        h("button", {
+            type: "button", onClick: startReading,
+            className: "oracle-start min-h-[48px] px-8 py-3 mb-5 rounded-full border border-[#d4af37] bg-[#d4af37] text-[#080706] text-base tracking-widest focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#d4af37]"
+        }, "\u62bd\u724c")), revealed && h("div", {
         className: `oracle-slots oracle-answers grid grid-cols-1 ${mode === "persona" ? "md:grid-cols-2 max-w-[680px]" : "lg:grid-cols-3 max-w-[940px]"} gap-7 w-full mt-2 justify-items-center`
     }, slotLabels.map(((slot, i) => {
         const c = drawn[i], cur = drawn.length === i;
@@ -891,7 +739,7 @@ const App = () => {
     }, "\u2190 \u56de\u5230\u9996\u9801"), revealed && h("button", {
         onClick: reset,
         className: "mt-10 mb-4 px-8 py-2.5 rounded-full border border-[#d4af37]/50 text-[#d4af37] hover:bg-[#d4af37]/15  tracking-[0.25em] text-xs uppercase cursor-pointer"
-    }, "\u21bb \u91cd\u65b0\u975c\u5fc3\u6d17\u724c\u30fbDraw Again"))), h("footer", {
+    }, "\u21bb \u91cd\u65b0\u62bd\u724c"))), h("footer", {
         className: "text-center py-6 text-[#786346] text-[0.6875rem] tracking-[0.25em] mt-4 font-oracle"
     }, "PLANT ENNEAGRAM & BOTANICAL AROMATHERAPY ORACLE")));
 };
