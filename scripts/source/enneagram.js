@@ -434,14 +434,22 @@ const App = () => {
     const [revealed, setRevealed] = useState(false);
     const [turning, setTurning] = useState(false);
     const [drawing, setDrawing] = useState(false);
+    const [phase, setPhase] = useState("idle");
     const queueRef = useRef(null);
-    const activeFlight = useRef(null);
-    const stopFlight = () => {
-        const flight = activeFlight.current;
-        activeFlight.current = null;
-        if (flight) { flight.animation.cancel(); flight.node.remove(); }
+    const topRef = useRef(null);
+    const sequence = useRef(0);
+    const busy = useRef(false);
+    const animations = useRef(new Set());
+    const overlays = useRef(new Set());
+    const stopSequence = () => {
+        sequence.current++;
+        busy.current = false;
+        animations.current.forEach(animation => animation.cancel());
+        animations.current.clear();
+        overlays.current.forEach(node => node.remove());
+        overlays.current.clear();
     };
-    useEffect(() => () => stopFlight(), []);
+    useEffect(() => () => stopSequence(), []);
     const maxCards = mode === "persona" ? 2 : 3;
     useEffect(() => {
         if (drawn.length !== maxCards) return;
@@ -451,8 +459,9 @@ const App = () => {
         return () => { clearTimeout(turnTimer); clearTimeout(revealTimer); };
     }, [drawn, maxCards]);
     const switchMode = newMode => {
-        stopFlight();
+        stopSequence();
         setDrawing(false);
+        setPhase("idle");
         setMode(newMode);
         setDeck(newDeck(newMode));
         setDrawn([]);
@@ -460,51 +469,94 @@ const App = () => {
         setRevealed(false);
         setTurning(false);
     };
-    const drawTop = event => {
-        if (activeFlight.current || drawn.length >= maxCards) return;
-        const card = deck[drawn.length];
-        const commitCard = () => setDrawn(previous => {
-            if (previous.length >= maxCards || previous.some(item => item.id === card.id)) return previous;
-            return [...previous, card];
+    const play = async (node, frames, duration, run) => {
+        const animation = node.animate(frames, {
+            duration, easing: "cubic-bezier(.3,0,.2,1)", fill: "forwards"
         });
+        animations.current.add(animation);
+        try { await animation.finished; } catch (_) { return false; }
+        finally { animations.current.delete(animation); animation.cancel(); }
+        return sequence.current === run;
+    };
+    const startReading = async () => {
+        if (busy.current || drawn.length) return;
+        busy.current = true;
+        const run = ++sequence.current;
+        const selected = deck.slice(0, maxCards);
         if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-            commitCard();
+            setDrawn(selected);
+            busy.current = false;
             return;
         }
-        const source = event.currentTarget;
-        const from = source.getBoundingClientRect();
-        const to = queueRef.current.children[drawn.length].getBoundingClientRect();
-        const node = source.cloneNode(true);
-        node.removeAttribute("aria-label");
-        node.setAttribute("aria-hidden", "true");
-        node.tabIndex = -1;
-        node.classList.add("oracle-flying-card");
-        Object.assign(node.style, {
-            position: "fixed", left: `${from.left}px`, top: `${from.top}px`,
-            width: `${from.width}px`, height: `${from.height}px`, margin: "0",
-            transformOrigin: "top left", pointerEvents: "none", zIndex: "1000"
-        });
-        document.body.appendChild(node);
-        const destination = `translate(${to.left - from.left}px, ${to.top - from.top}px) scale(${to.width / from.width}, ${to.height / from.height})`;
-        const animation = node.animate([
-            {transform: "translate(0,0) scale(1)"},
-            {transform: "translate(0,-30px) scale(1)", offset: .25},
-            {transform: destination}
-        ], {duration: 700, easing: "cubic-bezier(.3,0,.2,1)", fill: "forwards"});
-        const flight = {node, animation};
-        activeFlight.current = flight;
-        setDrawing(true);
-        animation.onfinish = () => {
-            if (activeFlight.current !== flight) return;
-            activeFlight.current = null;
-            node.remove();
-            setDrawing(false);
-            commitCard();
-        };
+        try {
+            setPhase("shuffle");
+            const packet = [...topRef.current.parentElement.querySelectorAll(".oracle-deck-layer"), topRef.current];
+            const shuffled = await Promise.all(packet.map((node, index) => {
+                const y = node === topRef.current ? 0 : index * 3;
+                const side = index % 2 ? 1 : -1;
+                return play(node, [
+                    {transform: `translate(0,${y}px)`},
+                    {transform: `translate(${side * 36}px,${y - 10}px)`, offset: .23},
+                    {transform: `translate(${-side * 26}px,${y + 5}px)`, offset: .48},
+                    {transform: `translate(${side * 30}px,${y - 6}px)`, offset: .73},
+                    {transform: `translate(0,${y}px)`}
+                ], 1200, run);
+            }));
+            if (!shuffled.every(Boolean) || sequence.current !== run) return;
+            setPhase("cut");
+            const cut = await Promise.all(packet.map((node, index) => {
+                const y = node === topRef.current ? 0 : index * 3;
+                const upper = node === topRef.current || index < 2;
+                return play(node, [
+                    {transform: `translate(0,${y}px)`},
+                    {transform: `translate(${upper ? 50 : -20}px,${y + (upper ? -24 : 0)}px)`, offset: .35},
+                    {transform: `translate(${upper ? 50 : -20}px,${y + (upper ? 18 : -8)}px)`, offset: .65},
+                    {transform: `translate(0,${y}px)`}
+                ], 900, run);
+            }));
+            if (!cut.every(Boolean) || sequence.current !== run) return;
+            setPhase("draw");
+            for (let index = 0; index < maxCards; index++) {
+                if (sequence.current !== run) return;
+                const source = topRef.current;
+                const from = source.getBoundingClientRect();
+                const to = queueRef.current.children[index].getBoundingClientRect();
+                const node = source.cloneNode(true);
+                node.setAttribute("aria-hidden", "true");
+                node.classList.add("oracle-flying-card");
+                Object.assign(node.style, {
+                    position: "fixed", left: `${from.left}px`, top: `${from.top}px`,
+                    width: `${from.width}px`, height: `${from.height}px`, margin: "0",
+                    transformOrigin: "top left", pointerEvents: "none", zIndex: "1000"
+                });
+                overlays.current.add(node);
+                document.body.appendChild(node);
+                setDrawing(true);
+                const landed = await play(node, [
+                    {transform: "translate(0,0) scale(1)"},
+                    {transform: "translate(0,-30px) scale(1)", offset: .25},
+                    {transform: `translate(${to.left - from.left}px, ${to.top - from.top}px) scale(${to.width / from.width}, ${to.height / from.height})`}
+                ], 700, run);
+                node.remove();
+                overlays.current.delete(node);
+                if (!landed || sequence.current !== run) return;
+                setDrawing(false);
+                setDrawn(selected.slice(0, index + 1));
+                // Let React place this card before drawing the next one.
+                await new Promise(resolve => requestAnimationFrame(resolve));
+            }
+        } finally {
+            if (sequence.current === run) {
+                busy.current = false;
+                setDrawing(false);
+                setPhase("idle");
+            }
+        }
     };
     const reset = () => {
-        stopFlight();
+        stopSequence();
         setDrawing(false);
+        setPhase("idle");
         setDeck(newDeck(mode));
         setDrawn([]);
         setCopied(false);
@@ -597,11 +649,14 @@ const App = () => {
     }, Array.from({length: Math.min(5, deck.length - drawn.length)}, (_, index) => h("div", {
         key: index, "aria-hidden": true, className: "oracle-deck-layer",
         style: {transform: `translateY(${index * 3}px)`}
-    })), h("button", {
-        type: "button", onClick: drawTop, disabled: drawing, "aria-busy": drawing,
-        "aria-label": "\u62bd\u53d6\u6700\u4e0a\u65b9\u7684\u5361\u724c",
+    })), h("div", {
+        ref: topRef, "aria-hidden": true,
         className: "oracle-deck-top border border-[#d4af37]/60 rounded-md bg-[#120f0c] p-4 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#d4af37]"
-    }, h(MuchaHalo, {className: "w-full h-full"}))), h("div", {
+    }, h(MuchaHalo, {className: "w-full h-full"}))), drawn.length < maxCards && h("button", {
+        type: "button", onClick: startReading, disabled: phase !== "idle",
+        "data-phase": phase, "aria-busy": phase !== "idle",
+        className: "oracle-start min-h-[48px] px-8 py-3 mb-5 rounded-full border border-[#d4af37] bg-[#d4af37] text-[#080706] text-base tracking-widest disabled:opacity-70 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#d4af37]"
+    }, phase === "shuffle" ? "\u6d17\u724c\u4e2d\u2026" : phase === "cut" ? "\u5207\u724c\u4e2d\u2026" : phase === "draw" ? "\u62bd\u724c\u4e2d\u2026" : "\u958b\u59cb\u62bd\u5361"), h("div", {
         className: `oracle-queue ${turning ? "is-turning" : ""}`, ref: queueRef,
         role: "group", "aria-label": "\u5df2\u62bd\u51fa\u7684\u5361\u724c", "aria-live": "polite"
     }, Array.from({length: maxCards}, (_, index) => h("div", {
