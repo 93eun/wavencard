@@ -541,8 +541,9 @@ const App = () => {
         const c = drawn[i], cur = drawn.length === i;
         return h("div", {
             key: c ? c.id : `slot-${i}`,
-            className: "flex flex-col items-center"
-        }, h("div", {
+            className: "oracle-flip-card flex flex-col items-center"
+        }, h("div", {className: "oracle-result-back", "aria-hidden": true},
+            h(MuchaHalo, {className: "w-[75%] h-[75%]"})), h("div", {
             className: "text-center mb-4"
         }, h("span", {
             className: "text-[0.625rem] font-oracle tracking-[0.3em] text-[#8a7250] block mb-1"
