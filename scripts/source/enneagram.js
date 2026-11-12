@@ -410,6 +410,59 @@ const BotanicalIcon = ({id: id}) => {
     }, p[id]);
 };
 
+const ReferenceMandala=({className})=>{
+  const r1=150,pts=Array.from({length:9},(_,i)=>{const a=(i*40-90)*(Math.PI/180);return{x:250+r1*Math.cos(a),y:250+r1*Math.sin(a)}});
+  const tri=`M ${pts[0].x} ${pts[0].y} L ${pts[3].x} ${pts[3].y} L ${pts[6].x} ${pts[6].y} Z`;
+  const hex=`M ${pts[1].x} ${pts[1].y} L ${pts[4].x} ${pts[4].y} L ${pts[2].x} ${pts[2].y} L ${pts[8].x} ${pts[8].y} L ${pts[5].x} ${pts[5].y} L ${pts[7].x} ${pts[7].y} Z`;
+  return h('svg',{viewBox:"0 0 500 500",className,stroke:"#d4af37",fill:"none"},
+    h('circle',{cx:250,cy:250,r:244,strokeWidth:.6,opacity:.5}),
+    h('circle',{cx:250,cy:250,r:238,strokeWidth:1.2,opacity:.8}),
+    h('circle',{cx:250,cy:250,r:232,strokeWidth:.5,strokeDasharray:"1 3",opacity:.9}),
+    h('circle',{cx:250,cy:250,r:220,strokeWidth:1.5,opacity:.85}),
+    h('circle',{cx:250,cy:250,r:212,strokeWidth:.5,strokeDasharray:"6 4 2 4",opacity:.6}),
+    [...Array(72)].map((_,i)=>h('g',{key:'a'+i,transform:`rotate(${i*5} 250 250)`},
+      h('line',{x1:250,y1:6,x2:250,y2:i%2===0?18:12,strokeWidth:i%6===0?1.2:.5,opacity:.75}),
+      i%6===0&&h('circle',{cx:250,cy:24,r:1.8,fill:"#d4af37",opacity:.9}),
+      i%8===0&&h('path',{d:"M 250 30 C 256 42, 264 46, 250 58 C 236 46, 244 42, 250 30 Z",strokeWidth:.7,fill:"#d4af37",fillOpacity:.15})
+    )),
+    [...Array(12)].map((_,i)=>h('g',{key:'b'+i,transform:`rotate(${i*30} 250 250)`},
+      h('path',{d:"M 250 38 C 285 75, 205 110, 250 150",strokeWidth:.9,opacity:.65}),
+      h('path',{d:"M 250 38 C 215 75, 295 110, 250 150",strokeWidth:.5,opacity:.45}),
+      h('path',{d:"M 262 68 Q 280 58 286 72 Q 272 82 262 68",fill:"#d4af37",opacity:.4}),
+      h('path',{d:"M 238 92 Q 220 82 214 96 Q 228 106 238 92",fill:"#d4af37",opacity:.4}),
+      h('circle',{cx:250,cy:64,r:1.5,fill:"#d4af37",opacity:.6})
+    )),
+    h('circle',{cx:250,cy:250,r:162,strokeWidth:.8,opacity:.6}),
+    h('circle',{cx:250,cy:250,r:154,strokeWidth:.5,strokeDasharray:"3 3",opacity:.7}),
+    h('circle',{cx:250,cy:250,r:150,strokeWidth:1.5,opacity:.9}),
+    h('g',{className:"origin-center oracle-reference-geometry"},
+      h('path',{d:tri,strokeWidth:1.6,opacity:.9}),
+      h('path',{d:hex,strokeWidth:1.3,opacity:.85}),
+      pts.map((p,i)=>h('g',{key:'c'+i},
+        h('line',{x1:250,y1:250,x2:p.x,y2:p.y,strokeWidth:.4,strokeDasharray:"2 4",opacity:.4}),
+        h('circle',{cx:p.x,cy:p.y,r:5.5,fill:"#080706",stroke:"#d4af37",strokeWidth:1.5}),
+        h('circle',{cx:p.x,cy:p.y,r:2,fill:"#d4af37"})
+      ))
+    ),
+    h('g',{className:"origin-center oracle-reference-petals"},
+      [...Array(16)].map((_,i)=>h('g',{key:'d'+i,transform:`rotate(${i*22.5} 250 250)`},
+        h('path',{d:"M 250 250 Q 272 190 250 125 Q 228 190 250 250",strokeWidth:.8,opacity:.65}),
+        h('path',{d:"M 250 250 Q 260 205 250 165 Q 240 205 250 250",strokeWidth:.4,fill:"#d4af37",fillOpacity:.12})
+      )),
+      h('circle',{cx:250,cy:250,r:28,strokeWidth:1.5,fill:"#080706"}),
+      h('circle',{cx:250,cy:250,r:22,strokeWidth:.6,strokeDasharray:"2 2"}),
+      h('path',{d:"M 250 226 L 256 244 L 274 250 L 256 256 L 250 274 L 244 256 L 226 250 L 244 244 Z",fill:"#d4af37",opacity:.85}),
+      h('circle',{cx:250,cy:250,r:4,fill:"#080706"})
+    ),
+    [0,90,180,270].map(d=>h('g',{key:'e'+d,transform:`rotate(${d} 250 250)`},
+      h('path',{d:"M 12 12 L 95 12 C 65 12, 55 38, 35 35 C 38 55, 12 65, 12 95 Z",strokeWidth:1.2,opacity:.8,fill:"#d4af37",fillOpacity:.08}),
+      h('path',{d:"M 18 18 L 125 18 Q 90 28 75 52 Q 52 75 28 90",strokeWidth:.8,opacity:.6}),
+      h('circle',{cx:24,cy:24,r:3,fill:"#d4af37"})
+    ))
+  );
+};
+
+
 const randomIndex = length => {
     const values = new Uint32Array(1);
     const limit = 0x100000000 - (0x100000000 % length);
@@ -457,10 +510,9 @@ const App = () => {
         }
         const currentStyle = getComputedStyle(event.currentTarget);
         const animation = event.currentTarget.animate([
-            {transform: currentStyle.transform, boxShadow: currentStyle.boxShadow},
-            {transform: "translateY(-10px) scale(1.14)", boxShadow: "0 0 28px #d4af3755", offset: .65},
-            {transform: "translateY(-12px) scale(1.18)", boxShadow: "0 0 34px #d4af3766"}
-        ], {duration: 380, easing: "ease-out", fill: "forwards"});
+            {transform: currentStyle.transform, opacity: 1},
+            {transform: "translateY(-24px) scale(.9)", opacity: 0}
+        ], {duration: 550, easing: "ease-out", fill: "forwards"});
         selection.current = animation;
         setSelecting(true);
         animation.onfinish = () => {
@@ -517,7 +569,7 @@ const App = () => {
     }), h(MuchaHalo, {
         className: "absolute bottom-[-15%] right-[-10%] w-[760px] h-[760px] opacity-[0.05]"
     })), h("div", {
-        className: "oracle-layout w-full max-w-[1040px] px-4 sm:px-6 relative z-10 flex flex-col justify-between"
+        className: "oracle-layout w-full max-w-[1280px] px-4 sm:px-6 relative z-10 flex flex-col justify-between"
     }, h("div", {
         className: "oracle-panel w-full border border-[#d4af37]/30 bg-[#0d0b09]/90 backdrop-blur-sm px-12 py-12 rounded-t-[56px] rounded-b-lg shadow-[0_25px_70px_rgba(0,0,0,0.85)]"
     }, h("header", {
@@ -561,9 +613,11 @@ const App = () => {
         h("button", {
             type: "button", onClick: startReading, disabled: selecting, "aria-busy": selecting,
             "aria-label": "\u9ede\u9078\u5361\u724c\u62bd\u724c",
-            className: "oracle-deck-top border border-[#d4af37]/60 rounded-md bg-[#120f0c] p-4 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#d4af37]"
-        }, h(MuchaHalo, {className: "w-full h-full"})))), revealed && h("div", {
-        className: `oracle-slots oracle-answers grid grid-cols-1 ${mode === "persona" ? "md:grid-cols-2 max-w-[680px]" : "lg:grid-cols-3 max-w-[940px]"} gap-7 w-full mt-2 justify-items-center`
+            className: "oracle-deck-top rounded-sm p-2 border border-[#d4af37]/50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#d4af37]"
+        }, h("div", {className: "oracle-reference-inner"},
+            h(ReferenceMandala, {className: "oracle-reference-mandala"}),
+            h("span", {className: "oracle-reference-label", "aria-hidden": true}, "Botanical Spirit"))))), revealed && h("div", {
+        className: `oracle-slots oracle-answers grid grid-cols-1 ${mode === "persona" ? "md:grid-cols-2 max-w-[800px]" : "lg:grid-cols-3 max-w-[1152px]"} gap-7 w-full mt-2 justify-items-center`
     }, slotLabels.map(((slot, i) => {
         const c = drawn[i], cur = drawn.length === i;
         return h("div", {
@@ -577,7 +631,7 @@ const App = () => {
         }, slot.tag), h("h3", {
             className: `text-lg font-bold tracking-[0.22em] ${c ? "text-[#d4af37]" : "text-[#6e5a40]"}`
         }, slot.title)), c ? h("div", {
-            className: "w-full max-w-[295px] bg-gradient-to-b from-[#181511] via-[#100e0b] to-[#0a0907] rounded-md p-3 dark-card-shadow h-full relative group"
+            className: "w-full max-w-[360px] bg-gradient-to-b from-[#181511] via-[#100e0b] to-[#0a0907] rounded-md p-3 dark-card-shadow h-full relative group"
         }, h("div", {
             className: "w-full h-full px-6 py-10 relative overflow-hidden flex flex-col items-center justify-between text-center min-h-[460px]"
         }, h(MuchaArchFrame), h(MuchaHalo, {
@@ -591,7 +645,7 @@ const App = () => {
         }, `${c.type}\u30fb${c.name}`)), h("div", {
             className: "flex flex-col items-center text-center my-3 relative z-10"
         }, h("div", {
-            className: "mb-4 transform    bg-[#14110e] rounded-full p-3 border border-[#d4af37]/30"
+            className: "oracle-reference-icon mb-4 transform    bg-[#14110e] rounded-full p-3 border border-[#d4af37]/30"
         }, h(BotanicalIcon, {
             id: c.id
         })), h("h2", {
@@ -609,7 +663,7 @@ const App = () => {
         }, "\u2766 \u690d\u7269\u80fd\u91cf\u795d\u798f \u2766"), h("p", {
             className: "text-[0.78125rem] leading-[1.95] text-[#e0cfa9] text-center italic font-light"
         }, `\u300c${c.lines[0]}`, h("br"), `${c.lines[1]}\u300d`)))) : h("div", {
-            className: `w-full max-w-[295px] min-h-[460px] rounded-md border border-dashed flex flex-col items-center justify-center p-8   ${cur ? "border-[#d4af37]/60 bg-[#d4af37]/[0.04]" : "border-[#8a7054]/25 bg-transparent"}`
+            className: `w-full max-w-[360px] min-h-[460px] rounded-md border border-dashed flex flex-col items-center justify-center p-8   ${cur ? "border-[#d4af37]/60 bg-[#d4af37]/[0.04]" : "border-[#8a7054]/25 bg-transparent"}`
         }, h("div", {
             className: `w-11 h-11 rounded-full border flex items-center justify-center mb-3 font-oracle text-xs ${cur ? "border-[#d4af37] text-[#d4af37] " : "border-[#8a7054]/30 text-[#8a7054]/45"}`
         }, roman[i]), h("span", {
