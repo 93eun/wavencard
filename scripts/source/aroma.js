@@ -770,6 +770,13 @@ const Medallion = ({cat: cat, lt: lt}) => {
     })));
 };
 
+const randomIndex = length => {
+    const values = new Uint32Array(1);
+    const limit = 0x100000000 - (0x100000000 % length);
+    do { crypto.getRandomValues(values); } while (values[0] >= limit);
+    return values[0] % length;
+};
+
 function App() {
     const [cards, setCards] = useState([]), [cur, setCur] = useState(null), [draw, setDraw] = useState(false);
     const [shw, setShw] = useState(false), [step, setStep] = useState(""), [lt, setLt] = useState(false);
@@ -783,7 +790,7 @@ function App() {
         clr();
         const a = [ ..._PAYLOAD ];
         for (let i = a.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
+            const j = randomIndex(i + 1);
             [a[i], a[j]] = [ a[j], a[i] ];
         }
         setCards(a.slice(0, 3));

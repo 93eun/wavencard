@@ -14,12 +14,11 @@ async function build() {
       compress: true, mangle: { toplevel: true }, format: { ascii_only: true, comments: false }
     });
     fs.writeFileSync(`assets/${name}.min.js`, result.code + '\n');
-    if (name === 'enneagram') {
-      const version = crypto.createHash('sha256').update(result.code + '\n').digest('hex').slice(0, 16);
-      const html = fs.readFileSync('Enneagram', 'utf8');
-      fs.writeFileSync('Enneagram', html.replace(/\.\/assets\/enneagram\.min\.js(?:\?v=[a-f0-9]+)?/g,
-        `./assets/enneagram.min.js?v=${version}`));
-    }
+    const version = crypto.createHash('sha256').update(result.code + '\n').digest('hex').slice(0, 16);
+    const page = name === 'enneagram' ? 'Enneagram' : 'index2.html';
+    const html = fs.readFileSync(page, 'utf8');
+    const pattern = new RegExp('\\./assets/' + name + '\\.min\\.js(?:\\?v=[a-f0-9]+)?', 'g');
+    fs.writeFileSync(page, html.replace(pattern, `./assets/${name}.min.js?v=${version}`));
   }
   const families = {
     'noto-serif-tc': ['300','400','500','600','700'],
